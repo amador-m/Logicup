@@ -8,7 +8,7 @@ import SimbolosFluxograma from "./components/SimbolosFluxograma";
  * basta criar o componente e acrescentar UMA linha aqui — a tela de missão não muda.
  */
 const CONTEUDO_EXTRA = {
-    "1-1": <SimbolosFluxograma />,
+    "1-2": <SimbolosFluxograma />, // Sprint 7: a teoria de fluxogramas passou para a Rodada 2 da Fase 1
 };
 
 /** Devolve o conteúdo extra (elemento React) da rodada, ou null se ela não tiver. */

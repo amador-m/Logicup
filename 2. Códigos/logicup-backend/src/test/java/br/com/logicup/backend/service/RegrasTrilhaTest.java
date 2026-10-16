@@ -34,6 +34,22 @@ class RegrasTrilhaTest {
         assertFalse(RegrasTrilha.rodadaAprovada(RODADA, Set.of(1, 2, 3, 4, 5, 6, 7, 8, 9)));
     }
 
+    // Sprint 7: rodada de 5 exercícios SEM Boss (ex.: Rodada 1 da Fase 1). 80% de 5 = 4.
+    private static final List<ExercicioDaRodada> RODADA_SEM_BOSS = List.of(
+            new ExercicioDaRodada(1, false), new ExercicioDaRodada(2, false), new ExercicioDaRodada(3, false),
+            new ExercicioDaRodada(4, false), new ExercicioDaRodada(5, false));
+
+    @Test
+    void quatroDeCincoSemBossAprova() {
+        // sem Boss na rodada, a exigência "Boss concluído" não bloqueia: vale só o mínimo de 80%
+        assertTrue(RegrasTrilha.rodadaAprovada(RODADA_SEM_BOSS, Set.of(1, 2, 3, 5)));
+    }
+
+    @Test
+    void tresDeCincoSemBossNaoAprova() {
+        assertFalse(RegrasTrilha.rodadaAprovada(RODADA_SEM_BOSS, Set.of(1, 2, 3)));
+    }
+
     @Test
     void rodadaVaziaNuncaAprova() {
         assertFalse(RegrasTrilha.rodadaAprovada(List.of(), Set.of()));

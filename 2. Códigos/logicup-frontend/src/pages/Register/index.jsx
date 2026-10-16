@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-    Container,
     Box,
     LeftSide,
     RightSide,
@@ -17,7 +16,14 @@ import LogoImg from "../../assets/images/LogoLight.png";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/useAuth";
 
-const DADOS_INICIAIS = { nome: "", email: "", senha: "", perfil: "ALUNO" };
+const DADOS_INICIAIS = { nome: "", username: "", email: "", senha: "", perfil: "ALUNO" };
+
+/*
+ * Sprint 7: o username só aceita letras minúsculas, números, ponto e sublinhado.
+ * Enquanto a pessoa digita, convertemos para minúsculas e tiramos espaços — só para AJUDAR.
+ * Quem GARANTE a regra é o backend (@Pattern no CadastroRequest + UNIQUE no banco).
+ */
+const ajustarUsername = (valor) => valor.toLowerCase().replace(/\s/g, "");
 
 const Register = () => {
     const { cadastrar } = useAuth();
@@ -30,7 +36,8 @@ const Register = () => {
     // um único handler para todos os campos: usa o "name" do input para saber qual atualizar
     const handleChange = (event) => {
         const { name, value } = event.target;
-        setDados((anteriores) => ({ ...anteriores, [name]: value }));
+        const valor = name === "username" ? ajustarUsername(value) : value;
+        setDados((anteriores) => ({ ...anteriores, [name]: valor }));
     };
 
     const handleRegister = async (event) => {
@@ -42,16 +49,18 @@ const Register = () => {
         try {
             await cadastrar(dados); // C1: já entra logado; o PublicOnlyRoute leva para a trilha
         } catch (error) {
-            setErrosCampos(error.campos ?? {});
-            setErro(error.message);
+            const campos = error.campos ?? {};
+            setErrosCampos(campos);
+            // se o erro já aparece embaixo de um campo, não repete a mesma mensagem no aviso geral
+            setErro(Object.keys(campos).length > 0 ? "" : error.message);
         } finally {
             setEnviando(false);
         }
     };
 
     return (
-        <Container>
-            <Box>
+        // Sprint 7: sem o <Container> de página inteira; o card agora aparece dentro do ModalAuth
+        <Box>
                 <LeftSide>
                     <Link to="/"><Logo src={LogoImg} alt="Logo Logicup"/></Link>
                     <h2>Comece sua jornada em Java</h2>
@@ -62,7 +71,7 @@ const Register = () => {
                 </LeftSide>
 
                 <RightSide>
-                    <h2>Criar conta</h2>
+                    <h2 id="titulo-cadastro">Criar conta</h2>
                     <p>Preencha seus dados para começar a aprender no Logicup</p>
 
                     <Form onSubmit={handleRegister}>
@@ -79,6 +88,33 @@ const Register = () => {
                                 onChange={handleChange}
                             />
                             {errosCampos.nome && <FieldError>{errosCampos.nome}</FieldError>}
+                        </InputGroup>
+
+                        <InputGroup>
+                            <label htmlFor="cadastro-username">Nome de usuário</label>
+                            <input
+                                id="cadastro-username"
+                                name="username"
+                                type="text"
+                                placeholder="Ex.: aluno.dev"
+                                autoComplete="username"
+                                autoCapitalize="none"
+                                spellCheck={false}
+                                required
+                                minLength={3}
+                                maxLength={20}
+                                pattern="[a-z0-9._]{3,20}"
+                                aria-describedby="cadastro-username-regra"
+                                value={dados.username}
+                                onChange={handleChange}
+                            />
+                            {errosCampos.username ? (
+                                <FieldError>{errosCampos.username}</FieldError>
+                            ) : (
+                                <small id="cadastro-username-regra">
+                                    Aparece no ranking. De 3 a 20 caracteres: letras minúsculas, números, ponto ou sublinhado.
+                                </small>
+                            )}
                         </InputGroup>
 
                         <InputGroup>
@@ -139,8 +175,7 @@ const Register = () => {
                         </LinkText>
                     </Form>
                 </RightSide>
-            </Box>
-        </Container>
+        </Box>
     );
 };
 

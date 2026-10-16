@@ -29,7 +29,7 @@ class ProgressoExercicioRepositoryTest {
 
     @BeforeEach // roda antes de CADA teste (e tudo é desfeito no rollback)
     void prepararDados() {
-        aluno = alunoRepository.save(new Aluno("Aluno Teste", "aluno.teste.progresso@teste.com", "hash"));
+        aluno = alunoRepository.save(new Aluno("Aluno Teste", "aluno.teste.prog", "aluno.teste.progresso@teste.com", "hash"));
         Modulo modulo = moduloRepository.save(new Modulo("Módulo de teste", null, 995));
         rodada = rodadaRepository.save(new Rodada(modulo, "Rodada de teste", 1, "{\"teoria\": [], \"exemplos\": []}"));
         q1 = criarExercicio("TESTE.Q1", 1);

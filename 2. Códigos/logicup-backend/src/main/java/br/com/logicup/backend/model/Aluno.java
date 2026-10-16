@@ -30,8 +30,8 @@ public class Aluno extends Usuario { // subclasse que herda o construtor do usu√
 
     public Aluno() {}
 
-    public Aluno(String nome, String email, String senha) {
-        super(nome, email, senha, TipoUsuario.ALUNO); // chama o construor da classe pai pra preencher os campos herdados
+    public Aluno(String nome, String username, String email, String senha) {
+        super(nome, username, email, senha, TipoUsuario.ALUNO); // chama o construor da classe pai pra preencher os campos herdados
     }
 
     /**

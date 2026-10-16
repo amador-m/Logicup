@@ -106,7 +106,8 @@ export async function requisicao(caminho, { method = "GET", body } = {}) {
 /** Endpoints de autenticação (contrato combinado com o backend). */
 export const authApi = {
     me: () => requisicao("/auth/me"),
-    login: (email, senha) => requisicao("/auth/login", { method: "POST", body: { email, senha } }),
+    // Sprint 7: "login" aceita e-mail OU nome de usuário (o backend decide pelo "@")
+    login: (login, senha) => requisicao("/auth/login", { method: "POST", body: { login, senha } }),
     cadastrar: (dados) => requisicao("/auth/cadastro", { method: "POST", body: dados }),
     logout: () => requisicao("/auth/logout", { method: "POST" }),
 };
@@ -124,4 +125,24 @@ export const trilhaApi = {
     /** respostas = [{ exercicioId, resposta: {...} }]. Só aluno pode enviar. */
     enviarRespostas: (rodadaId, respostas) =>
         requisicao(`/rodadas/${rodadaId}/respostas`, { method: "POST", body: { respostas } }),
+};
+
+/*
+ * Sprint 7: ranking global por XP (só alunos). O backend devolve:
+ *   topo = até 10 alunos com XP > 0  -> [{posicao, username, xp, nivel, voce}]
+ *   voce = a linha de quem está logado (posicao null se ainda não pontuou; null para professor/admin)
+ */
+export const rankingApi = {
+    ranking: () => requisicao("/ranking"),
+};
+
+/*
+ * Sprint 7: edição do PRÓPRIO perfil (o backend descobre quem é pelo token, nunca por um id enviado aqui).
+ * Para LER o perfil usamos o authApi.me(). O e-mail não é editável.
+ */
+export const perfilApi = {
+    /** {nome, username} -> devolve o usuário atualizado. 409 em campos.username se o username já for de outra pessoa. */
+    atualizar: (dados) => requisicao("/perfil", { method: "PUT", body: dados }),
+    /** {senhaAtual, novaSenha} -> 204. Senha atual errada = 400 em campos.senhaAtual (não desloga). */
+    alterarSenha: (dados) => requisicao("/perfil/senha", { method: "PUT", body: dados }),
 };

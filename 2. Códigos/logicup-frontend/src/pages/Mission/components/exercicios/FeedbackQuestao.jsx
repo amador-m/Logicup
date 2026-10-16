@@ -44,7 +44,8 @@ function RespostaCorreta({ formato, valor }) {
     }
 }
 
-const FeedbackQuestao = ({ exercicio, resultado }) => (
+/* aviso: texto opcional no fim do feedback (ex.: "Você poderá refazer esta questão no fim da rodada."). */
+const FeedbackQuestao = ({ exercicio, resultado, aviso }) => (
     <QuestionFeedback className={resultado.correta ? "success" : "error"} role="status">
         <strong className="verdict">
             {resultado.correta ? "✓ Correto!" : "✗ Não foi dessa vez"}
@@ -62,7 +63,7 @@ const FeedbackQuestao = ({ exercicio, resultado }) => (
             <RespostaCorreta formato={exercicio.formato} valor={resultado.respostaCorreta} />
         )}
 
-        {!resultado.correta && <p className="retry">Ajuste sua resposta e verifique de novo.</p>}
+        {aviso && <p className="retry">{aviso}</p>}
     </QuestionFeedback>
 );
 

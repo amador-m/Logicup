@@ -15,7 +15,7 @@ import {
     RoundTab,
     Card,
     StatusMessage,
-} from "./styles";
+} from "./styles.js";
 
 /**
  * Rodada que abre por padrão: a primeira LIBERADA (a que o aluno ainda precisa fazer);
@@ -79,15 +79,28 @@ const Mission = () => {
         setVersaoTrilha((versao) => versao + 1);
     };
 
-    /** Onde está uma rodada na trilha: {id, ordem, faseOrdem, mesmaFase}, ou null. */
-    const localizarRodada = (rodadaId) => {
-        for (const item of trilha?.fases ?? []) {
-            const encontrada = item.rodadas.find((rodada) => rodada.id === rodadaId);
-            if (encontrada) {
-                return { id: rodadaId, ordem: encontrada.ordem, faseOrdem: item.ordem, mesmaFase: item.ordem === faseOrdem };
-            }
-        }
-        return null;
+    /*
+     * Dados da TRILHA que o painel precisa para o fim da rodada (todos REAIS, vindos do backend):
+     *  - proximaRodada: a rodada seguinte na ordem da trilha (pode ser da fase seguinte), com o status atual;
+     *  - ehUltimaDaFase: aprovar esta rodada conclui a fase?
+     *  - resumoFase: XP realmente ganho na fase (PR7 pode reduzir) e quantas rodadas ela tem.
+     */
+    const todasAsRodadas = (trilha?.fases ?? []).flatMap((item) =>
+        item.rodadas.map((rodada) => ({ ...rodada, faseOrdem: item.ordem }))
+    );
+    const posicaoNaTrilha = todasAsRodadas.findIndex((rodada) => rodada.id === rodadaAtualId);
+    const seguinte = posicaoNaTrilha >= 0 ? todasAsRodadas[posicaoNaTrilha + 1] : undefined;
+    const proximaRodada = seguinte
+        ? { id: seguinte.id, ordem: seguinte.ordem, faseOrdem: seguinte.faseOrdem,
+            mesmaFase: seguinte.faseOrdem === faseOrdem, status: seguinte.status }
+        : null;
+    const ehUltimaDaFase = rodadas.length > 0 && rodadas[rodadas.length - 1].id === rodadaAtualId;
+    const resumoFase = fase && {
+        ordem: fase.ordem,
+        titulo: fase.titulo,
+        xpGanho: rodadas.reduce((total, rodada) => total + rodada.xpGanho, 0),
+        xpTotal: rodadas.reduce((total, rodada) => total + rodada.xpTotal, 0),
+        totalRodadas: rodadas.length,
     };
 
     const irParaRodada = (info) => {
@@ -125,8 +138,8 @@ const Mission = () => {
                     <h1>{rodadaAtual?.titulo ?? "Missão"}</h1>
 
                     <p>
-                        Estude a teoria, veja exemplos e resolva os desafios práticos para
-                        liberar o próximo round da fase.
+                        Estude a teoria, veja exemplos e resolva os desafios, um de cada vez,
+                        para liberar o próximo round da fase.
                     </p>
 
                     {rodadaAtual && (
@@ -178,9 +191,13 @@ const Mission = () => {
                         key={rodadaAtualId}
                         rodadaId={rodadaAtualId}
                         somenteLeitura={somenteLeitura}
+                        rodadaResumo={rodadaAtual}
+                        fase={resumoFase}
+                        ehUltimaDaFase={ehUltimaDaFase}
+                        proximaRodada={proximaRodada}
                         aoEnviar={aposEnvio}
-                        localizarRodada={localizarRodada}
                         aoIrParaRodada={irParaRodada}
+                        aoVoltarTrilha={() => navigate("/trilha")}
                     />
                 )}
             </Page>

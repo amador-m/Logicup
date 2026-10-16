@@ -19,7 +19,7 @@ class ProgressoExercicioTest {
         Exercicio exercicio = new Exercicio(null, "TESTE.Q1", "Questão", 1,
                 TipoExercicio.VERDADEIRO_FALSO, FormatoResposta.ESCOLHA_UNICA, 25,
                 "Enunciado", "{\"correta\": \"a\"}", "Explicação");
-        progresso = new ProgressoExercicio(new Aluno("Aluno", "a@a.com", "hash"), exercicio);
+        progresso = new ProgressoExercicio(new Aluno("Aluno", "aluno", "a@a.com", "hash"), exercicio);
     }
 
     @Test

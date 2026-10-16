@@ -43,6 +43,26 @@ public class GlobalExceptionHandler {
                 "O corpo da requisição está ausente ou com formato inválido."));
     }
 
+    // Sprint 7: 409 com o erro NO CAMPO, para o formulário mostrar a mensagem embaixo do username
+    @ExceptionHandler(UsernameEmUsoException.class)
+    public ResponseEntity<ErroResponse> usernameEmUso(UsernameEmUsoException ex) {
+        return resposta(HttpStatus.CONFLICT, new ErroResponse(409, "Conflito", ex.getMessage(),
+                Map.of("username", ex.getMessage())));
+    }
+
+    // Sprint 7 (perfil): erros de um CAMPO da troca de senha -> 400 com a mensagem embaixo do campo
+    @ExceptionHandler(SenhaAtualIncorretaException.class)
+    public ResponseEntity<ErroResponse> senhaAtualIncorreta(SenhaAtualIncorretaException ex) {
+        return resposta(HttpStatus.BAD_REQUEST, new ErroResponse(400, "Dados inválidos", ex.getMessage(),
+                Map.of("senhaAtual", ex.getMessage())));
+    }
+
+    @ExceptionHandler(NovaSenhaIgualException.class)
+    public ResponseEntity<ErroResponse> novaSenhaIgual(NovaSenhaIgualException ex) {
+        return resposta(HttpStatus.BAD_REQUEST, new ErroResponse(400, "Dados inválidos", ex.getMessage(),
+                Map.of("novaSenha", ex.getMessage())));
+    }
+
     @ExceptionHandler(EmailJaCadastradoException.class)
     public ResponseEntity<ErroResponse> emailJaCadastrado(EmailJaCadastradoException ex) {
         return resposta(HttpStatus.CONFLICT, new ErroResponse(409, "Conflito", ex.getMessage()));

@@ -43,7 +43,11 @@ export function montarMapa(fasesDaApi) {
             ordem: fase.ordem,
             titulo: fase.titulo,
             boss: itemCatalogo.boss ?? false,
+            icone: itemCatalogo.icone, // Sprint 7: ícone do Davi no mapa
             topicos: fase.rodadas.map((rodada) => rodada.titulo),
+            // Sprint 7: "1/2 rodadas" embaixo do nó do mapa
+            rodadasAprovadas: fase.rodadas.filter((rodada) => rodada.status === "APROVADA").length,
+            totalRodadas: fase.rodadas.length,
             existe: true,
             status: statusDaFase(fase.rodadas),
             xpGanho: somar(fase.rodadas, "xpGanho"),
@@ -52,6 +56,19 @@ export function montarMapa(fasesDaApi) {
             totalExercicios: somar(fase.rodadas, "totalExercicios"),
         };
     });
+}
+
+/**
+ * Qual imagem do Davi usar: verde = concluída, amarelo = disponível (laranja no Boss), cinza = bloqueada/em breve.
+ * "press" é a versão do botão pressionado (só o mapa usa).
+ * Sprint 7: veio do LearningPath para cá porque o PERFIL também mostra os ícones (uma regra visual, um lugar só).
+ */
+export function coresDoIcone(fase) {
+    if (fase.status === STATUS_FASE.CONCLUIDA) return { normal: "green", press: "greenpress" };
+    if (fase.status === STATUS_FASE.DISPONIVEL) {
+        return fase.boss ? { normal: "orange", press: "orangepress" } : { normal: "yellow", press: "yellowpress" };
+    }
+    return { normal: "block", press: "block" };
 }
 
 function somar(lista, campo) {

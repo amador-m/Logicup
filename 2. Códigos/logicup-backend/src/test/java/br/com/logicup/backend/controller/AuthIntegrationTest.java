@@ -37,22 +37,26 @@ class AuthIntegrationTest {
     @Autowired private UsuarioRepository usuarioRepository;
     @Autowired private AlunoRepository alunoRepository;
 
-    private static String jsonCadastro(String nome, String email, String senha, String perfil) {
+    // usernames dos testes começam com "it." para não colidir com usuários reais do banco
+    private static String jsonCadastro(String nome, String username, String email, String senha, String perfil) {
         return """
-                {"nome": "%s", "email": "%s", "senha": "%s", "perfil": "%s"}
-                """.formatted(nome, email, senha, perfil);
+                {"nome": "%s", "username": "%s", "email": "%s", "senha": "%s", "perfil": "%s"}
+                """.formatted(nome, username, email, senha, perfil);
     }
 
-    private static String jsonLogin(String email, String senha) {
+    // Sprint 7: o campo do login agora se chama "login" (aceita e-mail OU username)
+    private static String jsonLogin(String login, String senha) {
         return """
-                {"email": "%s", "senha": "%s"}
-                """.formatted(email, senha);
+                {"login": "%s", "senha": "%s"}
+                """.formatted(login, senha);
     }
 
+    /** Cadastro com username gerado a partir do e-mail: "login.ok@teste.com" -> "it.login.ok". */
     private MvcResult cadastrar(String email, String perfil) throws Exception {
+        String username = "it." + email.substring(0, email.indexOf('@'));
         return mockMvc.perform(post("/api/auth/cadastro").with(csrfValido())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonCadastro("Pessoa Teste", email, SENHA, perfil)))
+                        .content(jsonCadastro("Pessoa Teste", username, email, SENHA, perfil)))
                 .andReturn();
     }
 
@@ -62,9 +66,10 @@ class AuthIntegrationTest {
     void cadastroDeAlunoCriaContaEJaDeixaLogado() throws Exception {
         MvcResult resultado = mockMvc.perform(post("/api/auth/cadastro").with(csrfValido())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonCadastro("Aluna Teste", "aluna.auth@teste.com", SENHA, "ALUNO")))
+                        .content(jsonCadastro("Aluna Teste", "it.aluna.auth", "aluna.auth@teste.com", SENHA, "ALUNO")))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.role").value("ALUNO"))
+                .andExpect(jsonPath("$.username").value("it.aluna.auth"))
                 .andExpect(jsonPath("$.senha").doesNotExist())   // senha nunca sai na resposta
                 .andExpect(jsonPath("$.token").doesNotExist())   // token só no cookie
                 .andReturn();
@@ -77,6 +82,7 @@ class AuthIntegrationTest {
         mockMvc.perform(get("/api/auth/me").cookie(cookie))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.nome").value("Aluna Teste"))
+                .andExpect(jsonPath("$.username").value("it.aluna.auth"))
                 .andExpect(jsonPath("$.email").value("aluna.auth@teste.com"));
 
         Integer id = usuarioRepository.findByEmail("aluna.auth@teste.com").orElseThrow().getId();
@@ -106,7 +112,7 @@ class AuthIntegrationTest {
 
         mockMvc.perform(post("/api/auth/cadastro").with(csrfValido())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonCadastro("Outra Pessoa", "  Repetido@TESTE.com ", SENHA, "PROFESSOR")))
+                        .content(jsonCadastro("Outra Pessoa", "it.outra.pessoa", "  Repetido@TESTE.com ", SENHA, "PROFESSOR")))
                 .andExpect(status().isConflict());
     }
 
@@ -114,9 +120,10 @@ class AuthIntegrationTest {
     void dadosInvalidosRetornam400ComOsCampos() throws Exception {
         mockMvc.perform(post("/api/auth/cadastro").with(csrfValido())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonCadastro("A", "nao-e-email", "123", "ALUNO")))
+                        .content(jsonCadastro("A", "a b", "nao-e-email", "123", "ALUNO")))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.campos.nome").exists())
+                .andExpect(jsonPath("$.campos.username").exists())
                 .andExpect(jsonPath("$.campos.email").exists())
                 .andExpect(jsonPath("$.campos.senha").exists());
     }
@@ -130,7 +137,77 @@ class AuthIntegrationTest {
         assertTrue(gravada.startsWith("$2"), "hash BCrypt começa com $2a$/$2b$");
     }
 
+    // ---------- username (Sprint 7) ----------
+
+    @Test
+    void usernameEhObrigatorio() throws Exception {
+        mockMvc.perform(post("/api/auth/cadastro").with(csrfValido())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"nome": "Sem Username", "email": "sem.username@teste.com", "senha": "%s", "perfil": "ALUNO"}
+                                """.formatted(SENHA)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.campos.username").exists());
+    }
+
+    @Test
+    void usernameForaDaRegraEhRecusado() throws Exception {
+        // curto demais, com caractere proibido (hífen e @) e longo demais
+        for (String invalido : new String[]{"ab", "maria-silva", "maria@silva", "um.username.longo.demais"}) {
+            mockMvc.perform(post("/api/auth/cadastro").with(csrfValido())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonCadastro("Pessoa", invalido, "regra." + invalido.length() + "@teste.com", SENHA, "ALUNO")))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.campos.username").exists());
+        }
+    }
+
+    @Test
+    void usernameEhGravadoEmMinusculas() throws Exception {
+        mockMvc.perform(post("/api/auth/cadastro").with(csrfValido())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonCadastro("Pessoa", "  IT.Maiusculo ", "maiusculo@teste.com", SENHA, "ALUNO")))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.username").value("it.maiusculo"));
+    }
+
+    @Test
+    void usernameRepetidoRetorna409NoCampo() throws Exception {
+        cadastrar("dono.username@teste.com", "ALUNO"); // username "it.dono.username"
+
+        mockMvc.perform(post("/api/auth/cadastro").with(csrfValido())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonCadastro("Outra", "IT.Dono.Username", "outro.email@teste.com", SENHA, "ALUNO")))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.campos.username").exists());
+
+        assertTrue(usuarioRepository.findByEmail("outro.email@teste.com").isEmpty(), "nada pode ser gravado");
+    }
+
     // ---------- login ----------
+
+    @Test
+    void loginPeloUsernameFunciona() throws Exception {
+        cadastrar("login.username@teste.com", "ALUNO"); // username "it.login.username"
+
+        MvcResult resultado = mockMvc.perform(post("/api/auth/login").with(csrfValido())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonLogin("  IT.Login.Username ", SENHA))) // normalizado como no cadastro
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("login.username@teste.com"))
+                .andReturn();
+
+        assertNotNull(resultado.getResponse().getCookie(TokenService.NOME_COOKIE));
+    }
+
+    @Test
+    void usernameInexistenteTemAMesmaMensagemDeSenhaErrada() throws Exception {
+        mockMvc.perform(post("/api/auth/login").with(csrfValido())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonLogin("it.ninguem", "senhaErrada99")))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.mensagem").value("Login ou senha inválidos."));
+    }
 
     @Test
     void loginComDadosCorretosDevolveCookie() throws Exception {
@@ -154,13 +231,13 @@ class AuthIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonLogin("login.erro@teste.com", "senhaErrada99")))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.mensagem").value("E-mail ou senha inválidos."));
+                .andExpect(jsonPath("$.mensagem").value("Login ou senha inválidos."));
 
         mockMvc.perform(post("/api/auth/login").with(csrfValido())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonLogin("nao.existe@teste.com", "senhaErrada99")))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.mensagem").value("E-mail ou senha inválidos."));
+                .andExpect(jsonPath("$.mensagem").value("Login ou senha inválidos."));
     }
 
     // ---------- proteção ----------

@@ -15,7 +15,7 @@ class AlunoTest {
 
     @BeforeEach
     void setUp() {
-        aluno = new Aluno("Aluno", "a@a.com", "hash");
+        aluno = new Aluno("Aluno", "aluno", "a@a.com", "hash");
     }
 
     // ---------- pontos ----------

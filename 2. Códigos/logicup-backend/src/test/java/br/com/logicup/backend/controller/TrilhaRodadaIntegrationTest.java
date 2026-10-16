@@ -98,7 +98,7 @@ class TrilhaRodadaIntegrationTest {
 
         dicaRepository.save(new Dica(q1, "Pense bem."));
 
-        aluno = alunoRepository.save(new Aluno("Aluno Teste", "aluno.trilha@teste.com", "hash-qualquer"));
+        aluno = alunoRepository.save(new Aluno("Aluno Teste", "aluno.trilha.teste", "aluno.trilha@teste.com", "hash-qualquer"));
     }
 
     private Exercicio exercicio(Rodada rodada, String codigo, int ordem, TipoExercicio tipo, FormatoResposta formato,

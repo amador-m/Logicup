@@ -25,9 +25,9 @@ class TurmaAlunoTurmaRepositoryTest {
     @Test
     void deveMatricularAlunoNaTurmaDoProfessor() {
         Usuario professor = usuarioRepository.save(
-                new Usuario("Professor Teste", "professor.teste.turma@teste.com", "hash", TipoUsuario.PROFESSOR));
+                new Usuario("Professor Teste", "prof.teste.turma", "professor.teste.turma@teste.com", "hash", TipoUsuario.PROFESSOR));
         Turma turma = turmaRepository.save(new Turma("Turma de Teste", professor));
-        Aluno aluno = alunoRepository.save(new Aluno("Aluno Teste", "aluno.teste.turma@teste.com", "hash"));
+        Aluno aluno = alunoRepository.save(new Aluno("Aluno Teste", "aluno.teste.turma", "aluno.teste.turma@teste.com", "hash"));
 
         alunoTurmaRepository.saveAndFlush(new AlunoTurma(aluno, turma));
 

@@ -61,7 +61,9 @@ public class DatabaseTestRunner implements CommandLineRunner {
             return;
         }
 
-        Usuario admin = new Usuario("Administrador (dev)", adminEmail,
+        // Sprint 7: todo usuário tem username; o ADMIN de dev fica com "admin" (ou "admin_dev", se já existir)
+        String username = usuarioRepository.existsByUsername("admin") ? "admin_dev" : "admin";
+        Usuario admin = new Usuario("Administrador (dev)", username, adminEmail,
                 passwordEncoder.encode(adminSenha), TipoUsuario.ADMIN);
         usuarioRepository.save(admin);
         log.info("ADMIN de desenvolvimento criado: {}", adminEmail);

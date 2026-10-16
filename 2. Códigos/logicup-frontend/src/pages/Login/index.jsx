@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-    Container,
     Box,
     LeftSide,
     RightSide,
@@ -19,7 +18,7 @@ const Login = () => {
     const { login } = useAuth();
 
     // "componentes controlados": o React guarda o que é digitado em cada campo
-    const [email, setEmail] = useState("");
+    const [identificacao, setIdentificacao] = useState(""); // e-mail OU nome de usuário
     const [senha, setSenha] = useState("");
     const [erro, setErro] = useState("");
     const [enviando, setEnviando] = useState(false);
@@ -30,18 +29,18 @@ const Login = () => {
         setEnviando(true);
 
         try {
-            await login(email, senha);
+            await login(identificacao, senha);
             // deu certo: o PublicOnlyRoute percebe o usuário logado e leva para a trilha
         } catch (error) {
-            setErro(error.message); // ex.: "E-mail ou senha inválidos." (mensagem do backend)
+            setErro(error.message); // ex.: "Login ou senha inválidos." (mensagem do backend)
         } finally {
             setEnviando(false);
         }
     };
 
     return (
-        <Container>
-            <Box>
+        // Sprint 7: sem o <Container> de página inteira; o card agora aparece dentro do ModalAuth
+        <Box>
                 <LeftSide>
                     <Link to="/"><Logo src={LogoImg} alt="Logo Logicup"/></Link>
                     <h2>Continue sua trilha de aprendizado</h2>
@@ -52,20 +51,23 @@ const Login = () => {
                 </LeftSide>
 
                 <RightSide>
-                    <h2>Entrar</h2>
+                    <h2 id="titulo-login">Entrar</h2>
                     <p>Acesse sua conta para continuar jogando e aprendendo</p>
 
                     <Form onSubmit={handleLogin}>
                         <InputGroup>
-                            <label htmlFor="login-email">E-mail</label>
+                            <label htmlFor="login-identificacao">E-mail ou nome de usuário</label>
+                            {/* type="text" (e não "email"): o navegador recusaria um username sem "@" */}
                             <input
-                                id="login-email"
-                                type="email"
-                                placeholder="Digite seu e-mail"
-                                autoComplete="email"
+                                id="login-identificacao"
+                                type="text"
+                                placeholder="Digite seu e-mail ou nome de usuário"
+                                autoComplete="username"
+                                autoCapitalize="none"
+                                spellCheck={false}
                                 required
-                                value={email}
-                                onChange={(event) => setEmail(event.target.value)}
+                                value={identificacao}
+                                onChange={(event) => setIdentificacao(event.target.value)}
                             />
                         </InputGroup>
 
@@ -93,8 +95,7 @@ const Login = () => {
                         </LinkText>
                     </Form>
                 </RightSide>
-            </Box>
-        </Container>
+        </Box>
     );
 };
 

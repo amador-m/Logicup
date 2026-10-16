@@ -1,13 +1,9 @@
+import FormaFluxograma from "./FormaFluxograma";
 import {
     ExampleBox,
     FlowchartSymbols,
     SymbolCard,
-    Oval,
     FlowArrow,
-    Parallelogram,
-    Rectangle,
-    Diamond,
-    DocumentShape,
     FlowExample,
     FlowStep,
 } from "../styles";
@@ -29,7 +25,7 @@ const SimbolosFluxograma = () => (
 
             <FlowchartSymbols>
                 <SymbolCard>
-                    <Oval />
+                    <FormaFluxograma tipo="inicio-fim" />
                     <div>
                         <h4>Início/Fim</h4>
                         <p>Marca onde o algoritmo começa ou termina.</p>
@@ -37,7 +33,7 @@ const SimbolosFluxograma = () => (
                 </SymbolCard>
 
                 <SymbolCard>
-                    <FlowArrow>↓</FlowArrow>
+                    <FormaFluxograma tipo="fluxo" />
                     <div>
                         <h4>Fluxo</h4>
                         <p>Mostra a direção em que os passos acontecem.</p>
@@ -45,7 +41,7 @@ const SimbolosFluxograma = () => (
                 </SymbolCard>
 
                 <SymbolCard>
-                    <Parallelogram />
+                    <FormaFluxograma tipo="entrada" />
                     <div>
                         <h4>Entrada de dados</h4>
                         <p>Representa informações recebidas pelo algoritmo.</p>
@@ -53,7 +49,7 @@ const SimbolosFluxograma = () => (
                 </SymbolCard>
 
                 <SymbolCard>
-                    <Rectangle />
+                    <FormaFluxograma tipo="processamento" />
                     <div>
                         <h4>Processamento</h4>
                         <p>Indica cálculos, ações ou atribuições de valores.</p>
@@ -61,7 +57,7 @@ const SimbolosFluxograma = () => (
                 </SymbolCard>
 
                 <SymbolCard>
-                    <Diamond />
+                    <FormaFluxograma tipo="decisao" />
                     <div>
                         <h4>Decisão</h4>
                         <p>
@@ -71,7 +67,7 @@ const SimbolosFluxograma = () => (
                 </SymbolCard>
 
                 <SymbolCard>
-                    <DocumentShape />
+                    <FormaFluxograma tipo="saida" />
                     <div>
                         <h4>Saída de dados</h4>
                         <p>

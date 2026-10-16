@@ -10,21 +10,26 @@ export const Container = styled.main`
 `;
 
 export const Logo = styled.img`
-  width: 333px;
-  margin-bottom: 47px;
-    margin-right: 100px;
+  width: 230px;
+  margin-bottom: 36px;
 `;
 
 export const Box = styled.div`
   width: 100%;
   max-width: 1050px;
-  min-height: 620px;
+  min-height: 560px;
   background-color: var(--cream);
   border-radius: 32px;
   overflow: hidden;
   display: grid;
   grid-template-columns: 1fr 1fr;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+
+  /* Sprint 7 (modal): em telas estreitas, só o formulário */
+  @media (max-width: 800px) {
+    /* minmax(0, 1fr): deixa a coluna encolher abaixo da largura "natural" dos inputs */
+    grid-template-columns: minmax(0, 1fr);
+  }
 `;
 
 export const LeftSide = styled.div`
@@ -35,7 +40,7 @@ export const LeftSide = styled.div`
     var(--yellow)
   );
   color: var(--cream);
-  padding: 70px 55px;
+  padding: 60px 50px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -59,10 +64,19 @@ export const LeftSide = styled.div`
     line-height: 1.7;
     font-size: 17px;
   }
+
+  @media (max-width: 800px) {
+    display: none;
+  }
 `;
 
 export const RightSide = styled.div`
-  padding: 70px 55px;
+  padding: 60px 50px;
+
+  @media (max-width: 600px) {
+    padding: 56px 22px 28px;
+  }
+
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -106,6 +120,13 @@ export const InputGroup = styled.div`
     &:focus {
       border-color: var(--yellow);
     }
+  }
+
+  /* Sprint 7: texto de ajuda embaixo do campo (ex.: regra do nome de usuário) */
+  small {
+    color: var(--brown-dark);
+    font-size: 13px;
+    line-height: 1.4;
   }
 `;
 

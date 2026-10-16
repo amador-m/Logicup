@@ -1,6 +1,7 @@
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 
 export const Card = styled.article`
+  scroll-margin-top: 16px;
   max-width: 1000px;
   margin: 0 auto;
   background: var(--cream);
@@ -8,6 +9,12 @@ export const Card = styled.article`
   border-radius: 34px;
   padding: 34px;
   box-shadow: 0 18px 45px rgba(4, 4, 35, 0.28);
+
+  /* Sprint 7 (responsividade): menos respiro interno no celular */
+  @media (max-width: 900px) {
+    padding: 22px 18px;
+    border-radius: 26px;
+  }
 `;
 
 export const CardHeader = styled.div`
@@ -33,6 +40,18 @@ export const CardHeader = styled.div`
   > div:last-child {
     display: flex;
     gap: 12px;
+  }
+
+  /* celular: "Rever teoria" desce para baixo do título quando não cabe ao lado */
+  @media (max-width: 900px) {
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+
+    h2 {
+      font-size: 24px;
+      overflow-wrap: anywhere;
+    }
   }
 `;
 
@@ -104,6 +123,13 @@ export const OptionButton = styled.button`
     border-color: var(--orange);
   }
 
+  /* Sprint 7: alternativa com símbolo de fluxograma ao lado do texto */
+  &.com-icone {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
   &:disabled {
     cursor: not-allowed;
     opacity: 0.7;
@@ -156,6 +182,15 @@ export const Page = styled.main`
     radial-gradient(circle at 90% 20%, rgba(227, 92, 51, 0.2), transparent 24%),
     linear-gradient(180deg, var(--dark), var(--green));
   padding: 50px 120px 70px;
+
+  /* Sprint 7 (responsividade): no celular, 120px de cada lado deixavam ~150px para o conteúdo */
+  @media (max-width: 1100px) {
+    padding: 40px 40px 60px;
+  }
+
+  @media (max-width: 900px) {
+    padding: 28px 16px 48px;
+  }
 `;
 
 export const HeaderSection = styled.section`
@@ -174,6 +209,15 @@ export const HeaderSection = styled.section`
     max-width: 760px;
     line-height: 1.7;
     color: rgba(241, 240, 226, 0.86);
+  }
+
+  @media (max-width: 900px) {
+    margin-bottom: 26px;
+
+    h1 {
+      font-size: 32px;
+      overflow-wrap: anywhere;
+    }
   }
 `;
 
@@ -201,6 +245,12 @@ export const PhaseTag = styled.span`
     font-weight: 800;
     font-size: 15px;
     margin-bottom: 22px;
+
+    /* celular: a etiqueta da fase quebra para baixo do botão "Voltar" sem recuo */
+    @media (max-width: 900px) {
+        display: block;
+        margin: 12px 0 0;
+    }
 `;
 
 export const ProgressArea = styled.div`
@@ -244,6 +294,10 @@ export const TheoryCard = styled.article`
   border-radius: 32px;
   padding: 34px;
   box-shadow: 0 18px 45px rgba(4, 4, 35, 0.28);
+
+  @media (max-width: 900px) {
+    padding: 22px 18px;
+  }
 
   > span {
     color: var(--orange);
@@ -300,6 +354,10 @@ export const PracticeCard = styled.article`
   border-radius: 32px;
   padding: 34px;
   box-shadow: 0 18px 45px rgba(4, 4, 35, 0.28);
+
+  @media (max-width: 900px) {
+    padding: 22px 18px;
+  }
 
   > span {
     color: var(--green);
@@ -507,6 +565,42 @@ export const DocumentShape = styled.div`
   border-radius: 2px 2px 45% 45%;
 `;
 
+/*
+ * Sprint 7: caixinha do símbolo dentro da alternativa. Usa as MESMAS formas da teoria,
+ * só que reduzidas (scale), para caber na altura do botão.
+ */
+export const IconeAlternativa = styled.span`
+  flex-shrink: 0;
+  width: 64px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  > span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: scale(0.62);
+  }
+
+  /* o losango da teoria tem margem para alinhar no card; aqui ele fica centralizado */
+  > span > div {
+    margin: 0;
+  }
+
+  /* alternativa selecionada (fundo amarelo): contorno escuro para a forma não "sumir" */
+  .selected & > span > div {
+    border-color: var(--brown-dark);
+    color: var(--dark);
+  }
+
+  /* hover (fundo verde): a seta acompanha a cor do texto */
+  button:hover & > span > div {
+    color: inherit;
+  }
+`;
+
 export const FlowExample = styled.div`
   margin-top: 20px;
   background: var(--cream);
@@ -574,10 +668,15 @@ export const OutlineButton = styled.button`
   border-radius: 18px;
   font-weight: 800;
 
-  &:hover,
+  &:hover:not(:disabled),
   &.active {
     background-color: var(--green);
     color: var(--white);
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
   }
 `;
 
@@ -865,6 +964,12 @@ export const RoundSummary = styled.section`
   button {
     margin-top: 18px;
   }
+
+  /* mascote centralizado no topo do resultado da rodada */
+  > div:first-child {
+    justify-content: center;
+    margin-bottom: 12px;
+  }
 `;
 
 export const SummaryStats = styled.div`
@@ -899,4 +1004,264 @@ export const SubmitInfo = styled.p`
   font-size: 14px;
   font-weight: 600;
   color: var(--brown-dark);
+`;
+
+/* ---------- Sprint 7: uma questão por vez, mascote e conclusão ---------- */
+
+/* Barra FIXA da rodada: "gruda" no topo enquanto o aluno rola a questão (position: sticky) */
+export const BarraRodada = styled.div`
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 0 -34px 24px;
+  padding: 14px 34px;
+  background: var(--dark);
+  color: var(--cream);
+  border-radius: 0 0 22px 22px;
+  box-shadow: 0 10px 20px rgba(4, 4, 35, 0.18);
+  scroll-margin-top: 0;
+
+  strong {
+    display: block;
+    font-size: 16px;
+  }
+
+  span {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--yellow);
+  }
+
+  ol {
+    display: flex;
+    gap: 8px;
+    list-style: none;
+  }
+
+  @media (max-width: 600px) {
+    margin: 0 -18px 20px;
+    padding: 12px 18px;
+  }
+`;
+
+/* um ponto por questão: verde = concluída, laranja = errada, vazio = não respondida */
+export const PontoQuestao = styled.li`
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--cream);
+  background: transparent;
+  transition: transform 0.2s;
+
+  &.correta {
+    background: var(--green);
+    border-color: var(--green);
+  }
+
+  &.errada {
+    background: var(--orange);
+    border-color: var(--orange);
+  }
+
+  &.atual {
+    outline: 3px solid var(--yellow);
+    outline-offset: 2px;
+    transform: scale(1.15);
+  }
+
+  .sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+`;
+
+export const FeedbackComMascote = styled.div`
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 18px;
+  align-items: start;
+  margin-top: 18px;
+
+  > div:last-child {
+    outline: none;
+  }
+
+  > div:last-child > div {
+    margin-top: 0;
+  }
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const entrar = keyframes`
+  from { opacity: 0; transform: translateY(16px) scale(0.9); }
+  to   { opacity: 1; transform: none; }
+`;
+
+const flutuar = keyframes`
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+`;
+
+const pular = keyframes`
+  0%   { transform: translateY(0) scale(1); }
+  30%  { transform: translateY(-18px) scale(1.06) rotate(-4deg); }
+  55%  { transform: translateY(0) scale(0.97); }
+  75%  { transform: translateY(-7px) rotate(3deg); }
+  100% { transform: translateY(0); }
+`;
+
+const balancar = keyframes`
+  0%, 100% { transform: rotate(0); }
+  20%      { transform: rotate(-8deg); }
+  40%      { transform: rotate(7deg); }
+  60%      { transform: rotate(-5deg); }
+  80%      { transform: rotate(3deg); }
+`;
+
+/* Mascote + balão de fala. O tamanho vem da variável CSS --tamanho (definida no componente). */
+export const MascoteBox = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  img {
+    width: var(--tamanho, 96px);
+    height: auto;
+    transform-origin: bottom center;
+    animation: ${entrar} 0.4s ease-out, ${flutuar} 3s ease-in-out 0.4s infinite;
+  }
+
+  &.acerto img {
+    animation: ${pular} 0.8s ease-out;
+  }
+
+  &.erro img {
+    animation: ${balancar} 0.6s ease-in-out;
+  }
+
+  p {
+    position: relative;
+    background: var(--white);
+    border: 2px solid var(--yellow);
+    color: var(--dark);
+    font-weight: 700;
+    font-size: 14px;
+    padding: 8px 12px;
+    border-radius: 14px;
+    max-width: 180px;
+  }
+
+  &.acerto p {
+    border-color: var(--green);
+  }
+
+  &.erro p {
+    border-color: var(--orange);
+  }
+
+  /* acessibilidade: quem pediu menos movimento no sistema não vê as animações */
+  @media (prefers-reduced-motion: reduce) {
+    img,
+    &.acerto img,
+    &.erro img {
+      animation: none;
+    }
+  }
+`;
+
+export const AcoesConclusao = styled.div`
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 22px;
+
+  button {
+    margin-top: 0;
+  }
+`;
+
+const aparecer = keyframes`
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: none; }
+`;
+
+/* Destaque "Fase concluída" (dentro da própria página da missão) */
+export const Celebracao = styled.section`
+  margin-top: 8px;
+  padding: 30px 24px;
+  border-radius: 28px;
+  text-align: center;
+  background:
+    radial-gradient(circle at 20% 15%, rgba(236, 172, 12, 0.35), transparent 40%),
+    radial-gradient(circle at 85% 20%, rgba(227, 92, 51, 0.25), transparent 40%),
+    var(--white);
+  border: 4px solid var(--green);
+  animation: ${aparecer} 0.5s ease-out;
+
+  video,
+  img {
+    width: 150px;
+    height: auto;
+    /* o vídeo tem fundo branco: "multiply" faz o branco sumir sobre o fundo claro do card */
+    mix-blend-mode: multiply;
+  }
+
+  > span {
+    display: block;
+    margin-top: 6px;
+    color: var(--orange);
+    font-weight: 900;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  h3 {
+    font-size: 34px;
+    color: var(--green);
+    margin: 4px 0 8px;
+  }
+
+  p {
+    color: var(--brown-dark);
+    margin-bottom: 18px;
+    line-height: 1.5;
+  }
+
+  p.note {
+    margin: 14px 0 0;
+    font-size: 14px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+`;
+
+/* botão com aparência de link (ações secundárias, ex.: "Rever teoria") */
+export const LinkButton = styled.button`
+  background: none;
+  border: none;
+  color: var(--green);
+  font-weight: 800;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 6px 2px;
+
+  &:hover {
+    color: var(--orange);
+  }
 `;

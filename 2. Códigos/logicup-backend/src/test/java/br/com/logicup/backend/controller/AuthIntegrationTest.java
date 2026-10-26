@@ -1,5 +1,6 @@
 package br.com.logicup.backend.controller;
 
+import br.com.logicup.backend.legal.VersoesLegais;
 import br.com.logicup.backend.model.Usuario;
 import br.com.logicup.backend.repository.AlunoRepository;
 import br.com.logicup.backend.repository.UsuarioRepository;
@@ -24,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Teste de INTEGRAÇÃO: sobe a aplicação inteira (segurança, controllers, services, banco real)
  * e faz requisições HTTP simuladas com o MockMvc — sem abrir porta de rede.
  * @Transactional: cada teste é desfeito no final, então os usuários criados aqui não ficam no banco.
- * csrfValido(): envia cookie XSRF-TOKEN + cabeçalho X-XSRF-TOKEN, como o React fará (ver CsrfTeste).
+ * csrfValido(): envia cookie __Host-XSRF-TOKEN + cabeçalho X-XSRF-TOKEN, como o React faz (ver CsrfTeste).
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -40,8 +41,9 @@ class AuthIntegrationTest {
     // usernames dos testes começam com "it." para não colidir com usuários reais do banco
     private static String jsonCadastro(String nome, String username, String email, String senha, String perfil) {
         return """
-                {"nome": "%s", "username": "%s", "email": "%s", "senha": "%s", "perfil": "%s"}
-                """.formatted(nome, username, email, senha, perfil);
+                {"nome": "%s", "username": "%s", "email": "%s", "senha": "%s", "perfil": "%s",
+                 "aceiteTermos": true, "versaoTermos": "%s", "versaoPrivacidade": "%s"}
+                """.formatted(nome, username, email, senha, perfil, VersoesLegais.TERMOS, VersoesLegais.PRIVACIDADE);
     }
 
     // Sprint 7: o campo do login agora se chama "login" (aceita e-mail OU username)
@@ -268,7 +270,7 @@ class AuthIntegrationTest {
         MvcResult resultado = mockMvc.perform(get("/api/auth/csrf"))
                 .andExpect(status().isNoContent())
                 .andReturn();
-        assertNotNull(resultado.getResponse().getCookie("XSRF-TOKEN"));
+        assertNotNull(resultado.getResponse().getCookie(CsrfTeste.NOME_COOKIE_CSRF));
     }
 
     // ---------- logout ----------

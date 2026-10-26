@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AuthContext } from "./authContextObject";
-import { authApi, definirAoPerderSessao } from "../services/api";
+import { authApi, legalApi, definirAoPerderSessao, definirAoExigirAceite } from "../services/api";
+import { VERSAO_TERMOS, VERSAO_PRIVACIDADE } from "../data/legal/versoes";
 
 /*
  * Guarda QUEM está logado para o app inteiro.
  * O React não consegue ler o cookie httpOnly; por isso, ao abrir o site, pergunta ao backend (/auth/me).
- *   usuario    = { id, nome, username, email, role } ou null
+ *   usuario    = { id, nome, username, email, role, aceitePendente } ou null
+ *                (Sprint 8: aceitePendente = true -> falta aceitar a versão vigente dos Termos/Privacidade)
  *   carregando = true enquanto a primeira verificação não termina (evita "piscar" a tela de login)
  */
 export function AuthProvider({ children }) {
@@ -16,6 +18,9 @@ export function AuthProvider({ children }) {
         let ativo = true; // evita atualizar estado depois que o componente saiu da tela
 
         definirAoPerderSessao(() => setUsuario(null)); // sessão expirou em qualquer chamada -> desloga
+        // Sprint 8: o backend respondeu 403 ACEITE_PENDENTE -> marca a pendência e a janela de aceite aparece
+        definirAoExigirAceite(() =>
+            setUsuario((atual) => (atual && !atual.aceitePendente ? { ...atual, aceitePendente: true } : atual)));
 
         authApi.me()
             .then((dados) => { if (ativo) setUsuario(dados); })
@@ -25,6 +30,7 @@ export function AuthProvider({ children }) {
         return () => {
             ativo = false;
             definirAoPerderSessao(null);
+            definirAoExigirAceite(null);
         };
     }, []);
 
@@ -54,9 +60,19 @@ export function AuthProvider({ children }) {
      */
     const atualizarUsuario = useCallback((dados) => setUsuario(dados), []);
 
+    /*
+     * Sprint 8: aceite de quem já tem conta. O backend devolve o usuário com aceitePendente = false
+     * e um cookie novo; trocar o usuário aqui fecha a janela de aceite e libera as páginas.
+     */
+    const aceitarDocumentos = useCallback(async () => {
+        const dados = await legalApi.aceitar(VERSAO_TERMOS, VERSAO_PRIVACIDADE);
+        setUsuario(dados);
+        return dados;
+    }, []);
+
     const valor = useMemo(
-        () => ({ usuario, carregando, login, cadastrar, logout, atualizarUsuario }),
-        [usuario, carregando, login, cadastrar, logout, atualizarUsuario]
+        () => ({ usuario, carregando, login, cadastrar, logout, atualizarUsuario, aceitarDocumentos }),
+        [usuario, carregando, login, cadastrar, logout, atualizarUsuario, aceitarDocumentos]
     );
 
     return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>;

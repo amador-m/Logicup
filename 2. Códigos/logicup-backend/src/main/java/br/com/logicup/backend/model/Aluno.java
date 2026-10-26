@@ -28,6 +28,20 @@ public class Aluno extends Usuario { // subclasse que herda o construtor do usu�
     @Column(name = "ultima_atividade_data")
     private LocalDate ultimaAtividadeData;
 
+    /*
+     * Sprint 9 (decisão M2-A): saldo de gemas. insertable/updatable = false: o Hibernate NUNCA grava esta coluna.
+     * Por quê? Quando o Hibernate atualiza um aluno (ex.: XP e ofensiva no envio de uma rodada), ele grava TODAS
+     * as colunas com os valores que tem na memória. Se gravasse "gemas", poderia sobrescrever uma compra ou um
+     * crédito feito no meio do caminho por outra requisição (o problema da "atualização perdida").
+     * Por isso o saldo só muda por UPDATEs atômicos no banco (AlunoRepository.creditarGemas/debitarGemas),
+     * e um aluno novo nasce com o DEFAULT 0 da coluna (@ColumnDefault é só para quando o Hibernate cria a tabela, nos testes).
+     * Atenção: depois de um crédito/débito, este campo pode estar desatualizado na memória; para mostrar o saldo,
+     * use AlunoRepository.saldoDeGemas().
+     */
+    @org.hibernate.annotations.ColumnDefault("0")
+    @Column(name = "gemas", nullable = false, insertable = false, updatable = false)
+    private Integer gemas = 0;
+
     public Aluno() {}
 
     public Aluno(String nome, String username, String email, String senha) {
@@ -105,4 +119,6 @@ public class Aluno extends Usuario { // subclasse que herda o construtor do usu�
     public Integer getPontuacaoAcumulada() { return pontuacaoAcumulada; }
     public Integer getStreakAtual() { return streakAtual; }
     public LocalDate getUltimaAtividadeData() { return ultimaAtividadeData; }
+    /** Valor carregado do banco (pode estar desatualizado depois de um crédito/débito; ver comentário do campo). */
+    public Integer getGemas() { return gemas; }
 }

@@ -1,5 +1,7 @@
 package br.com.logicup.backend.controller;
 
+import br.com.logicup.backend.security.TokenService;
+import br.com.logicup.backend.legal.VersoesLegais;
 import br.com.logicup.backend.model.Aluno;
 import br.com.logicup.backend.model.Usuario;
 import br.com.logicup.backend.repository.AlunoRepository;
@@ -51,7 +53,8 @@ class PerfilIntegrationTest {
     }
 
     private static RequestPostProcessor logadoComo(Integer id) {
-        return jwt().jwt(token -> token.subject(String.valueOf(id)).claim("role", "ALUNO"))
+        return jwt().jwt(token -> token.subject(String.valueOf(id)).claim("role", "ALUNO")
+                        .claim(TokenService.CLAIM_ACEITE, VersoesLegais.IDENTIFICADOR)) // Sprint 8: sessão com o aceite vigente dos Termos
                 .authorities(new SimpleGrantedAuthority("ROLE_ALUNO"));
     }
 
@@ -111,12 +114,10 @@ class PerfilIntegrationTest {
     }
 
     /*
-     * NÃO há teste "PUT sem CSRF devolve 403" aqui, de propósito:
-     *  1) o jwt() do spring-security-test chama CsrfFilter.skipRequest(), ou seja, desliga o CSRF na requisição;
-     *  2) no Spring, o resource server dispensa o CSRF quando a requisição traz o token de login.
-     *     Para rotas logadas, a proteção contra CSRF é o cookie LOGICUP_TOKEN com SameSite=Strict
-     *     (o navegador não envia o cookie em requisições vindas de outro site).
-     * O CSRF das rotas públicas (login/cadastro) continua testado no AuthIntegrationTest.
+     * NÃO há teste "PUT sem CSRF devolve 403" AQUI, de propósito: o jwt() do spring-security-test injeta o
+     * usuário sem cookie e ainda desliga o CsrfFilter na requisição, então não exercita o caminho real.
+     * Tarefa 6: o CSRF das rotas logadas é testado pelo caminho real (cookie de login de verdade) em
+     * SegurancaRequisicoesIntegrationTest, incluindo PUT /api/perfil e PUT /api/perfil/senha.
      */
 
     // ---------- PUT /api/perfil/senha ----------

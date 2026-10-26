@@ -3,12 +3,17 @@ import Header from "../../components/layout/Header";
 import Footer from "../../components/layout/Footer";
 import { useAuth } from "../../context/useAuth";
 import { perfilApi, rankingApi, trilhaApi } from "../../services/api";
-import { STATUS_FASE, coresDoIcone, iniciais, montarMapa } from "../../util/trilha";
+import { STATUS_FASE, coresDoIcone, montarMapa } from "../../util/trilha";
 import { iconeFase } from "../../assets/fases";
+import { abrirTutorial } from "../../components/ui/Onboarding/controle";
+import AvatarUsuario from "../../components/ui/AvatarUsuario";
+import LojaAvatares from "../../components/ui/LojaAvatares";
+import { useSaldoGemas } from "../../components/ui/Gemas/useSaldoGemas";
+import { podeVerConquistas } from "../../util/papeis";
 import { InputGroup, Button, ErrorMessage, FieldError } from "../Login/styles";
 import {
-    Page, Hero, Cartao, AvatarGrande, Stats, StatCard, Paineis, Painel, Form, Sucesso,
-    SecaoFases, ListaFases, LinhaFase, Barra,
+    Page, Hero, Cartao, MolduraAvatar, Stats, StatCard, Paineis, Painel, Form, Sucesso,
+    SecaoFases, ListaFases, LinhaFase, Barra, BotaoTutorial, BotaoTrocarAvatar,
 } from "./styles";
 
 const SENHAS_VAZIAS = { senhaAtual: "", novaSenha: "", confirmacao: "" };
@@ -266,11 +271,14 @@ const AlterarSenha = () => {
 /*
  * Sprint 7: perfil de quem está logado.
  * Mostra os dados (de /auth/me, já guardados no AuthContext) e o resumo do aluno; permite editar
- * nome, username e senha. A foto de perfil virá depois: o avatar de iniciais já ocupa o lugar dela.
+ * nome, username e senha. Sprint 9: o avatar escolhido e a loja de avatares (decisão F3).
  */
 const Profile = () => {
     const { usuario, atualizarUsuario } = useAuth();
     const resumo = useResumo();
+    const aluno = podeVerConquistas(usuario);
+    const gemas = useSaldoGemas(aluno);
+    const [lojaAberta, setLojaAberta] = useState(false);
 
     return (
         <>
@@ -284,8 +292,14 @@ const Profile = () => {
                     </div>
 
                     <Cartao>
-                        <AvatarGrande aria-hidden="true">{iniciais(usuario.nome)}</AvatarGrande>
-                        <small>Foto de perfil em breve</small>
+                        <MolduraAvatar>
+                            <AvatarUsuario codigo={usuario.avatar} tamanho={132} borda={7} alt="Seu avatar" />
+                        </MolduraAvatar>
+                        <BotaoTrocarAvatar type="button" onClick={() => setLojaAberta(true)}>
+                            {aluno ? "Trocar avatar / loja" : "Trocar avatar"}
+                        </BotaoTrocarAvatar>
+                        {/* Sprint 9: rever o onboarding (decisão O2) */}
+                        <BotaoTutorial type="button" onClick={abrirTutorial}>Ver tutorial</BotaoTutorial>
                     </Cartao>
                 </Hero>
 
@@ -294,6 +308,7 @@ const Profile = () => {
                         <StatCard><strong>{resumo.xp}</strong><span>XP</span></StatCard>
                         <StatCard><strong>{resumo.nivel}</strong><span>Fase atual</span></StatCard>
                         <StatCard><strong>{resumo.streak}</strong><span>Ofensiva</span></StatCard>
+                        {gemas != null && <StatCard><strong>{gemas}</strong><span>Gemas</span></StatCard>}
                         <StatCard>
                             <strong>{resumo.posicao ? `${resumo.posicao}º` : "—"}</strong>
                             <span>{resumo.posicao ? "No ranking" : "Ainda sem ranking"}</span>
@@ -310,6 +325,8 @@ const Profile = () => {
                 </Paineis>
             </Page>
             <Footer />
+
+            {lojaAberta && <LojaAvatares aoFechar={() => setLojaAberta(false)} />}
         </>
     );
 };

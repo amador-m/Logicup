@@ -70,6 +70,11 @@ public class Exercicio {
     @Column(name = "codigo_teste_junit", columnDefinition = "TEXT") // NULL até existir o motor JUnit (D1)
     private String codigoTesteJunit;
 
+    // Sprint 7 (ementa do professor): o que o aluno desenvolve com a questão.
+    // NULL enquanto a fase não tiver as habilidades escritas. NÃO vai para o aluno (só GET /api/ementa).
+    @Column(length = 255)
+    private String habilidade;
+
     public Exercicio() {}
 
     // construtor com os campos obrigatórios (NOT NULL); os opcionais são preenchidos por setters
@@ -138,4 +143,7 @@ public class Exercicio {
 
     public String getCodigoTesteJunit() { return codigoTesteJunit; }
     public void setCodigoTesteJunit(String codigoTesteJunit) { this.codigoTesteJunit = codigoTesteJunit; }
+
+    public String getHabilidade() { return habilidade; }
+    public void setHabilidade(String habilidade) { this.habilidade = habilidade; }
 }

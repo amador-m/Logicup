@@ -17,10 +17,17 @@ final class RespostaErroJson {
     private RespostaErroJson() {}
 
     static void escrever(HttpServletResponse response, int status, String erro, String mensagem) throws IOException {
+        escrever(response, status, erro, mensagem, null);
+    }
+
+    /** Sprint 8: "codigo" opcional, para o frontend reconhecer o erro sem depender do texto (ex.: ACEITE_PENDENTE). */
+    static void escrever(HttpServletResponse response, int status, String erro, String mensagem, String codigo)
+            throws IOException {
         response.setStatus(status);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        response.getWriter().write(
-                "{\"status\":" + status + ",\"erro\":\"" + erro + "\",\"mensagem\":\"" + mensagem + "\"}");
+        String campoCodigo = codigo == null ? "" : ",\"codigo\":\"" + codigo + "\"";
+        response.getWriter().write("{\"status\":" + status + ",\"erro\":\"" + erro + "\",\"mensagem\":\""
+                + mensagem + "\"" + campoCodigo + "}");
     }
 }

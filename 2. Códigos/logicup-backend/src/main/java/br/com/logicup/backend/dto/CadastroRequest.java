@@ -1,5 +1,6 @@
 package br.com.logicup.backend.dto;
 
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -35,7 +36,19 @@ public record CadastroRequest(
         String senha,
 
         @NotNull(message = "Escolha o perfil: ALUNO ou PROFESSOR.")
-        PerfilCadastro perfil
+        PerfilCadastro perfil,
+
+        // Sprint 8: aceite ATIVO. @NotNull porque @AssertTrue sozinho aceita null (campo ausente).
+        @NotNull(message = "Para criar a conta, aceite os Termos de Uso e confirme a leitura da Política de Privacidade.")
+        @AssertTrue(message = "Para criar a conta, aceite os Termos de Uso e confirme a leitura da Política de Privacidade.")
+        Boolean aceiteTermos,
+
+        // as versões que a pessoa VIU; o AceiteService confere se são as vigentes
+        @NotBlank(message = "Versão dos Termos de Uso não informada.")
+        String versaoTermos,
+
+        @NotBlank(message = "Versão da Política de Privacidade não informada.")
+        String versaoPrivacidade
 ) {
     /** Regra do username: 3 a 20 caracteres, só a-z, 0-9, ponto e sublinhado (a mesma do banco). */
     public static final String REGRA_USERNAME = "^[a-z0-9._]{3,20}$";
@@ -63,6 +76,7 @@ public record CadastroRequest(
 
     @Override
     public String toString() { // nunca deixar a senha aparecer em log
-        return "CadastroRequest[nome=" + nome + ", username=" + username + ", email=" + email + ", perfil=" + perfil + "]";
+        return "CadastroRequest[nome=" + nome + ", username=" + username + ", email=" + email + ", perfil=" + perfil
+                + ", aceiteTermos=" + aceiteTermos + ", versaoTermos=" + versaoTermos + ", versaoPrivacidade=" + versaoPrivacidade + "]";
     }
 }

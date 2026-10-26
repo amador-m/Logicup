@@ -81,20 +81,6 @@ export const UserInfo = styled.div`
   }
 `;
 
-export const Avatar = styled.div`
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  background: var(--yellow);
-  color: var(--dark);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 900;
-  font-size: 22px;
-  border: 5px solid var(--cream);
-`;
-
 export const Stats = styled.div`
   display: flex;
   gap: 12px;

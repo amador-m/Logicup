@@ -15,8 +15,11 @@ import {
 import LogoImg from "../../assets/images/LogoLight.png";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/useAuth";
+import CaixaAceite from "../../components/ui/CaixaAceite";
+import { VERSAO_TERMOS, VERSAO_PRIVACIDADE } from "../../data/legal/versoes";
 
-const DADOS_INICIAIS = { nome: "", username: "", email: "", senha: "", perfil: "ALUNO" };
+// Sprint 8: aceiteTermos começa FALSO (a caixa nunca vem marcada)
+const DADOS_INICIAIS = { nome: "", username: "", email: "", senha: "", perfil: "ALUNO", aceiteTermos: false };
 
 /*
  * Sprint 7: o username só aceita letras minúsculas, números, ponto e sublinhado.
@@ -47,7 +50,9 @@ const Register = () => {
         setEnviando(true);
 
         try {
-            await cadastrar(dados); // C1: já entra logado; o PublicOnlyRoute leva para a trilha
+            // Sprint 8: junto com o aceite vão as VERSÕES que a pessoa viu; o backend confere se são as vigentes
+            // C1: já entra logado; o PublicOnlyRoute leva para a trilha
+            await cadastrar({ ...dados, versaoTermos: VERSAO_TERMOS, versaoPrivacidade: VERSAO_PRIVACIDADE });
         } catch (error) {
             const campos = error.campos ?? {};
             setErrosCampos(campos);
@@ -163,6 +168,13 @@ const Register = () => {
                             </Select>
                             {errosCampos.perfil && <FieldError>{errosCampos.perfil}</FieldError>}
                         </InputGroup>
+
+                        <CaixaAceite
+                            id="cadastro-aceite"
+                            marcado={dados.aceiteTermos}
+                            aoMudar={(marcado) => setDados((anteriores) => ({ ...anteriores, aceiteTermos: marcado }))}
+                            erro={errosCampos.aceiteTermos}
+                        />
 
                         {erro && <ErrorMessage role="alert">{erro}</ErrorMessage>}
 

@@ -63,6 +63,35 @@ public class GlobalExceptionHandler {
                 Map.of("novaSenha", ex.getMessage())));
     }
 
+    // Sprint 8: a pessoa leu uma versão antiga dos Termos/Privacidade -> 409 no campo do aceite
+    @ExceptionHandler(VersaoDocumentoDesatualizadaException.class)
+    public ResponseEntity<ErroResponse> versaoDesatualizada(VersaoDocumentoDesatualizadaException ex) {
+        return resposta(HttpStatus.CONFLICT, new ErroResponse(409, "Conflito", ex.getMessage(),
+                Map.of("aceiteTermos", ex.getMessage())));
+    }
+
+    // Sprint 9: turmas
+    @ExceptionHandler({AlunoJaTemTurmaException.class, TarefaJaAtribuidaException.class})
+    public ResponseEntity<ErroResponse> conflitoTurma(RuntimeException ex) {
+        return resposta(HttpStatus.CONFLICT, new ErroResponse(409, "Conflito", ex.getMessage()));
+    }
+
+    // Sprint 9: loja de avatares. 409 = o pedido conflita com o estado atual (saldo, já possui)
+    @ExceptionHandler({GemasInsuficientesException.class, AvatarJaPossuidoException.class})
+    public ResponseEntity<ErroResponse> conflitoLoja(RuntimeException ex) {
+        return resposta(HttpStatus.CONFLICT, new ErroResponse(409, "Conflito", ex.getMessage()));
+    }
+
+    @ExceptionHandler(AvatarNaoPossuidoException.class)
+    public ResponseEntity<ErroResponse> avatarNaoPossuido(AvatarNaoPossuidoException ex) {
+        return resposta(HttpStatus.FORBIDDEN, new ErroResponse(403, "Acesso negado", ex.getMessage()));
+    }
+
+    @ExceptionHandler(AlunoRemovidoDaTurmaException.class)
+    public ResponseEntity<ErroResponse> alunoRemovido(AlunoRemovidoDaTurmaException ex) {
+        return resposta(HttpStatus.FORBIDDEN, new ErroResponse(403, "Acesso negado", ex.getMessage()));
+    }
+
     @ExceptionHandler(EmailJaCadastradoException.class)
     public ResponseEntity<ErroResponse> emailJaCadastrado(EmailJaCadastradoException ex) {
         return resposta(HttpStatus.CONFLICT, new ErroResponse(409, "Conflito", ex.getMessage()));

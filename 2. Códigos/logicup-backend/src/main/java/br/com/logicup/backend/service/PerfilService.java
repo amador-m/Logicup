@@ -47,7 +47,7 @@ public class PerfilService {
          * a UNIQUE do banco recusa aqui dentro e o handler devolve 409.
          */
         usuarioRepository.saveAndFlush(usuario);
-        return UsuarioResponse.de(usuario);
+        return UsuarioResponse.de(usuario, false); // só chega aqui quem já aceitou (AceitePendenteFilter)
     }
 
     @Transactional

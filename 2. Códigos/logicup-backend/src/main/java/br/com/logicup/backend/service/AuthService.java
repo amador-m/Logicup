@@ -30,6 +30,8 @@ public class AuthService {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
+    private final AceiteService aceiteService;
+    private final ConquistaService conquistaService;
 
     /*
      * Hash de uma senha qualquer, usado quando o e-mail NÃO existe no login.
@@ -39,10 +41,13 @@ public class AuthService {
     private final String hashFicticio;
 
     public AuthService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder,
-                       TokenService tokenService) {
+                       TokenService tokenService, AceiteService aceiteService,
+                       ConquistaService conquistaService) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
+        this.aceiteService = aceiteService;
+        this.conquistaService = conquistaService;
         this.hashFicticio = passwordEncoder.encode("logicup-senha-ficticia-para-tempo-constante");
     }
 
@@ -53,6 +58,9 @@ public class AuthService {
 
     @Transactional
     public AutenticacaoResultado cadastrar(CadastroRequest dados) {
+        // Sprint 8: o aceite ATIVO (aceiteTermos = true) já foi exigido pelo @Valid; aqui, a VERSÃO lida
+        aceiteService.exigirVersoesVigentes(dados.versaoTermos(), dados.versaoPrivacidade());
+
         String email = normalizarEmail(dados.email());
         if (usuarioRepository.existsByEmail(email)) {
             throw new EmailJaCadastradoException();
@@ -72,15 +80,19 @@ public class AuthService {
                 : new Usuario(nome, dados.username(), email, hash, dados.perfil().paraTipoUsuario());
 
         Usuario salvo = usuarioRepository.save(novo);
-        return autenticado(salvo); // C1: cadastro já deixa a pessoa logada
+        aceiteService.registrarVersoesVigentes(salvo); // mesma transação: sem aceite gravado, não há conta
+        return autenticado(salvo, true); // C1: cadastro já deixa a pessoa logada
     }
 
     /**
      * Sprint 7: login com e-mail OU username no mesmo campo.
      * Tem "@" -> é e-mail (username não aceita "@"); senão -> é username. Os dois são normalizados
      * (minúsculas, sem espaços nas pontas), então "Ana.Silva" e "ana.silva" entram na mesma conta.
+     *
+     * Sprint 9 (B1): deixou de ser readOnly porque o login de um ALUNO também avalia as conquistas.
+     * É assim que quem já tinha progresso antes desta versão ganha as medalhas (retroativo, decisão M5).
      */
-    @Transactional(readOnly = true)
+    @Transactional
     public AutenticacaoResultado login(LoginRequest dados) {
         Optional<Usuario> usuario = dados.ehEmail()
                 ? usuarioRepository.findByEmail(normalizarEmail(dados.login()))
@@ -92,17 +104,27 @@ public class AuthService {
         if (usuario.isEmpty() || !senhaConfere) {
             throw new CredenciaisInvalidasException(); // mesma mensagem em todos os casos (AU7)
         }
-        return autenticado(usuario.get());
+        // com a herança JOINED, o Hibernate já devolve um Aluno quando a pessoa é aluno
+        if (usuario.get() instanceof Aluno aluno) {
+            conquistaService.avaliar(aluno);
+        }
+        // Sprint 8: o banco diz se já aceitou a versão vigente; a resposta vai DENTRO do token
+        return autenticado(usuario.get(), aceiteService.aceitouVersoesVigentes(usuario.get().getId()));
     }
 
+    /**
+     * aceitePendente vem do TOKEN da sessão (e não do banco), para bater com o que o
+     * AceitePendenteFilter faz: se o token não tem o aceite vigente, a janela de aceite aparece.
+     */
     @Transactional(readOnly = true)
-    public UsuarioResponse buscarUsuarioLogado(Integer idUsuario) {
+    public UsuarioResponse buscarUsuarioLogado(Integer idUsuario, boolean aceitePendente) {
         return usuarioRepository.findById(idUsuario)
-                .map(UsuarioResponse::de)
+                .map(usuario -> UsuarioResponse.de(usuario, aceitePendente))
                 .orElseThrow(SessaoInvalidaException::new);
     }
 
-    private AutenticacaoResultado autenticado(Usuario usuario) {
-        return new AutenticacaoResultado(UsuarioResponse.de(usuario), tokenService.gerarToken(usuario));
+    private AutenticacaoResultado autenticado(Usuario usuario, boolean aceitouVersoesVigentes) {
+        return new AutenticacaoResultado(UsuarioResponse.de(usuario, !aceitouVersoesVigentes),
+                tokenService.gerarToken(usuario, aceitouVersoesVigentes));
     }
 }

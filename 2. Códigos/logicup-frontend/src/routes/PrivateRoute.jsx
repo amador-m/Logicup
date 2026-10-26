@@ -26,6 +26,12 @@ const PrivateRoute = ({ children }) => {
         // guarda de onde a pessoa veio para devolvê-la lá depois do login
         return <Navigate to="/login" replace state={{ from: location }} />;
     }
+    if (usuario.aceitePendente) {
+        // Sprint 8: com o aceite pendente, o backend recusa a API desta página (403).
+        // Não montamos a página para ela não carregar dados que vão falhar: a janela de aceite
+        // (ModalAceite, no AppRoutes) aparece por cima e, ao aceitar, a página carrega normalmente.
+        return <Carregando>Aguardando o aceite dos Termos de Uso...</Carregando>;
+    }
     return children;
 };
 

@@ -1,5 +1,7 @@
 package br.com.logicup.backend.controller;
 
+import br.com.logicup.backend.security.TokenService;
+import br.com.logicup.backend.legal.VersoesLegais;
 import br.com.logicup.backend.model.Aluno;
 import br.com.logicup.backend.model.Dica;
 import br.com.logicup.backend.model.Exercicio;
@@ -112,7 +114,8 @@ class TrilhaRodadaIntegrationTest {
     // ---------- helpers de login e de envio ----------
 
     private static RequestPostProcessor logadoComo(Integer id, String role) {
-        return jwt().jwt(token -> token.subject(String.valueOf(id)).claim("role", role))
+        return jwt().jwt(token -> token.subject(String.valueOf(id)).claim("role", role)
+                        .claim(TokenService.CLAIM_ACEITE, VersoesLegais.IDENTIFICADOR)) // Sprint 8: sessão com o aceite vigente dos Termos
                 .authorities(new SimpleGrantedAuthority("ROLE_" + role));
     }
 

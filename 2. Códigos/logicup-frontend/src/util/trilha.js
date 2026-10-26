@@ -74,12 +74,3 @@ export function coresDoIcone(fase) {
 function somar(lista, campo) {
     return lista.reduce((total, item) => total + item[campo], 0);
 }
-
-/** "Maria Eduarda Amador" -> "MA" (avatar). */
-export function iniciais(nome = "") {
-    const partes = nome.trim().split(/\s+/).filter(Boolean);
-    if (partes.length === 0) return "?";
-    const primeira = partes[0][0];
-    const ultima = partes.length > 1 ? partes[partes.length - 1][0] : "";
-    return (primeira + ultima).toUpperCase();
-}

@@ -19,20 +19,33 @@ export const Cartao = styled.div`
   }
 `;
 
-/* Lugar da futura foto de perfil */
-export const AvatarGrande = styled.div`
-  width: 132px;
-  height: 132px;
+/* Sprint 9: o avatar escolhido (antes: um círculo com as iniciais) */
+export const MolduraAvatar = styled.div`
   border-radius: 50%;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+`;
+
+export const BotaoTrocarAvatar = styled.button`
+  padding: 9px 18px;
+  border: none;
+  border-radius: 12px;
   background: var(--yellow);
   color: var(--dark);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   font-weight: 900;
-  font-size: 44px;
-  border: 7px solid var(--cream);
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #b07f05;
+
+  &:hover {
+    background: var(--orange);
+    color: var(--white);
+    box-shadow: 0 4px 0 #a83a1b;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--cream);
+    outline-offset: 2px;
+  }
 `;
 
 export const Stats = styled.section`
@@ -261,5 +274,28 @@ export const Barra = styled.div`
     span {
       transition: none;
     }
+  }
+`;
+
+/* Sprint 9: "Ver tutorial", embaixo do avatar */
+export const BotaoTutorial = styled.button`
+  margin-top: 10px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  border: 2px solid var(--yellow);
+  background: transparent;
+  color: var(--yellow);
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--yellow);
+    color: var(--dark);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--cream);
+    outline-offset: 2px;
   }
 `;

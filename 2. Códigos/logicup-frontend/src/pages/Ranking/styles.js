@@ -107,6 +107,8 @@ export const Linha = styled.li`
     border-radius: 999px;
     padding: 2px 10px;
     font-size: 12px;
+    white-space: nowrap; /* Sprint 9: o selo "você" não quebra no meio no celular */
+    display: inline-block;
   }
 
   .nivel {

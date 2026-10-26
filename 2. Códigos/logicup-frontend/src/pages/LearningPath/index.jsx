@@ -4,14 +4,14 @@ import Header from "../../components/layout/Header";
 import Footer from "../../components/layout/Footer/index.jsx";
 import { useAuth } from "../../context/useAuth";
 import { trilhaApi } from "../../services/api";
-import { STATUS_FASE, coresDoIcone, iniciais, montarMapa } from "../../util/trilha";
+import { STATUS_FASE, coresDoIcone, montarMapa } from "../../util/trilha";
+import AvatarUsuario from "../../components/ui/AvatarUsuario";
 import { iconeFase } from "../../assets/fases";
 import MascoteImg from "../../assets/images/MascoteRecortado.png";
 import {
     Page,
     Hero,
     UserInfo,
-    Avatar,
     Stats,
     StatCard,
     ViewModeInfo,
@@ -143,7 +143,8 @@ const LearningPath = () => {
                     </div>
 
                     <UserInfo>
-                        <Avatar aria-hidden="true">{iniciais(usuario?.nome)}</Avatar>
+                        {/* Sprint 9: o avatar escolhido (antes: as iniciais do nome) */}
+                        <AvatarUsuario codigo={usuario?.avatar} tamanho={72} borda={5} />
 
                         {aluno && (
                             <Stats>

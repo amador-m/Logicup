@@ -57,6 +57,6 @@ public class RankingService {
 
     private static PosicaoRankingResponse linha(Integer posicao, Aluno aluno, boolean voce) {
         return new PosicaoRankingResponse(posicao, aluno.getUsername(), aluno.getPontuacaoAcumulada(),
-                aluno.getNivelAtual(), voce);
+                aluno.getNivelAtual(), voce, aluno.getAvatar());
     }
 }

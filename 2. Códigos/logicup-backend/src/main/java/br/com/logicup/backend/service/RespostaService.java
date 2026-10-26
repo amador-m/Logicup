@@ -48,12 +48,13 @@ public class RespostaService {
     private final AlunoRepository alunoRepository;
     private final CorrecaoService correcaoService;
     private final JsonMapper jsonMapper;
+    private final ConquistaService conquistaService;
     private final Clock clock;
 
     public RespostaService(RodadaService rodadaService, TrilhaService trilhaService,
                            ExercicioRepository exercicioRepository, ProgressoExercicioRepository progressoRepository,
                            AlunoRepository alunoRepository, CorrecaoService correcaoService,
-                           JsonMapper jsonMapper, Clock clock) {
+                           JsonMapper jsonMapper, ConquistaService conquistaService, Clock clock) {
         this.rodadaService = rodadaService;
         this.trilhaService = trilhaService;
         this.exercicioRepository = exercicioRepository;
@@ -61,6 +62,7 @@ public class RespostaService {
         this.alunoRepository = alunoRepository;
         this.correcaoService = correcaoService;
         this.jsonMapper = jsonMapper;
+        this.conquistaService = conquistaService;
         this.clock = clock;
     }
 
@@ -124,6 +126,10 @@ public class RespostaService {
         // 6) nível = fase mais alta liberada (N-A); a entidade garante que nunca diminui
         aluno.atualizarNivel(depois.faseMaisAltaLiberada());
         // o aluno não precisa de save(): é uma entidade gerenciada e o Hibernate grava as mudanças no fim da transação
+
+        // 7) Sprint 9 (B1): conquistas novas + gemas, na MESMA transação do XP (ou grava tudo, ou nada).
+        //    O frontend descobre o que comemorar pelo GET /api/conquistas/novas.
+        conquistaService.avaliar(aluno, depois);
 
         List<Exercicio> todosDaRodada = depois.exerciciosDa(rodada.getId());
         int concluidosNaRodada = (int) todosDaRodada.stream()

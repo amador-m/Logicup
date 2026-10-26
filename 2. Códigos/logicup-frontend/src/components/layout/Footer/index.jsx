@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
-import { Container, Copyright, Item } from "./styles";
+import { Container, Copyright, Item, LinksLegais } from "./styles";
 import LogoImg from "../../../assets/images/LogoLight.png";
 
 /*
  * Rodapé (Sprint 7): fundo escuro para "fechar" a página e SÓ links que levam a algum lugar.
- * Saíram os itens decorativos (redes sociais, tópicos sem página e os links legais, que voltam
- * quando as páginas de Termos/Privacidade existirem).
+ * Saíram os itens decorativos (redes sociais e tópicos sem página).
+ * Sprint 8: os links legais voltaram, agora que as páginas de Termos, Privacidade e Cookies existem.
  */
 const Footer = () => (
     <>
@@ -44,7 +44,16 @@ const Footer = () => (
         </Container>
 
         <Copyright>
-            <p>© 2026 LogicUp. Todos os direitos reservados.</p>
+            <p>
+                © 2026 LogicUp. Todos os direitos reservados.
+                {/* Sprint 9 (E3): crédito exigido pela licença gratuita do pacote de ícones */}
+                {" "}Ícones: <a href="https://www.flaticon.com/uicons" target="_blank" rel="noopener noreferrer">UIcons por Flaticon</a>.
+            </p>
+            <LinksLegais aria-label="Documentos legais">
+                <Link to="/termos">Termos de Uso</Link>
+                <Link to="/privacidade">Política de Privacidade</Link>
+                <Link to="/cookies">Política de Cookies</Link>
+            </LinksLegais>
         </Copyright>
     </>
 );

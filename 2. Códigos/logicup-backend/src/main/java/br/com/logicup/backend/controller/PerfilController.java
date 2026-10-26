@@ -4,6 +4,8 @@ import br.com.logicup.backend.dto.AlterarSenhaRequest;
 import br.com.logicup.backend.dto.AtualizarPerfilRequest;
 import br.com.logicup.backend.dto.UsuarioResponse;
 import br.com.logicup.backend.security.UsuarioLogado;
+import br.com.logicup.backend.dto.TrocarAvatarRequest;
+import br.com.logicup.backend.service.AvatarService;
 import br.com.logicup.backend.service.PerfilService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -26,9 +28,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class PerfilController {
 
     private final PerfilService perfilService;
+    private final AvatarService avatarService;
 
-    public PerfilController(PerfilService perfilService) {
+    public PerfilController(PerfilService perfilService, AvatarService avatarService) {
         this.perfilService = perfilService;
+        this.avatarService = avatarService;
     }
 
     /** Atualiza nome e username. Devolve o usuário atualizado (o frontend troca o "Olá, ..." na hora). */
@@ -36,6 +40,13 @@ public class PerfilController {
     public UsuarioResponse atualizar(@AuthenticationPrincipal Jwt jwt,
                                      @Valid @RequestBody AtualizarPerfilRequest dados) {
         return perfilService.atualizar(UsuarioLogado.de(jwt).id(), dados);
+    }
+
+    /** Sprint 9: troca o avatar em uso por um que a pessoa possui (gratuito ou comprado). */
+    @PutMapping("/avatar")
+    public UsuarioResponse trocarAvatar(@AuthenticationPrincipal Jwt jwt,
+                                        @Valid @RequestBody TrocarAvatarRequest dados) {
+        return avatarService.trocar(UsuarioLogado.de(jwt), dados.codigo());
     }
 
     /** Troca a senha. 204 = deu certo e não há nada para devolver. A sessão atual continua válida. */

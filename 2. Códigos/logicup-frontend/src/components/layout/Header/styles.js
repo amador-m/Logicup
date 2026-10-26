@@ -63,7 +63,7 @@ export const MenuItem = styled.li`
   font-size: 15px;
   font-weight: 500;
   transition: 0.3s;
-  white-space: nowrap; /* "Recompensas em breve" não quebra mais em duas linhas */
+  white-space: nowrap; /* nenhum item quebra em duas linhas */
 
   a {
     display: inline-block;
@@ -82,24 +82,6 @@ export const MenuItem = styled.li`
     border-bottom-color: var(--yellow);
   }
 
-  /* item ainda não disponível: sem clique, com selo "em breve" */
-  &.em-breve {
-    color: rgba(241, 240, 226, 0.55);
-    cursor: default;
-    padding: 6px 2px 9px; /* mesma altura dos links (que têm padding + borda) */
-  }
-
-  small {
-    margin-left: 4px;
-    font-size: 10px;
-    font-weight: 800;
-    text-transform: uppercase;
-    background: rgba(241, 240, 226, 0.15);
-    color: var(--cream);
-    padding: 2px 6px;
-    border-radius: 999px;
-  }
-
   /* celular: área de toque maior (mínimo ~44px de altura) */
   @media (max-width: 900px) {
     font-size: 17px;
@@ -108,10 +90,26 @@ export const MenuItem = styled.li`
       display: block;
       padding: 12px 4px;
     }
+  }
+`;
 
-    &.em-breve {
-      padding: 12px 4px;
-    }
+/*
+ * Sprint 9 (E1-C): ícone de linha ao lado de cada item, SÓ no menu do celular (painel do hambúrguer).
+ * No desktop o menu continua só com texto. O PNG preto vira "forma" (mask) pintada pela cor do texto:
+ * o ícone fica creme normalmente e amarelo no item da página atual, junto com o texto.
+ */
+export const IconeMenu = styled.span.attrs({ "aria-hidden": "true" })`
+  display: none;
+
+  @media (max-width: 900px) {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    margin-right: 12px;
+    vertical-align: -5px;
+    background-color: currentColor;
+    -webkit-mask: url("${({ $icone }) => $icone}") center / contain no-repeat;
+    mask: url("${({ $icone }) => $icone}") center / contain no-repeat;
   }
 `;
 
@@ -229,12 +227,32 @@ export const Greeting = styled.span`
   text-decoration: none;
   border-bottom: 2px solid transparent;
   padding: 4px 2px;
+  white-space: nowrap; /* Sprint 9: "Olá, Paula" não quebra em duas linhas */
+  display: inline-flex; /* Sprint 9: avatar + "Olá, ..." lado a lado */
+  align-items: center;
+  gap: 8px;
 
   /* Sprint 7: virou link para /perfil */
   &:hover,
   &.active {
     color: var(--yellow);
     border-bottom-color: var(--yellow);
+  }
+
+  /*
+   * Sprint 9: com o link de Conquistas e o contador de gemas, o Header do aluno não cabe entre 901 e 1050px.
+   * Nessa faixa fica só o avatar: o texto "Olá, ..." some da TELA, mas continua para o leitor de tela
+   * (técnica "visually hidden"). No celular (painel do hambúrguer) o texto volta.
+   */
+  @media (min-width: 901px) and (max-width: 1050px) {
+    .texto-saudacao {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
   }
 `;
 

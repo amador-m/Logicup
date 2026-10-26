@@ -9,11 +9,22 @@ import {
     Greeting,
     Navegacao,
     BotaoMenu,
+    IconeMenu,
 } from "./styles";
+import iconeInicio from "../../../assets/icones/home.png";
+import iconeTrilha from "../../../assets/icones/map-marker.png";
+import iconeRanking from "../../../assets/icones/trofeu.svg"; // provisório: trocar pelo "trophy" do mesmo pacote
+import iconeTurma from "../../../assets/icones/users.png";
+import iconeEmenta from "../../../assets/icones/clipboard-list-check.png";
+import iconeConquistas from "../../../assets/icones/diamond.png";
 import LogoImg from "../../../assets/images/LogoLight.png";
 import { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/useAuth";
+import { podeVerEmenta, podeGerenciarTurmas, podeEntrarEmTurma, podeVerConquistas } from "../../../util/papeis";
+import AvatarUsuario from "../../ui/AvatarUsuario";
+import ContadorGemas from "../../ui/Gemas/ContadorGemas";
+import { useSaldoGemas } from "../../ui/Gemas/useSaldoGemas";
 
 const Header = () => {
     const { usuario, logout } = useAuth();
@@ -52,8 +63,15 @@ const Header = () => {
         await logout();
     };
 
+    // Sprint 7: o link da ementa só aparece para professor e admin
+    const mostrarEmenta = podeVerEmenta(usuario);
+
     // primeiro nome, para a saudação não ficar longa
     const primeiroNome = usuario?.nome.split(" ")[0];
+
+    // Sprint 9 (F5): contador de gemas, só para aluno com o aceite em dia
+    const aluno = podeVerConquistas(usuario);
+    const gemas = useSaldoGemas(aluno && !usuario.aceitePendente);
 
     return (
         <Container>
@@ -82,19 +100,26 @@ const Header = () => {
               * fique ativo em todas as páginas (toda URL começa com "/").
               */}
             <Menu>
-                <MenuItem><NavLink to="/" end>Início</NavLink></MenuItem>
-                <MenuItem><NavLink to="/trilha">Trilha</NavLink></MenuItem>
-                <MenuItem><NavLink to="/ranking">Ranking</NavLink></MenuItem>
-                <MenuItem className="em-breve" aria-disabled="true">
-                    Recompensas <small>em breve</small>
-                </MenuItem>
+                <MenuItem><NavLink to="/" end><IconeMenu $icone={iconeInicio} />Início</NavLink></MenuItem>
+                <MenuItem><NavLink to="/trilha"><IconeMenu $icone={iconeTrilha} />Trilha</NavLink></MenuItem>
+                <MenuItem><NavLink to="/ranking"><IconeMenu $icone={iconeRanking} />Ranking</NavLink></MenuItem>
+                {mostrarEmenta && <MenuItem><NavLink to="/ementa"><IconeMenu $icone={iconeEmenta} />Ementa</NavLink></MenuItem>}
+                {/* Sprint 9: turmas — o professor gerencia as dele; o aluno vê a sua */}
+                {podeGerenciarTurmas(usuario) && <MenuItem><NavLink to="/professor/turmas"><IconeMenu $icone={iconeTurma} />Turmas</NavLink></MenuItem>}
+                {podeEntrarEmTurma(usuario) && <MenuItem><NavLink to="/turma"><IconeMenu $icone={iconeTurma} />Minha turma</NavLink></MenuItem>}
+                {/* Sprint 9: o antigo "Recompensas em breve" virou a tela de conquistas (só aluno) */}
+                {aluno && <MenuItem><NavLink to="/conquistas"><IconeMenu $icone={iconeConquistas} />Conquistas</NavLink></MenuItem>}
             </Menu>
 
             <Actions>
                 {usuario ? (
                     <>
-                        {/* Sprint 7: a saudação leva para o perfil */}
-                        <Greeting as={NavLink} to="/perfil" title="Meu perfil">Olá, {primeiroNome}</Greeting>
+                        <ContadorGemas gemas={gemas} />
+                        {/* Sprint 7: a saudação leva para o perfil. Sprint 9: com o avatar */}
+                        <Greeting as={NavLink} to="/perfil" title="Meu perfil">
+                            <AvatarUsuario codigo={usuario.avatar} tamanho={34} />
+                            <span className="texto-saudacao">Olá, {primeiroNome}</span>
+                        </Greeting>
                         <LoginButton type="button" onClick={handleLogout}>Sair</LoginButton>
                     </>
                 ) : (

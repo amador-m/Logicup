@@ -41,6 +41,11 @@ public class Usuario {
     @Column(name = "data_cadastro", insertable = false, updatable = false) // o banco preenche na hora do insert automaticamente, não o Java
     private LocalDateTime dataCadastro;
 
+    // Sprint 9: código do avatar em uso (enum Avatar). String no banco (VARCHAR) para que avatares novos
+    // não exijam migração. Só muda pelo trocarAvatar(); quem confere se o usuário POSSUI o avatar é o AvatarService.
+    @Column(nullable = false, length = 30)
+    private String avatar = Avatar.PADRAO.name();
+
     public Usuario() {} // exigência do hibernate ter um construtor sem argumentos pra instanciar internamente
 
     public Usuario(String nome, String username, String email, String senha, TipoUsuario tipoUsuario) {
@@ -71,5 +76,12 @@ public class Usuario {
     public void setTipoUsuario(TipoUsuario tipoUsuario) { this.tipoUsuario = tipoUsuario; }
 
     public LocalDateTime getDataCadastro() { return dataCadastro; } // sem set pois ninguém deve sobrescrever aqui manualmente
+
+    /** O avatar em uso. Um código que não existe mais no catálogo vira o padrão (nunca quebra a tela). */
+    public Avatar getAvatar() { return Avatar.porCodigo(avatar).orElse(Avatar.PADRAO); }
+
+    public void trocarAvatar(Avatar novo) {
+        this.avatar = java.util.Objects.requireNonNull(novo, "O avatar é obrigatório").name();
+    }
 }
 

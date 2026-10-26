@@ -1,7 +1,7 @@
 import { createGlobalStyle } from "styled-components";
 
 export default createGlobalStyle`
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+    /* Sprint 8: a fonte Poppins é carregada no main.jsx a partir do próprio site (@fontsource), sem Google Fonts */
 
     * {
         margin: 0;

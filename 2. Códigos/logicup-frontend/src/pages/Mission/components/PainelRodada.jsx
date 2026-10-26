@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { trilhaApi } from "../../../services/api";
+import { avisarProgresso, pedirComemoracao } from "../../../util/gamificacao";
 import TeoriaRodada from "./TeoriaRodada";
 import FluxoQuestoes from "./FluxoQuestoes";
 import ConclusaoRodada from "./ConclusaoRodada";
@@ -113,6 +114,8 @@ const PainelRodada = ({
     const irPara = (novaEtapa) => {
         setEtapa(novaEtapa);
         cardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        // Sprint 9 (F4): a festa de conquista nova espera o RESULTADO da rodada (nunca no meio de uma questão)
+        if (novaEtapa === "conclusao") pedirComemoracao();
     };
 
     /** Começa uma passagem pelas questões da fila (limpando respostas e feedback antigos delas). */
@@ -162,6 +165,7 @@ const PainelRodada = ({
                 setAprovadaAgora(true); // comemora só na transição
             }
             aoEnviar();
+            avisarProgresso(); // Sprint 9: o backend pode ter dado medalha + gemas -> o contador do Header atualiza
         } catch (e) {
             setErroEnvio(e.message); // a resposta continua marcada para tentar de novo
         } finally {

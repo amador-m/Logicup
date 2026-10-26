@@ -3,29 +3,9 @@ import { useNavigate } from "react-router-dom";
 import Header from "../../components/layout/Header";
 import Footer from "../../components/layout/Footer";
 import { rankingApi } from "../../services/api";
-import { Page, Hero, SuaPosicao, Quadro, Lista, Linha, Separador, Aviso, BotaoAcao } from "./styles";
-
-const MEDALHAS = { 1: "🥇", 2: "🥈", 3: "🥉" };
-
-/** Uma linha do ranking. Empates aparecem com a mesma posição (a regra é do backend). */
-const LinhaRanking = ({ item }) => {
-    const medalha = MEDALHAS[item.posicao];
-    return (
-        <Linha className={`${item.posicao === 1 ? "podio-1" : ""} ${item.voce ? "voce" : ""}`}
-               aria-current={item.voce ? "true" : undefined}>
-            <span className="posicao" aria-label={`${item.posicao}º lugar`}>
-                {medalha ?? `${item.posicao}º`}
-            </span>
-            <span className="avatar" aria-hidden="true">{item.username.slice(0, 2)}</span>
-            <span className="nome">
-                {item.username}
-                {item.voce && <small>você</small>}
-            </span>
-            <span className="nivel">Fase {item.nivel}</span>
-            <span className="xp">{item.xp} XP</span>
-        </Linha>
-    );
-};
+import LinhaRanking from "../../components/ui/LinhaRanking";
+import EstadoVazio from "../../components/ui/EstadoVazio";
+import { Page, Hero, SuaPosicao, Quadro, Lista, Separador, Aviso, BotaoAcao } from "./styles";
 
 /*
  * Ranking global por XP (Sprint 7): top 10 + a posição de quem está logado.
@@ -63,7 +43,10 @@ const Ranking = () => {
         destaque = (
             <SuaPosicao>
                 <span>Sua posição</span>
-                <p>Você ainda não pontuou. Complete uma questão para entrar no ranking!</p>
+                {/* Sprint 9 (E2): Gattuccino dormindo enquanto o aluno não pontua */}
+                <EstadoVazio className="sobre-escuro" tamanho={64}>
+                    Você ainda não pontuou. Complete uma questão para entrar no ranking!
+                </EstadoVazio>
             </SuaPosicao>
         );
     }

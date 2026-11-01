@@ -6,7 +6,7 @@ import { QuestionFeedback } from "../../styles";
  *   ESCOLHA_UNICA  -> {id, texto}
  *   ORDENACAO      -> [{id, texto}, ...] na ordem certa
  *   ASSOCIACAO     -> [{item, opcao}, ...]
- *   RESPOSTA_CURTA -> "texto"
+ *   RESPOSTA_CURTA -> "texto"  ou, com várias lacunas (Sprint 9), ["int", "18"]
  *   TEXTO_LIVRE    -> "resposta modelo" (as palavras-chave nunca saem do servidor)
  */
 function RespostaCorreta({ formato, valor }) {
@@ -37,6 +37,21 @@ function RespostaCorreta({ formato, valor }) {
                     </ul>
                 </>
             );
+        case "RESPOSTA_CURTA":
+            if (Array.isArray(valor)) {
+                return (
+                    <p>
+                        Resposta correta:{" "}
+                        {valor.map((lacuna, indice) => (
+                            <span key={indice}>
+                                {indice > 0 && " · "}
+                                {indice + 1}ª lacuna: <strong>{lacuna}</strong>
+                            </span>
+                        ))}
+                    </p>
+                );
+            }
+            return <p>Resposta correta: <strong>{valor}</strong></p>;
         case "TEXTO_LIVRE":
             return <p>Exemplo de resposta: <em>{valor}</em></p>;
         default:

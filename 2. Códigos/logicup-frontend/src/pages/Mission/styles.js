@@ -139,6 +139,9 @@ export const OptionButton = styled.button`
       color: var(--dark);
     }
   }
+
+  /* Sprint 9 (C5): saídas de várias linhas ("Início\nFim") aparecem uma linha embaixo da outra */
+  white-space: pre-line;
 `;
 
 export const FeedbackBox = styled.div`
@@ -412,6 +415,7 @@ export const ExerciseItem = styled.div`
     color: var(--brown-dark);
     line-height: 1.5;
     margin-bottom: 14px;
+    white-space: pre-line; /* Sprint 9 (C5): enunciados e explicações com itens "- ..." em linhas separadas */
   }
 
   .row {
@@ -1263,5 +1267,51 @@ export const LinkButton = styled.button`
 
   &:hover {
     color: var(--orange);
+  }
+`;
+
+/* ---------- Sprint 9 ---------- */
+
+/* C4: tabela dentro da teoria (ex.: tipos de dados da Fase 3) */
+export const TheoryTable = styled.div`
+  overflow-x: auto; /* no celular a tabela rola de lado, sem quebrar a página */
+  margin: 12px 0;
+
+  table {
+    border-collapse: collapse;
+    min-width: 100%;
+    background: var(--white);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  th,
+  td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid rgba(40, 128, 120, 0.2);
+    color: var(--brown-dark);
+    line-height: 1.5;
+  }
+
+  th {
+    background: var(--green);
+    color: var(--white);
+  }
+`;
+
+/* C1: campos das questões com várias lacunas (ex.: F3.Q3) */
+export const LacunasGrupo = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1 1 180px;
+    font-weight: 700;
+    color: var(--green);
   }
 `;

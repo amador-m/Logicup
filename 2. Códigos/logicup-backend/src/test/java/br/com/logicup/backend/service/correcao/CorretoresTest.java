@@ -69,6 +69,27 @@ class CorretoresTest {
         assertEquals(new Alternativa("a", "Servir"), certa.get(3));
     }
 
+    // Sprint 9 (C2): itens com o MESMO texto (as duas "}" da F2.Q4) são intercambiáveis
+    private final Exercicio exOrdemChaves = exercicio(FormatoResposta.ORDENACAO,
+            "[{\"id\":\"a\",\"texto\":\"}\"},{\"id\":\"b\",\"texto\":\"public static void main(String[] args) {\"},"
+                    + "{\"id\":\"c\",\"texto\":\"public class Main {\"},{\"id\":\"d\",\"texto\":\"}\"}]",
+            "{\"ordem\":[\"c\",\"b\",\"a\",\"d\"]}");
+
+    @Test
+    void ordenacaoAceitaItensDeTextoIgualEmQualquerOrdem() {
+        assertTrue(ordenacao.corrigir(exOrdemChaves, Map.of("ordem", List.of("c", "b", "a", "d")))); // igual ao gabarito
+        assertTrue(ordenacao.corrigir(exOrdemChaves, Map.of("ordem", List.of("c", "b", "d", "a")))); // "}" trocadas
+        assertFalse(ordenacao.corrigir(exOrdemChaves, Map.of("ordem", List.of("b", "c", "a", "d")))); // ordem errada
+    }
+
+    @Test
+    void ordenacaoRecusaRespostaQueNaoUsaCadaItemUmaVez() {
+        // repetir a mesma "}" daria os mesmos TEXTOS do gabarito: precisa ser recusado
+        assertFalse(ordenacao.corrigir(exOrdemChaves, Map.of("ordem", List.of("c", "b", "a", "a"))));
+        assertFalse(ordenacao.corrigir(exOrdemChaves, Map.of("ordem", List.of("c", "b", "a"))));           // faltou item
+        assertFalse(ordenacao.corrigir(exOrdemChaves, Map.of("ordem", List.of("c", "b", "a", "d", "x")))); // item a mais
+    }
+
     // ---------------- ASSOCIACAO ----------------
     private final CorretorAssociacao associacao = new CorretorAssociacao(mapper);
     private final Exercicio exAssoc = exercicio(FormatoResposta.ASSOCIACAO,
@@ -118,6 +139,33 @@ class CorretoresTest {
         assertTrue(curta.corrigir(ex, Map.of("texto", "8,5")));
     }
 
+    // Sprint 9 (C1): várias lacunas — gabarito real da F3.Q3 ("___ idade = ___;")
+    private final Exercicio f3q3 = exercicio(FormatoResposta.RESPOSTA_CURTA, "{\"lacunas\":2}",
+            "{\"lacunas\":[{\"aceitas\":[\"int\"]},{\"aceitas\":[\"18\"]}],\"diferenciarMaiusculas\":true}");
+
+    @Test
+    void respostaCurtaComDuasLacunasExigeAsDuasCertas() {
+        assertTrue(curta.corrigir(f3q3, Map.of("lacunas", List.of("int", "18"))));
+        assertTrue(curta.corrigir(f3q3, Map.of("lacunas", List.of(" int ", "18.")))); // mesma limpeza da lacuna única
+        assertFalse(curta.corrigir(f3q3, Map.of("lacunas", List.of("int", "17"))));   // 2ª errada
+        assertFalse(curta.corrigir(f3q3, Map.of("lacunas", List.of("Int", "18"))));   // Java diferencia maiúsculas
+        assertFalse(curta.corrigir(f3q3, Map.of("lacunas", List.of("18", "int"))));   // ordem das lacunas importa
+        assertFalse(curta.corrigir(f3q3, Map.of("lacunas", List.of("int", "  "))));   // lacuna em branco
+    }
+
+    @Test
+    void respostaCurtaComLacunasRecusaQuantidadeErrada() {
+        assertThrows(RequisicaoInvalidaException.class,
+                () -> curta.corrigir(f3q3, Map.of("lacunas", List.of("int"))));
+        assertThrows(RequisicaoInvalidaException.class,
+                () -> curta.corrigir(f3q3, Map.of("texto", "int idade = 18;"))); // formato de lacuna única
+    }
+
+    @Test
+    void respostaCurtaComLacunasMostraUmaRespostaPorLacuna() {
+        assertEquals(List.of("int", "18"), curta.respostaCorreta(f3q3));
+    }
+
     // ---------------- TEXTO_LIVRE (gabaritos reais do seed da Fase 1) ----------------
     private final CorretorTextoLivre textoLivre = new CorretorTextoLivre(mapper);
     private final Exercicio f1q6 = exercicio(FormatoResposta.TEXTO_LIVRE, null,
@@ -148,6 +196,25 @@ class CorretoresTest {
         assertTrue(texto(f1q10, "Observo o trânsito, espero e atravesso"));
         assertFalse(texto(f1q10, "atravessar a rua correndo"));
         assertFalse(texto(f1q10, "sei lá"));
+    }
+
+    // Sprint 9 (C3): o termo precisa começar uma palavra
+    @Test
+    void textoLivreNaoEncontraTermoNoMeioDeOutraPalavra() {
+        Exercicio ex = exercicio(FormatoResposta.TEXTO_LIVRE, null,
+                "{\"palavrasChave\":[[\"certo\"]],\"minimo\":1,\"respostaModelo\":\"Está certo\"}");
+        assertTrue(texto(ex, "O resultado está certo"));
+        assertTrue(texto(ex, "(certo)"));
+        assertFalse(texto(ex, "O resultado é incerto")); // antes da Sprint 9 isto contava como acerto
+    }
+
+    @Test
+    void textoLivreComTermoDeSimboloValeEmQualquerPosicao() {
+        // critério real da F4.Q9: ["== 0", "==0"] — "energia==0" não tem espaço antes do "=="
+        Exercicio ex = exercicio(FormatoResposta.TEXTO_LIVRE, null,
+                "{\"palavrasChave\":[[\"== 0\",\"==0\"],[\"else if\"]],\"minimo\":2,\"respostaModelo\":\"...\"}");
+        assertTrue(texto(ex, "if (energia==0) { } else if (energia < 5) { }"));
+        assertFalse(texto(ex, "if (energia==0) { } elseif (x) { }")); // "else if" escrito junto não vale
     }
 
     @Test

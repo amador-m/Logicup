@@ -182,9 +182,25 @@ export const LinkText = styled.p`
   text-align: center;
   font-size: 15px;
 
-  span {
-    color: var(--orange);
-    font-weight: 700;
-    cursor: pointer;
+  /*
+   * Sprint 9: o link ("Cadastre-se" no login, "Entrar" no cadastro) é um <Link>, que vira <a> no HTML.
+   * A regra antiga estilizava um "span" que não existe nessa tela, e o reset global
+   * (a { color: inherit; text-decoration: none }) deixava o link igual ao texto em volta.
+   * Cor do texto: marrom escuro sobre o creme = contraste 6,6:1 (WCAG AA pede 4,5:1).
+   * O laranja como cor do texto teria só 3,1:1; por isso ele entra no SUBLINHADO, que chama a atenção
+   * sem prejudicar a leitura.
+   */
+  a {
+    color: var(--brown-dark);
+    font-weight: 800;
+    text-decoration: underline;
+    text-decoration-color: var(--orange);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
+
+  a:hover,
+  a:focus-visible {
+    text-decoration-thickness: 3px; /* reforça o sublinhado no hover/foco (teclado) sem trocar a cor */
   }
 `;

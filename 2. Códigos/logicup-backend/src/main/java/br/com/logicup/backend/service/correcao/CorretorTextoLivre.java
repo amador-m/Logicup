@@ -13,6 +13,7 @@ import java.util.List;
  * Gabarito {"palavrasChave":[["faixa","pedestre"],["olh","observ"]], "minimo":3, "respostaModelo":"..."}
  * Resposta do aluno {"texto":"..."}
  * Cada grupo conta no máximo 1 vez; é correta quando grupos encontrados >= minimo.
+ * Sprint 9: cada termo precisa aparecer no INÍCIO de uma palavra (ver NormalizadorTexto.contemNoInicioDePalavra).
  * Sinônimo novo = só editar o JSON; esta classe não muda.
  */
 @Component
@@ -43,7 +44,7 @@ public class CorretorTextoLivre extends CorretorBase {
         long gruposEncontrados = gabarito.palavrasChave().stream()
                 .filter(grupo -> grupo.stream()
                         .map(NormalizadorTexto::paraPalavrasChave) // mesma normalização dos dois lados
-                        .anyMatch(texto::contains))
+                        .anyMatch(termo -> NormalizadorTexto.contemNoInicioDePalavra(texto, termo)))
                 .count();
         return gruposEncontrados >= gabarito.minimo();
     }

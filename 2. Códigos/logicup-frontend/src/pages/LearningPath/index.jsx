@@ -32,7 +32,10 @@ const podeAbrir = (fase) =>
     fase.status === STATUS_FASE.DISPONIVEL || fase.status === STATUS_FASE.CONCLUIDA;
 
 /* ---------- geometria do mapa ---------- */
-const PASSO = 215;       // distância vertical entre duas fases (px)
+const PASSO = 250;       // distância vertical entre duas fases (px)
+                         // Sprint 9: era 215. Medido no navegador (desktop): o rótulo de títulos com 2 linhas
+                         // (+ progresso + selo "Bloqueada") invadia até 25 px o ícone da fase seguinte.
+                         // 215 + 25 + 10 de folga = 250.
 const TOPO = 10;         // espaço antes da 1ª fase
 const CENTRO_ICONE = 58; // altura do centro do ícone dentro do nó (px)
 const AMPLITUDE = 26;    // quanto o caminho "balança" para os lados (% da largura)
@@ -215,7 +218,11 @@ const LearningPath = () => {
                                 const classes = [fase.status, fase.boss ? "boss" : "", ehAtual ? "atual" : ""].join(" ");
 
                                 return (
-                                    <No key={fase.ordem} style={{ left: `${x}%`, top: y }}>
+                                    // Sprint 9: zIndex DECRESCENTE (fase 1 na camada mais alta). Com z-index iguais, o
+                                    // nó que vem depois no HTML é pintado por cima: o ícone da fase seguinte cobria o
+                                    // selo "Bloqueada" da anterior. 2ª proteção: se um título mais longo voltar a encostar,
+                                    // o rótulo (fundo creme) fica POR CIMA do ícone e continua legível.
+                                    <No key={fase.ordem} style={{ left: `${x}%`, top: y, zIndex: 2 + fases.length - indice }}>
                                         <BotaoFase
                                             type="button"
                                             className={classes}

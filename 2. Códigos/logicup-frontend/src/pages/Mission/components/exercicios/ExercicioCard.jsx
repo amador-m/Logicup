@@ -1,7 +1,8 @@
 import { useState } from "react";
 import FeedbackQuestao from "./FeedbackQuestao";
 import { ROTULO_TIPO } from "../../rotulos";
-import { ExerciseItem, ExerciseMeta, CodeBox, HintButton, HintBox } from "../../styles";
+import { ExerciseItem, ExerciseMeta, HintButton, HintBox } from "../../styles";
+import CodigoJava from "../../../../components/ui/CodigoJava";
 
 /*
  * Um exercício da rodada. Recebe os dados EXATAMENTE como a API envia (sem gabarito).
@@ -28,7 +29,15 @@ const ExercicioCard = ({ exercicio, numero, concluido, resultado, children }) =>
             </h3>
             <p>{exercicio.enunciado}</p>
 
-            {exercicio.codigoApoio && <CodeBox>{exercicio.codigoApoio}</CodeBox>}
+            {/* Sprint 9: código com cara de IDE (cores, números de linha) e espaço antes da área de resposta.
+                Fluxograma em texto (tem "→", ex.: F1.Q8) não é Java: aparece sem cores. */}
+            {exercicio.codigoApoio && (
+                <CodigoJava
+                    codigo={exercicio.codigoApoio}
+                    variante={exercicio.codigoApoio.includes("→") ? "texto" : "java"}
+                    titulo={exercicio.codigoApoio.includes("→") ? "Fluxograma" : undefined}
+                />
+            )}
 
             {children}
 

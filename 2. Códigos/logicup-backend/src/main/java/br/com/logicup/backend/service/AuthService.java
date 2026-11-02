@@ -12,6 +12,7 @@ import br.com.logicup.backend.exception.UsernameEmUsoException;
 import br.com.logicup.backend.model.Aluno;
 import br.com.logicup.backend.model.Usuario;
 import br.com.logicup.backend.repository.UsuarioRepository;
+import br.com.logicup.backend.security.ProtecaoForcaBruta;
 import br.com.logicup.backend.security.TokenService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,7 @@ public class AuthService {
     private final TokenService tokenService;
     private final AceiteService aceiteService;
     private final ConquistaService conquistaService;
+    private final ProtecaoForcaBruta protecao; // Sprint 9: limite de tentativas (login e cadastro)
 
     /*
      * Hash de uma senha qualquer, usado quando o e-mail NÃO existe no login.
@@ -42,12 +44,13 @@ public class AuthService {
 
     public AuthService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder,
                        TokenService tokenService, AceiteService aceiteService,
-                       ConquistaService conquistaService) {
+                       ConquistaService conquistaService, ProtecaoForcaBruta protecao) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
         this.aceiteService = aceiteService;
         this.conquistaService = conquistaService;
+        this.protecao = protecao;
         this.hashFicticio = passwordEncoder.encode("logicup-senha-ficticia-para-tempo-constante");
     }
 
@@ -56,8 +59,12 @@ public class AuthService {
         return email == null ? null : email.trim().toLowerCase(Locale.ROOT);
     }
 
+    /** @param ip endereço de quem pede (vem do Controller), usado só no limite de tentativas (D4) */
     @Transactional
-    public AutenticacaoResultado cadastrar(CadastroRequest dados) {
+    public AutenticacaoResultado cadastrar(CadastroRequest dados, String ip) {
+        protecao.verificarERegistrarCadastro(ip); // Sprint 9 (D4): 10 tentativas de cadastro por hora por IP
+
+
         // Sprint 8: o aceite ATIVO (aceiteTermos = true) já foi exigido pelo @Valid; aqui, a VERSÃO lida
         aceiteService.exigirVersoesVigentes(dados.versaoTermos(), dados.versaoPrivacidade());
 
@@ -93,17 +100,26 @@ public class AuthService {
      * É assim que quem já tinha progresso antes desta versão ganha as medalhas (retroativo, decisão M5).
      */
     @Transactional
-    public AutenticacaoResultado login(LoginRequest dados) {
+    public AutenticacaoResultado login(LoginRequest dados, String ip) {
+        // a MESMA normalização da busca: "Ana@X.com" e "ana@x.com" contam como a mesma conta no limite
+        String login = dados.ehEmail() ? normalizarEmail(dados.login()) : CadastroRequest.normalizarUsername(dados.login());
+
+        // Sprint 9 (D1): bloqueado -> 429 ANTES do BCrypt (nem gasta processamento; e nem a senha certa entra)
+        protecao.verificarLogin(login, ip);
+
         Optional<Usuario> usuario = dados.ehEmail()
-                ? usuarioRepository.findByEmail(normalizarEmail(dados.login()))
-                : usuarioRepository.findByUsername(CadastroRequest.normalizarUsername(dados.login()));
+                ? usuarioRepository.findByEmail(login)
+                : usuarioRepository.findByUsername(login);
 
         String hashParaComparar = usuario.map(Usuario::getSenha).orElse(hashFicticio);
         boolean senhaConfere = passwordEncoder.matches(dados.senha(), hashParaComparar);
 
         if (usuario.isEmpty() || !senhaConfere) {
+            // conta o erro mesmo se a conta não existe: assim o limite não revela quem está cadastrado
+            protecao.registrarErroDeLogin(login, ip);
             throw new CredenciaisInvalidasException(); // mesma mensagem em todos os casos (AU7)
         }
+        protecao.registrarLoginCerto(login, ip);
         // com a herança JOINED, o Hibernate já devolve um Aluno quando a pessoa é aluno
         if (usuario.get() instanceof Aluno aluno) {
             conquistaService.avaliar(aluno);

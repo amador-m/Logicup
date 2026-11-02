@@ -57,7 +57,7 @@ public class AuthController {
     @PostMapping("/cadastro")
     public ResponseEntity<UsuarioResponse> cadastrar(@Valid @RequestBody CadastroRequest dados,
                                                      HttpServletRequest request, HttpServletResponse response) {
-        AutenticacaoResultado resultado = authService.cadastrar(dados); // se falhar, nada abaixo acontece
+        AutenticacaoResultado resultado = authService.cadastrar(dados, request.getRemoteAddr()); // se falhar, nada abaixo acontece
         trocarTokenCsrf(request, response);
         return comCookieDeLogin(HttpStatus.CREATED, resultado, response);
     }
@@ -65,7 +65,10 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<UsuarioResponse> login(@Valid @RequestBody LoginRequest dados,
                                                  HttpServletRequest request, HttpServletResponse response) {
-        AutenticacaoResultado resultado = authService.login(dados); // senha errada -> 401, sem trocar o token
+        // Sprint 9: o IP vai para o limite de tentativas. getRemoteAddr() = quem abriu a conexão com o servidor.
+        // ATENÇÃO (deploy): atrás de um proxy, isso seria o IP do PROXY; lá configuramos o Spring para ler
+        // o IP real do X-Forwarded-For, aceitando esse cabeçalho só do proxy confiável.
+        AutenticacaoResultado resultado = authService.login(dados, request.getRemoteAddr()); // senha errada -> 401
         trocarTokenCsrf(request, response);
         return comCookieDeLogin(HttpStatus.OK, resultado, response);
     }

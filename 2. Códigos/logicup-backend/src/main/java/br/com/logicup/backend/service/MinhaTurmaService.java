@@ -18,6 +18,7 @@ import br.com.logicup.backend.repository.AlunoRepository;
 import br.com.logicup.backend.repository.AlunoTurmaRepository;
 import br.com.logicup.backend.repository.TarefaRepository;
 import br.com.logicup.backend.repository.TurmaRepository;
+import br.com.logicup.backend.security.ProtecaoForcaBruta;
 import br.com.logicup.backend.service.TrilhaService.SituacaoTrilha;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,10 +43,12 @@ public class MinhaTurmaService {
     private final ProgressoNaTurma progresso;
     private final ConquistaService conquistaService;
     private final Clock clock;
+    private final ProtecaoForcaBruta protecao; // Sprint 9 (D2): limite de códigos errados
 
     public MinhaTurmaService(TurmaRepository turmaRepository, AlunoTurmaRepository alunoTurmaRepository,
                              AlunoRepository alunoRepository, TarefaRepository tarefaRepository,
-                             ProgressoNaTurma progresso, ConquistaService conquistaService, Clock clock) {
+                             ProgressoNaTurma progresso, ConquistaService conquistaService, Clock clock,
+                             ProtecaoForcaBruta protecao) {
         this.turmaRepository = turmaRepository;
         this.alunoTurmaRepository = alunoTurmaRepository;
         this.alunoRepository = alunoRepository;
@@ -53,19 +56,26 @@ public class MinhaTurmaService {
         this.progresso = progresso;
         this.conquistaService = conquistaService;
         this.clock = clock;
+        this.protecao = protecao;
     }
 
     /**
      * Entrar com o código (já normalizado no EntrarTurmaRequest — R4). A ordem das checagens importa:
-     *  1) código existe?                        não -> 404
+     *  0) passou do limite de códigos errados?  sim -> 429 (Sprint 9, D2)
+ *  1) código existe?                        não -> 404 (e conta 1 erro no limite)
      *  2) o aluno já tem uma turma ATIVA?       sim -> 409 (R5)
      *  3) já passou por ESTA turma antes?       REMOVIDO -> 403 (R7); SAIU -> a mesma linha volta a ATIVO (R6)
      *  4) senão, matrícula nova.
      */
     @Transactional
     public MinhaTurmaResponse entrar(Integer alunoId, EntrarTurmaRequest dados) {
-        Turma turma = turmaRepository.findByCodigoConvite(dados.codigo())
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Código de turma não encontrado. Confira com o professor."));
+        protecao.verificarCodigoTurma(alunoId); // Sprint 9 (D2): 10 códigos errados em 15 min -> 429
+        Optional<Turma> encontrada = turmaRepository.findByCodigoConvite(dados.codigo());
+        if (encontrada.isEmpty()) {
+            protecao.registrarCodigoTurmaInexistente(alunoId); // só código INEXISTENTE conta (409/403 não)
+            throw new RecursoNaoEncontradoException("Código de turma não encontrado. Confira com o professor.");
+        }
+        Turma turma = encontrada.get();
         Aluno aluno = alunoRepository.findById(alunoId).orElseThrow(SessaoInvalidaException::new);
 
         if (matriculaAtiva(alunoId).isPresent()) {

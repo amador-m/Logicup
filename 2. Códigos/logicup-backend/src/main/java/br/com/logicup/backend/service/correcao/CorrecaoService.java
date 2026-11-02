@@ -27,6 +27,11 @@ public class CorrecaoService {
         return corretorPara(exercicio).corrigir(exercicio, resposta);
     }
 
+    /** Sprint 9 (ADR-001): correção completa (inclui o estado PENDENTE das questões de código). */
+    public ResultadoCorrecao avaliar(Exercicio exercicio, Object resposta) {
+        return corretorPara(exercicio).avaliar(exercicio, resposta);
+    }
+
     public Object respostaCorreta(Exercicio exercicio) {
         return corretorPara(exercicio).respostaCorreta(exercicio);
     }

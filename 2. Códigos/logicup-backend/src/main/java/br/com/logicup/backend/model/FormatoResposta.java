@@ -10,5 +10,6 @@ public enum FormatoResposta {
     ASSOCIACAO,      // liga itens a opções
     RESPOSTA_CURTA,  // digita um valor curto, comparado com respostas aceitas
     TEXTO_LIVRE,     // texto/código aberto, corrigido por palavras-chave (até existir o JUnit)
-    BLOCOS           // montagem de blocos (estilo Scratch)
+    BLOCOS,          // montagem de blocos (estilo Scratch)
+    CODIGO           // Sprint 9 (ADR-001): código Java EXECUTADO no Piston e comparado com casos de teste
 }

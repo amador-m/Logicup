@@ -3,6 +3,7 @@ package br.com.logicup.backend.exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -133,6 +134,28 @@ public class GlobalExceptionHandler {
     }
 
     // qualquer outra coisa
+    /**
+     * Sprint 9: limite de tentativas. 429 = "Too Many Requests".
+     * Retry-After (padrão HTTP, em segundos) diz ao cliente quando pode tentar de novo.
+     */
+    @ExceptionHandler(MuitasTentativasException.class)
+    public ResponseEntity<ErroResponse> muitasTentativas(MuitasTentativasException ex) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header(HttpHeaders.RETRY_AFTER, String.valueOf(ex.segundosDeEspera()))
+                .body(new ErroResponse(429, "Muitas tentativas", ex.getMessage()));
+    }
+
+    /**
+     * Sprint 9 (ADR-001): executor de código fora do ar, ocupado ou desligado.
+     * 503 = "Service Unavailable": o problema é temporário e do servidor, não do código do aluno.
+     */
+    @ExceptionHandler(ExecutorIndisponivelException.class)
+    public ResponseEntity<ErroResponse> executorIndisponivel(ExecutorIndisponivelException ex) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .header(HttpHeaders.RETRY_AFTER, "30")
+                .body(new ErroResponse(503, "Executor indisponível", ex.getMessage()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErroResponse> generico(Exception ex) {
         // erros "normais" do Spring MVC (404 rota inexistente, 405 método errado...) já sabem seu status

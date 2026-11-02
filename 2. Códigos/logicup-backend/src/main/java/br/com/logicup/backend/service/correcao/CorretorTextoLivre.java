@@ -40,13 +40,21 @@ public class CorretorTextoLivre extends CorretorBase {
         Resposta enviada = lerResposta(resposta, Resposta.class);
         exigir(enviada.texto() != null, "Digite a sua resposta.");
 
-        String texto = NormalizadorTexto.paraPalavrasChave(enviada.texto());
-        long gruposEncontrados = gabarito.palavrasChave().stream()
+        return atingeMinimo(gabarito.palavrasChave(), gabarito.minimo(), enviada.texto());
+    }
+
+    /**
+     * A regra das palavras-chave, separada para ser REUSADA (Sprint 9): o CorretorCodigo a usa como
+     * prévia quando o executor está fora do ar. Mesmo comportamento de antes, só mudou de lugar.
+     */
+    static boolean atingeMinimo(List<List<String>> palavrasChave, int minimo, String textoDoAluno) {
+        String texto = NormalizadorTexto.paraPalavrasChave(textoDoAluno);
+        long gruposEncontrados = palavrasChave.stream()
                 .filter(grupo -> grupo.stream()
                         .map(NormalizadorTexto::paraPalavrasChave) // mesma normalização dos dois lados
                         .anyMatch(termo -> NormalizadorTexto.contemNoInicioDePalavra(texto, termo)))
                 .count();
-        return gruposEncontrados >= gabarito.minimo();
+        return gruposEncontrados >= minimo;
     }
 
     @Override

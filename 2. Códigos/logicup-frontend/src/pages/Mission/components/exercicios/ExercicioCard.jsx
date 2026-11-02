@@ -49,7 +49,12 @@ const ExercicioCard = ({ exercicio, numero, concluido, resultado, children }) =>
 
             {temMaisDicas && (
                 <HintButton type="button" onClick={() => setDicasVisiveis((n) => n + 1)}>
+                    <span className="lampada" aria-hidden="true">💡</span>
                     {dicasVisiveis === 0 ? "Ver dica" : "Ver outra dica"}
+                    {/* com mais de uma dica, o aluno sabe quantas ainda tem */}
+                    {exercicio.dicas.length > 1 && (
+                        <span className="contador">({dicasVisiveis + 1} de {exercicio.dicas.length})</span>
+                    )}
                 </HintButton>
             )}
         </ExerciseItem>

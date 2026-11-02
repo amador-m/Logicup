@@ -18,6 +18,9 @@ const ROTULO_ESTADO = { correta: "concluída", errada: "errada", pendente: "não
 
 /** O que o mascote fala ANTES da resposta e DEPOIS da correção. */
 function falaDoMascote(exercicio, resultado) {
+    if (resultado?.pendente) {
+        return "Não consegui rodar seu código agora. Tente de novo daqui a pouco!";
+    }
     if (resultado) {
         return resultado.correta ? "Mandou bem!" : "Quase! Leia a explicação, ela ajuda.";
     }
@@ -42,6 +45,7 @@ const FluxoQuestoes = ({
     erroEnvio,
     aoResponder,
     aoVerificar,
+    aoTentarDeNovo,      // Sprint 9: questão de código pendente -> enviar de novo
     aoAvancar,
     aoVoltar,
 }) => {
@@ -66,7 +70,8 @@ const FluxoQuestoes = ({
         topoRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, [exercicio.id]);
 
-    const humor = resultado ? (resultado.correta ? "acerto" : "erro") : "neutro";
+    // pendente não é erro: o mascote não "balança" de decepção
+    const humor = resultado && !resultado.pendente ? (resultado.correta ? "acerto" : "erro") : "neutro";
 
     return (
         <>
@@ -119,7 +124,7 @@ const FluxoQuestoes = ({
                             <FeedbackQuestao
                                 exercicio={exercicio}
                                 resultado={resultado}
-                                aviso={resultado.correta ? null : "Você poderá refazer esta questão no fim da rodada."}
+                                aviso={resultado.correta || resultado.pendente ? null : "Você poderá refazer esta questão no fim da rodada."}
                             />
                         </div>
                     )}
@@ -139,9 +144,16 @@ const FluxoQuestoes = ({
                         </PrimaryButton>
                     </>
                 ) : resultado ? (
-                    <PrimaryButton type="button" onClick={aoAvancar}>
-                        {ultima ? "Ver resultado da rodada" : "Continuar →"}
-                    </PrimaryButton>
+                    <>
+                        {resultado.pendente && (
+                            <OutlineButton type="button" onClick={() => aoTentarDeNovo(exercicio.id)}>
+                                Tentar de novo
+                            </OutlineButton>
+                        )}
+                        <PrimaryButton type="button" onClick={aoAvancar}>
+                            {ultima ? "Ver resultado da rodada" : "Continuar →"}
+                        </PrimaryButton>
+                    </>
                 ) : (
                     <PrimaryButton
                         type="button"

@@ -705,15 +705,61 @@ export const ExerciseMeta = styled.div`
   }
 `;
 
+/* Sprint 9: era só um texto sublinhado; agora tem cara de botão (pílula), no amarelo da caixa de dica,
+   para o aluno associar o botão ao que ele abre. */
 export const HintButton = styled.button`
-  margin-top: 14px;
-  background: none;
-  border: none;
-  color: var(--orange);
+  margin-top: 16px;
+  display: flex; /* "flex" (e não inline-flex): fica na própria linha, abaixo do campo de resposta */
+  width: fit-content;
+  align-items: center;
+  gap: 8px;
+  background: rgba(236, 172, 12, 0.16);
+  border: 2px solid var(--yellow);
+  color: var(--brown-dark);
   font-weight: 800;
+  font-size: 15px;
   cursor: pointer;
-  padding: 4px 0;
-  text-decoration: underline;
+  padding: 9px 18px;
+  border-radius: 999px;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+
+  .lampada {
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .contador {
+    font-weight: 600;
+    font-size: 13px;
+    opacity: 0.8;
+  }
+
+  /* só em aparelhos com mouse: na tela de toque, o :hover "gruda" depois do toque */
+  @media (hover: hover) {
+    &:hover {
+      background: var(--yellow);
+      color: var(--dark);
+      transform: translateY(-1px);
+    }
+  }
+
+  &:active {
+    background: var(--yellow);
+    color: var(--dark);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--orange);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+  }
 `;
 
 export const HintBox = styled.div`
@@ -885,6 +931,16 @@ export const QuestionFeedback = styled.div`
   &.error {
     background: rgba(227, 92, 51, 0.1);
     border-left: 6px solid var(--orange);
+  }
+
+  /* Sprint 9 (ADR-001): questão de código que não pôde ser executada agora (nem certa, nem errada) */
+  &.pending {
+    background: rgba(236, 172, 12, 0.14);
+    border-left: 6px solid var(--yellow);
+  }
+
+  &.pending .verdict {
+    color: var(--brown-dark);
   }
 
   .verdict {
@@ -1090,13 +1146,17 @@ export const PontoQuestao = styled.li`
 
 export const FeedbackComMascote = styled.div`
   display: grid;
-  grid-template-columns: auto 1fr;
+  /* Sprint 9: minmax(0, 1fr) e não 1fr. "1fr" = minmax(auto, 1fr): a coluna nunca fica mais estreita que a
+     linha mais longa do conteúdo. Com blocos de código no feedback (questões de CÓDIGO), isso alargava a
+     página inteira no celular. Com 0, a linha longa rola DENTRO da janela de código. */
+  grid-template-columns: auto minmax(0, 1fr);
   gap: 18px;
   align-items: start;
   margin-top: 18px;
 
   > div:last-child {
     outline: none;
+    min-width: 0;
   }
 
   > div:last-child > div {
@@ -1104,7 +1164,7 @@ export const FeedbackComMascote = styled.div`
   }
 
   @media (max-width: 600px) {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 `;
 

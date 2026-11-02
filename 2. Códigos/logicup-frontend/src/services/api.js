@@ -147,6 +147,20 @@ export const trilhaApi = {
 };
 
 /*
+ * Sprint 9 (ADR-001): botão "Executar" (sem XP, sem correção). O código roda no executor (Piston) do servidor.
+ * Resposta: { situacao, mensagem, saida, erros, tempoMs, dica }
+ *   situacao = SUCESSO | ERRO_COMPILACAO | ERRO_EXECUCAO | TEMPO_ESGOTADO | SAIDA_EXCEDIDA | INTERROMPIDO
+ * Erros HTTP: 503 = executor indisponível; 429 = muitas execuções seguidas; 400 = código inválido.
+ */
+export const execucaoApi = {
+    /** Dentro de uma questão de código: roda com os EXEMPLOS públicos da questão. */
+    executarExercicio: (exercicioId, codigo) =>
+        requisicao(`/exercicios/${exercicioId}/execucoes`, { method: "POST", body: { codigo } }),
+    /** Laboratório (programa completo). */
+    executar: (codigo, entrada = "") => requisicao("/execucoes", { method: "POST", body: { codigo, entrada } }),
+};
+
+/*
  * Sprint 7: ranking global por XP (só alunos). O backend devolve:
  *   topo = até 10 alunos com XP > 0  -> [{posicao, username, xp, nivel, voce}]
  *   voce = a linha de quem está logado (posicao null se ainda não pontuou; null para professor/admin)

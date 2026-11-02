@@ -32,6 +32,12 @@ export function estaRespondida(exercicio, resposta) {
             return (resposta.texto ?? "").trim().length > 0;
         case "TEXTO_LIVRE":
             return (resposta.texto ?? "").trim().length > 0;
+        case "CODIGO": {
+            // Sprint 9 (ADR-001): precisa ter escrito ALGO além do código inicial (que é só um comentário)
+            const codigo = (resposta.codigo ?? "").trim();
+            const inicial = (exercicio.alternativas?.codigoInicial ?? "").trim();
+            return codigo.length > 0 && codigo !== inicial;
+        }
         default:
             return false; // BLOCOS (X4) não é enviado
     }

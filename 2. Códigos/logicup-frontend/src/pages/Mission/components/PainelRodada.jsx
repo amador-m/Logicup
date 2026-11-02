@@ -155,11 +155,15 @@ const PainelRodada = ({
             ]);
             const resultado = correcao.resultados[0];
             setResultados((atuais) => ({ ...atuais, [exercicio.id]: resultado }));
-            setEstados((atuais) => ({
-                ...atuais,
-                // PR1: uma questão concluída nunca volta a ser "errada"
-                [exercicio.id]: resultado.correta || atuais[exercicio.id] === "correta" ? "correta" : "errada",
-            }));
+            // Sprint 9 (decisão 1-A): questão de código PENDENTE (executor fora do ar) não muda de situação:
+            // o backend não gravou nada, então ela continua como estava ("não respondida", por exemplo).
+            if (!resultado.pendente) {
+                setEstados((atuais) => ({
+                    ...atuais,
+                    // PR1: uma questão concluída nunca volta a ser "errada"
+                    [exercicio.id]: resultado.correta || atuais[exercicio.id] === "correta" ? "correta" : "errada",
+                }));
+            }
             if (correcao.resumo.rodadaAprovada && !aprovada) {
                 setAprovada(true);
                 setAprovadaAgora(true); // comemora só na transição
@@ -171,6 +175,12 @@ const PainelRodada = ({
         } finally {
             setEnviando(false);
         }
+    };
+
+    /** Sprint 9: questão pendente -> apaga o feedback para o aluno poder enviar de novo, com o mesmo código. */
+    const tentarDeNovo = (exercicioId) => {
+        setErroEnvio(null);
+        setResultados((atuais) => semAsChaves(atuais, [exercicioId]));
     };
 
     const avancar = () => {
@@ -237,6 +247,7 @@ const PainelRodada = ({
                     erroEnvio={erroEnvio}
                     aoResponder={responder}
                     aoVerificar={verificar}
+                    aoTentarDeNovo={tentarDeNovo}
                     aoAvancar={avancar}
                     aoVoltar={voltar}
                 />

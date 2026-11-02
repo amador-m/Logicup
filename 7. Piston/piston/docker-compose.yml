@@ -1,0 +1,36 @@
+# =====================================================================
+# LogiCup — Piston (executor de código), Sprint 9 / ADR-001
+#
+# Sobe o Piston com os limites do LogiCup. Os mesmos valores (ou maiores) precisam estar aqui e no
+# application.properties: o Piston RECUSA pedidos acima do limite configurado aqui.
+#
+# SEGURANÇA:
+#  - "127.0.0.1:2000:2000": a porta só abre para o PRÓPRIO computador. NUNCA troque por "2000:2000":
+#    a API do Piston permite instalar pacotes e executar código, então ela não pode ficar na internet.
+#  - privileged: o Piston precisa disso para criar as sandboxes (isolate + cgroups). É o ponto de
+#    risco aceito no ADR-001; por isso a porta fechada e os limites abaixo são obrigatórios.
+#  - Em produção, a versão da imagem deve ser fixada (não usar "latest") e atualizada com cuidado.
+# =====================================================================
+services:
+  piston:
+    image: ghcr.io/engineer-man/piston:latest
+    container_name: logicup_piston
+    restart: unless-stopped
+    privileged: true
+    ports:
+      - "127.0.0.1:2000:2000"
+    environment:
+      PISTON_DISABLE_NETWORKING: "true"      # programas dos alunos SEM internet
+      PISTON_RUN_TIMEOUT: "6000"             # 6 s de relógio por execução (inclui compilar)
+      PISTON_RUN_CPU_TIME: "5000"            # 5 s de CPU
+      PISTON_RUN_MEMORY_LIMIT: "268435456"   # 256 MB (o padrão do Piston é ILIMITADO)
+      PISTON_COMPILE_MEMORY_LIMIT: "268435456"
+      PISTON_MAX_PROCESS_COUNT: "64"         # processos/threads por execução
+      PISTON_MAX_OPEN_FILES: "256"
+      PISTON_MAX_FILE_SIZE: "1000000"        # 1 MB por arquivo criado pelo programa
+      PISTON_OUTPUT_MAX_SIZE: "20000"        # 20.000 caracteres de saída
+      PISTON_MAX_CONCURRENT_JOBS: "3"        # igual a logicup.executor.simultaneas
+    volumes:
+      - ./dados/packages:/piston/packages    # o Java instalado fica salvo aqui (não reinstala a cada vez)
+    tmpfs:
+      - /tmp:exec

@@ -100,7 +100,7 @@ CREATE TABLE `exercicio` (
   `ordenacao` int NOT NULL,
   `dificuldade` enum('FACIL','MEDIO','DIFICIL') DEFAULT NULL,
   `tipo_exercicio` enum('VERDADEIRO_FALSO','MULTIPLA_ESCOLHA','BLOCOS','COMPLETAR_CODIGO','ENCONTRAR_ERRO','PREVER_SAIDA','ESCREVER_CODIGO','ASSOCIACAO','DESAFIO_RELAMPAGO','PUZZLE_LOGICO','ORDEM_CORRETA','BOSS_CHALLENGE') NOT NULL,
-  `formato_resposta` enum('ESCOLHA_UNICA','ORDENACAO','ASSOCIACAO','RESPOSTA_CURTA','TEXTO_LIVRE','BLOCOS') NOT NULL,
+  `formato_resposta` enum('ESCOLHA_UNICA','ORDENACAO','ASSOCIACAO','RESPOSTA_CURTA','TEXTO_LIVRE','BLOCOS','CODIGO') NOT NULL,
   `pontos` int NOT NULL,
   `enunciado` text NOT NULL,
   `codigo_apoio` text,
@@ -215,5 +215,7 @@ CREATE TABLE `usuario` (
   UNIQUE KEY `uk_usuario_username` (`username`),
   KEY `idx_usuario_email` (`e_mail`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
 
 SET FOREIGN_KEY_CHECKS = 1;

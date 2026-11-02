@@ -1,0 +1,292 @@
+{
+  "F4.Q9": {
+    "modo": "TRECHO",
+    "comparacao": "EXATA",
+    "codigoInicial": "// A variável energia já existe. Escreva aqui o if / else if / else:\n",
+    "programaTeste": "import java.util.*;\n\npublic class Main {\n    static void executar(int energia) {\n//@CODIGO_DO_ALUNO\n    }\n\n    public static void main(String[] args) {\n        int[] valores = {0, 1, 3, 4, 5, 7, 10};\n        for (int valor : valores) {\n            System.out.print(\"<<<LOGICUP-CASO>>>\");\n            executar(valor);\n        }\n    }\n}\n",
+    "programaExemplo": "import java.util.*;\n\npublic class Main {\n    static void executar(int energia) {\n//@CODIGO_DO_ALUNO\n    }\n\n    public static void main(String[] args) {\n        System.out.println(\"--- Exemplo: energia = 0 ---\");\n        executar(0);\n        System.out.println(\"--- Exemplo: energia = 7 ---\");\n        executar(7);\n    }\n}\n",
+    "casos": [
+      {
+        "descricao": "energia = 0",
+        "saida": "Exausto: hora do café!"
+      },
+      {
+        "descricao": "energia = 1",
+        "saida": "Energia baixa"
+      },
+      {
+        "descricao": "energia = 3",
+        "saida": "Energia baixa"
+      },
+      {
+        "descricao": "energia = 4",
+        "saida": "Energia baixa"
+      },
+      {
+        "descricao": "energia = 5",
+        "saida": "Pronto para a Arena!"
+      },
+      {
+        "descricao": "energia = 7",
+        "saida": "Pronto para a Arena!"
+      },
+      {
+        "descricao": "energia = 10",
+        "saida": "Pronto para a Arena!"
+      }
+    ],
+    "exemplos": [
+      "energia = 0",
+      "energia = 7"
+    ],
+    "saidaDosExemplos": "--- Exemplo: energia = 0 ---\nExausto: hora do café!\n--- Exemplo: energia = 7 ---\nPronto para a Arena!"
+  },
+  "F5.Q9": {
+    "modo": "TRECHO",
+    "comparacao": "NUMEROS",
+    "codigoInicial": "// Escreva aqui o laço que exibe as missões bônus:\n",
+    "programaTeste": "import java.util.*;\n\npublic class Main {\n    static void executar() {\n//@CODIGO_DO_ALUNO\n    }\n\n    public static void main(String[] args) {\n        System.out.print(\"<<<LOGICUP-CASO>>>\");\n        executar();\n    }\n}\n",
+    "programaExemplo": "import java.util.*;\n\npublic class Main {\n    static void executar() {\n//@CODIGO_DO_ALUNO\n    }\n\n    public static void main(String[] args) {\n        executar();\n    }\n}\n",
+    "casos": [
+      {
+        "descricao": "missões bônus de 2 a 20",
+        "saida": "2\n4\n6\n8\n10\n12\n14\n16\n18\n20"
+      }
+    ],
+    "exemplos": [
+      "exibe as missões bônus"
+    ],
+    "saidaDosExemplos": "2\n4\n6\n8\n10\n12\n14\n16\n18\n20"
+  },
+  "F6.Q9": {
+    "modo": "TRECHO",
+    "comparacao": "ULTIMO_NUMERO",
+    "codigoInicial": "// O vetor pontos já existe. Conte as missões com pontuação >= 7 e exiba o total:\n",
+    "programaTeste": "import java.util.*;\n\npublic class Main {\n    static void executar(int[] pontos) {\n//@CODIGO_DO_ALUNO\n    }\n\n    public static void main(String[] args) {\n        int[][] casos = {{7, 3, 10, 6, 7}, {}, {6, 6, 6}, {9}, {7, 7, 7, 7}, {10, 0, 8, 6}};\n        for (int[] pontos : casos) {\n            System.out.print(\"<<<LOGICUP-CASO>>>\");\n            executar(pontos);\n        }\n    }\n}\n",
+    "programaExemplo": "import java.util.*;\n\npublic class Main {\n    static void executar(int[] pontos) {\n//@CODIGO_DO_ALUNO\n    }\n\n    public static void main(String[] args) {\n        System.out.println(\"--- Exemplo: pontos = {7, 3, 10, 6, 7} ---\");\n        executar(new int[]{7, 3, 10, 6, 7});\n    }\n}\n",
+    "casos": [
+      {
+        "descricao": "pontos = {7, 3, 10, 6, 7}",
+        "saida": "3"
+      },
+      {
+        "descricao": "pontos = {} (nenhuma missão)",
+        "saida": "0"
+      },
+      {
+        "descricao": "pontos = {6, 6, 6}",
+        "saida": "0"
+      },
+      {
+        "descricao": "pontos = {9}",
+        "saida": "1"
+      },
+      {
+        "descricao": "pontos = {7, 7, 7, 7}",
+        "saida": "4"
+      },
+      {
+        "descricao": "pontos = {10, 0, 8, 6}",
+        "saida": "2"
+      }
+    ],
+    "exemplos": [
+      "pontos = {7, 3, 10, 6, 7}"
+    ],
+    "saidaDosExemplos": "--- Exemplo: pontos = {7, 3, 10, 6, 7} ---\n3"
+  },
+  "F7.Q9": {
+    "modo": "MEMBRO",
+    "comparacao": "EXATA",
+    "codigoInicial": "// Escreva aqui o método maiorDano:\n",
+    "programaTeste": "import java.util.*;\n\npublic class Main {\n//@CODIGO_DO_ALUNO\n\n    public static void main(String[] args) {\n        java.io.PrintStream logicupSaida = System.out;\n        Main logicupObjeto = new Main();\n        int[][] casos = {{3, 9, 2}, {5}, {-4, -2, -9}, {30, 1, 2}, {1, 2, 30}, {7, 7}};\n        for (int[] danos : casos) {\n            logicupSaida.print(\"<<<LOGICUP-CASO>>>\");\n            System.setOut(new java.io.PrintStream(java.io.OutputStream.nullOutputStream()));\n            var resultado = logicupObjeto.maiorDano(danos);\n            System.setOut(logicupSaida);\n            System.out.println(resultado);\n        }\n    }\n}\n",
+    "programaExemplo": "import java.util.*;\n\npublic class Main {\n//@CODIGO_DO_ALUNO\n\n    public static void main(String[] args) {\n        System.out.println(\"--- Exemplo: maiorDano({3, 9, 2}) ---\");\n        System.out.println(\"Valor devolvido: \" + new Main().maiorDano(new int[]{3, 9, 2}));\n    }\n}\n",
+    "casos": [
+      {
+        "descricao": "maiorDano({3, 9, 2})",
+        "saida": "9"
+      },
+      {
+        "descricao": "maiorDano({5})",
+        "saida": "5"
+      },
+      {
+        "descricao": "maiorDano({-4, -2, -9}) (só valores negativos)",
+        "saida": "-2"
+      },
+      {
+        "descricao": "maiorDano({30, 1, 2}) (maior no início)",
+        "saida": "30"
+      },
+      {
+        "descricao": "maiorDano({1, 2, 30}) (maior no fim)",
+        "saida": "30"
+      },
+      {
+        "descricao": "maiorDano({7, 7})",
+        "saida": "7"
+      }
+    ],
+    "exemplos": [
+      "maiorDano({3, 9, 2})"
+    ],
+    "saidaDosExemplos": "--- Exemplo: maiorDano({3, 9, 2}) ---\nValor devolvido: 9"
+  },
+  "F8.Q9": {
+    "modo": "MEMBRO",
+    "comparacao": "EXATA",
+    "codigoInicial": "import java.util.ArrayList;\n\n// Escreva aqui o método golpesCriticos:\n",
+    "programaTeste": "import java.util.*;\n\npublic class Main {\n//@CODIGO_DO_ALUNO\n\n    public static void main(String[] args) {\n        java.io.PrintStream logicupSaida = System.out;\n        Main logicupObjeto = new Main();\n        List<List<Integer>> casos = List.of(List.of(10, 50, 41, 40, 99), List.of(), List.of(40, 40),\n                List.of(41), List.of(100, 20, 60));\n        for (List<Integer> caso : casos) {\n            logicupSaida.print(\"<<<LOGICUP-CASO>>>\");\n            System.setOut(new java.io.PrintStream(java.io.OutputStream.nullOutputStream()));\n            var resultado = logicupObjeto.golpesCriticos(new ArrayList<>(caso));\n            System.setOut(logicupSaida);\n            System.out.println(resultado);\n        }\n    }\n}\n",
+    "programaExemplo": "import java.util.*;\n\npublic class Main {\n//@CODIGO_DO_ALUNO\n\n    public static void main(String[] args) {\n        System.out.println(\"--- Exemplo: golpesCriticos([10, 50, 41, 40, 99]) ---\");\n        System.out.println(\"Valor devolvido: \"\n                + new Main().golpesCriticos(new ArrayList<>(List.of(10, 50, 41, 40, 99))));\n    }\n}\n",
+    "casos": [
+      {
+        "descricao": "golpesCriticos([10, 50, 41, 40, 99])",
+        "saida": "[50, 41, 99]"
+      },
+      {
+        "descricao": "golpesCriticos([]) (lista vazia)",
+        "saida": "[]"
+      },
+      {
+        "descricao": "golpesCriticos([40, 40]) (exatamente 40 não é crítico)",
+        "saida": "[]"
+      },
+      {
+        "descricao": "golpesCriticos([41])",
+        "saida": "[41]"
+      },
+      {
+        "descricao": "golpesCriticos([100, 20, 60])",
+        "saida": "[100, 60]"
+      }
+    ],
+    "exemplos": [
+      "golpesCriticos([10, 50, 41, 40, 99])"
+    ],
+    "saidaDosExemplos": "--- Exemplo: golpesCriticos([10, 50, 41, 40, 99]) ---\nValor devolvido: [50, 41, 99]"
+  },
+  "F9.R1.Q9": {
+    "modo": "CLASSES",
+    "comparacao": "EXATA",
+    "codigoInicial": "// Escreva aqui a classe Bau:\n",
+    "programaTeste": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) throws Exception {\n        java.io.PrintStream logicupSaida = System.out;\n        int[] valores = {30, 0, 125};\n        for (int valor : valores) {\n            logicupSaida.print(\"<<<LOGICUP-CASO>>>\");\n            System.setOut(new java.io.PrintStream(java.io.OutputStream.nullOutputStream()));\n            Bau bau = new Bau(valor);\n            var resultado = bau.getGemas();\n            System.setOut(logicupSaida);\n            System.out.println(resultado);\n        }\n        logicupSaida.print(\"<<<LOGICUP-CASO>>>\");\n        java.lang.reflect.Field atributo = Bau.class.getDeclaredField(\"gemas\");\n        String visibilidade = java.lang.reflect.Modifier.isPrivate(atributo.getModifiers()) ? \"private\" : \"NÃO private\";\n        System.out.println(visibilidade + \" \" + atributo.getType().getName() + \" gemas\");\n    }\n}\n\n//@CODIGO_DO_ALUNO\n",
+    "programaExemplo": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println(\"--- Exemplo: new Bau(30).getGemas() ---\");\n        Bau bau = new Bau(30);\n        System.out.println(\"Valor devolvido: \" + bau.getGemas());\n    }\n}\n\n//@CODIGO_DO_ALUNO\n",
+    "casos": [
+      {
+        "descricao": "new Bau(30).getGemas()",
+        "saida": "30"
+      },
+      {
+        "descricao": "new Bau(0).getGemas()",
+        "saida": "0"
+      },
+      {
+        "descricao": "new Bau(125).getGemas()",
+        "saida": "125"
+      },
+      {
+        "descricao": "o atributo gemas é private e do tipo int",
+        "saida": "private int gemas"
+      }
+    ],
+    "exemplos": [
+      "new Bau(30).getGemas()"
+    ],
+    "saidaDosExemplos": "--- Exemplo: new Bau(30).getGemas() ---\nValor devolvido: 30"
+  },
+  "F9.R2.Q9": {
+    "modo": "CLASSES",
+    "comparacao": "EXATA",
+    "codigoInicial": "// A classe Bug já existe. Escreva aqui a classe BugVeloz:\n",
+    "programaTeste": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        java.io.PrintStream logicupSaida = System.out;\n        System.setOut(new java.io.PrintStream(java.io.OutputStream.nullOutputStream()));\n        Bug zip = new BugVeloz(\"Zip\");\n        Bug flash = new BugVeloz(\"Flash\");\n        System.setOut(logicupSaida);\n\n        logicupSaida.print(\"<<<LOGICUP-CASO>>>\");\n        System.out.println(zip.atacar());\n        logicupSaida.print(\"<<<LOGICUP-CASO>>>\");\n        System.out.println(zip.getVida());\n        logicupSaida.print(\"<<<LOGICUP-CASO>>>\");\n        System.out.println(zip.getNome());\n        logicupSaida.print(\"<<<LOGICUP-CASO>>>\");\n        System.out.println(flash.getNome() + \" \" + flash.getVida());\n        logicupSaida.print(\"<<<LOGICUP-CASO>>>\");\n        System.out.println(new Bug(\"Comum\", 50).atacar());\n    }\n}\n\n//@CODIGO_DO_ALUNO\n\nclass Bug {\n    private String nome;\n    private int vida;\n\n    public Bug(String nome, int vida) {\n        this.nome = nome;\n        this.vida = vida;\n    }\n\n    public int atacar() {\n        return 10;\n    }\n\n    public String getNome() {\n        return nome;\n    }\n\n    public int getVida() {\n        return vida;\n    }\n}\n",
+    "programaExemplo": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println(\"--- Exemplo: Bug zip = new BugVeloz(\\\"Zip\\\") ---\");\n        Bug zip = new BugVeloz(\"Zip\");\n        System.out.println(\"atacar(): \" + zip.atacar());\n        System.out.println(\"vida: \" + zip.getVida());\n    }\n}\n\n//@CODIGO_DO_ALUNO\n\nclass Bug {\n    private String nome;\n    private int vida;\n\n    public Bug(String nome, int vida) {\n        this.nome = nome;\n        this.vida = vida;\n    }\n\n    public int atacar() {\n        return 10;\n    }\n\n    public String getNome() {\n        return nome;\n    }\n\n    public int getVida() {\n        return vida;\n    }\n}\n",
+    "casos": [
+      {
+        "descricao": "Bug zip = new BugVeloz(\"Zip\"); zip.atacar()",
+        "saida": "15"
+      },
+      {
+        "descricao": "vida inicial de new BugVeloz(\"Zip\")",
+        "saida": "20"
+      },
+      {
+        "descricao": "nome de new BugVeloz(\"Zip\")",
+        "saida": "Zip"
+      },
+      {
+        "descricao": "nome e vida de new BugVeloz(\"Flash\")",
+        "saida": "Flash 20"
+      },
+      {
+        "descricao": "um Bug comum continua atacando com 10",
+        "saida": "10"
+      }
+    ],
+    "exemplos": [
+      "Bug zip = new BugVeloz(\"Zip\")"
+    ],
+    "saidaDosExemplos": "--- Exemplo: Bug zip = new BugVeloz(\"Zip\") ---\natacar(): 15\nvida: 20"
+  },
+  "F10.Q8": {
+    "modo": "MEMBRO",
+    "comparacao": "EXATA",
+    "codigoInicial": "import java.util.ArrayList;\n\n// A classe Item já existe. Escreva aqui o método valorTotal:\n",
+    "programaTeste": "import java.util.*;\n\npublic class Main {\n//@CODIGO_DO_ALUNO\n\n    public static void main(String[] args) {\n        java.io.PrintStream logicupSaida = System.out;\n        Main logicupObjeto = new Main();\n        List<List<Item>> casos = List.of(\n                List.of(new Item(\"Espada\", 10), new Item(\"Escudo\", 20), new Item(\"Poção\", 30)),\n                List.of(),\n                List.of(new Item(\"Moeda\", 7)),\n                List.of(new Item(\"Pedra\", 10), new LogicupItemDobrado(\"Coroa\", 20)));\n        for (List<Item> caso : casos) {\n            logicupSaida.print(\"<<<LOGICUP-CASO>>>\");\n            System.setOut(new java.io.PrintStream(java.io.OutputStream.nullOutputStream()));\n            var resultado = logicupObjeto.valorTotal(new ArrayList<>(caso));\n            System.setOut(logicupSaida);\n            System.out.println(resultado);\n        }\n    }\n}\n\nclass Item {\n    private String nome;\n    private int valor;\n\n    public Item(String nome, int valor) {\n        this.nome = nome;\n        this.valor = valor;\n    }\n\n    public String getNome() {\n        return nome;\n    }\n\n    public int getValor() {\n        return valor;\n    }\n}\n\nclass LogicupItemDobrado extends Item {\n    LogicupItemDobrado(String nome, int valor) {\n        super(nome, valor);\n    }\n\n    @Override\n    public int getValor() {\n        return super.getValor() * 2;\n    }\n}\n",
+    "programaExemplo": "import java.util.*;\n\npublic class Main {\n//@CODIGO_DO_ALUNO\n\n    public static void main(String[] args) {\n        System.out.println(\"--- Exemplo: itens com valores 10, 20 e 30 ---\");\n        ArrayList<Item> itens = new ArrayList<>(List.of(new Item(\"Espada\", 10), new Item(\"Escudo\", 20),\n                new Item(\"Poção\", 30)));\n        System.out.println(\"Valor devolvido: \" + new Main().valorTotal(itens));\n    }\n}\n\nclass Item {\n    private String nome;\n    private int valor;\n\n    public Item(String nome, int valor) {\n        this.nome = nome;\n        this.valor = valor;\n    }\n\n    public String getNome() {\n        return nome;\n    }\n\n    public int getValor() {\n        return valor;\n    }\n}\n",
+    "casos": [
+      {
+        "descricao": "itens com valores 10, 20 e 30",
+        "saida": "60"
+      },
+      {
+        "descricao": "lista vazia",
+        "saida": "0"
+      },
+      {
+        "descricao": "um item com valor 7",
+        "saida": "7"
+      },
+      {
+        "descricao": "um item comum (10) e um item raro (20, que vale o dobro)",
+        "saida": "50"
+      }
+    ],
+    "exemplos": [
+      "itens com valores 10, 20 e 30"
+    ],
+    "saidaDosExemplos": "--- Exemplo: itens com valores 10, 20 e 30 ---\nValor devolvido: 60"
+  },
+  "F10.Q9": {
+    "modo": "CLASSES",
+    "comparacao": "EXATA",
+    "codigoInicial": "// A classe Item já existe. Escreva aqui a classe ItemRaro:\n",
+    "programaTeste": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        java.io.PrintStream logicupSaida = System.out;\n        Object[][] casos = {{\"Coroa\", 50}, {\"Anel\", 0}, {\"Gema\", 7}};\n        for (Object[] caso : casos) {\n            logicupSaida.print(\"<<<LOGICUP-CASO>>>\");\n            System.setOut(new java.io.PrintStream(java.io.OutputStream.nullOutputStream()));\n            Item item = new ItemRaro((String) caso[0], (Integer) caso[1]);\n            var resultado = item.getValor();\n            System.setOut(logicupSaida);\n            System.out.println(resultado);\n        }\n        logicupSaida.print(\"<<<LOGICUP-CASO>>>\");\n        System.out.println(new ItemRaro(\"Coroa\", 50).getNome());\n        logicupSaida.print(\"<<<LOGICUP-CASO>>>\");\n        System.out.println(new Item(\"Pedra\", 50).getValor());\n    }\n}\n\n//@CODIGO_DO_ALUNO\n\nclass Item {\n    private String nome;\n    private int valor;\n\n    public Item(String nome, int valor) {\n        this.nome = nome;\n        this.valor = valor;\n    }\n\n    public String getNome() {\n        return nome;\n    }\n\n    public int getValor() {\n        return valor;\n    }\n}\n",
+    "programaExemplo": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println(\"--- Exemplo: Item coroa = new ItemRaro(\\\"Coroa\\\", 50) ---\");\n        Item coroa = new ItemRaro(\"Coroa\", 50);\n        System.out.println(\"getValor(): \" + coroa.getValor());\n    }\n}\n\n//@CODIGO_DO_ALUNO\n\nclass Item {\n    private String nome;\n    private int valor;\n\n    public Item(String nome, int valor) {\n        this.nome = nome;\n        this.valor = valor;\n    }\n\n    public String getNome() {\n        return nome;\n    }\n\n    public int getValor() {\n        return valor;\n    }\n}\n",
+    "casos": [
+      {
+        "descricao": "Item coroa = new ItemRaro(\"Coroa\", 50); coroa.getValor()",
+        "saida": "100"
+      },
+      {
+        "descricao": "new ItemRaro(\"Anel\", 0).getValor()",
+        "saida": "0"
+      },
+      {
+        "descricao": "new ItemRaro(\"Gema\", 7).getValor()",
+        "saida": "14"
+      },
+      {
+        "descricao": "o nome é repassado para Item",
+        "saida": "Coroa"
+      },
+      {
+        "descricao": "um Item comum continua valendo o valor original",
+        "saida": "50"
+      }
+    ],
+    "exemplos": [
+      "Item coroa = new ItemRaro(\"Coroa\", 50)"
+    ],
+    "saidaDosExemplos": "--- Exemplo: Item coroa = new ItemRaro(\"Coroa\", 50) ---\ngetValor(): 100"
+  }
+}

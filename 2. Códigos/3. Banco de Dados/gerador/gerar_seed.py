@@ -46,6 +46,9 @@ from docx.text.paragraph import Paragraph
 
 from ajustes_seed import AJUSTES, PARAGRAFOS_IGNORADOS_NA_TEORIA
 
+sys.path.insert(0, str(Path(__file__).resolve().parent / "codigo"))
+import aplicar_codigo  # noqa: E402  Sprint 9 (ADR-001): as 9 questões de código viram formato CODIGO
+
 PASTA = Path(__file__).resolve().parent          # gerador/
 PASTA_SQL = PASTA.parent                         # "3. Banco de Dados/", onde ficam os .sql
 
@@ -731,12 +734,33 @@ def gerar_sql(fases):
     return "\n".join(linhas)
 
 
+def converter_questoes_de_codigo(fases):
+    """Sprint 9 (ADR-001): o documento descreve as questões "Escrever código" como TEXTO_LIVRE (palavras-chave).
+    As que têm programa de teste VALIDADO (codigo/questoes_codigo.json) passam a CODIGO, com as mesmas regras
+    da migração 07b (aplicar_codigo.converter). Para quando faltar alguma: nada de seed pela metade."""
+    dados = aplicar_codigo.carregar()
+    encontradas = set()
+    for f in fases:
+        for r in f["rodadas"]:
+            for q in r["questoes"]:
+                if q["codigo"] in dados:
+                    try:
+                        aplicar_codigo.converter(q, dados[q["codigo"]])
+                    except ValueError as e:
+                        falhar(q["codigo"], str(e))
+                    encontradas.add(q["codigo"])
+    faltando = set(dados) - encontradas
+    if faltando:
+        falhar("questoes_codigo.json", f"questões que não existem no documento: {sorted(faltando)}")
+
+
 def main():
     if len(sys.argv) != 2:
         print(__doc__)
         sys.exit(2)
     try:
         fases = montar(recortar(ler_blocos(sys.argv[1])))
+        converter_questoes_de_codigo(fases)
     except ErroSeed as e:
         print("ERRO — nada foi gravado.\n" + str(e))
         sys.exit(1)

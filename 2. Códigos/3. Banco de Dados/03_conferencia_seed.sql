@@ -88,6 +88,14 @@ FROM (
            CAST((SELECT COUNT(*) FROM exercicio WHERE formato_resposta = 'TEXTO_LIVRE') AS CHAR),
            CAST((SELECT COUNT(*) FROM exercicio WHERE formato_resposta = 'TEXTO_LIVRE'
                  AND JSON_EXTRACT(gabarito_json, '$.minimo') BETWEEN 1 AND JSON_LENGTH(gabarito_json, '$.palavrasChave')) AS CHAR)
+    -- Sprint 9 (ADR-001): questões de CÓDIGO com programa de teste, casos e a reserva por palavras-chave
+    UNION ALL SELECT 25, 'CODIGO: 9 questões com programa de teste, casos e reserva', '9',
+           CAST((SELECT COUNT(*) FROM exercicio WHERE formato_resposta = 'CODIGO'
+                 AND LOCATE('//@CODIGO_DO_ALUNO', JSON_UNQUOTE(JSON_EXTRACT(gabarito_json, '$.programaTeste'))) > 0
+                 AND LOCATE('//@CODIGO_DO_ALUNO', JSON_UNQUOTE(JSON_EXTRACT(gabarito_json, '$.programaExemplo'))) > 0
+                 AND JSON_LENGTH(gabarito_json, '$.casos') > 0
+                 AND JSON_LENGTH(gabarito_json, '$.palavrasChave') > 0
+                 AND JSON_EXTRACT(alternativas_json, '$.codigoInicial') IS NOT NULL) AS CHAR)
 ) verificacoes
 ORDER BY n;
 
@@ -98,6 +106,6 @@ SELECT m.ordenacao AS fase, r.ordenacao AS rodada, r.titulo, COUNT(e.id_exercici
  GROUP BY m.ordenacao, r.ordenacao, r.titulo
  ORDER BY m.ordenacao, r.ordenacao;
 
--- Quantidade por formato de resposta (esperado: ESCOLHA_UNICA 69, TEXTO_LIVRE 13, RESPOSTA_CURTA 12,
--- ASSOCIACAO 9, ORDENACAO 7)
+-- Quantidade por formato de resposta (esperado: ESCOLHA_UNICA 69, RESPOSTA_CURTA 12, ASSOCIACAO 9,
+-- CODIGO 9, ORDENACAO 7, TEXTO_LIVRE 4). Sprint 9: 9 das 13 de TEXTO_LIVRE passaram a CODIGO.
 SELECT formato_resposta, COUNT(*) AS questoes FROM exercicio GROUP BY formato_resposta ORDER BY 2 DESC;

@@ -35,7 +35,11 @@ ALTER TABLE usuario
   ADD UNIQUE KEY `uk_usuario_google_id` (`google_id`);
 
 -- contas existentes: confirmadas (foram criadas antes de a confirmação existir)
+-- O "safe update mode" do Workbench recusa UPDATE cujo WHERE não usa uma chave (erro 1175). Aqui atualizar
+-- TODAS as linhas é exatamente o que queremos, então desligamos a trava só para este comando e religamos.
+SET SQL_SAFE_UPDATES = 0;
 UPDATE usuario SET email_confirmado_em = COALESCE(data_cadastro, NOW()) WHERE email_confirmado_em IS NULL;
+SET SQL_SAFE_UPDATES = 1;
 
 CREATE TABLE `token_usuario` (
   `id_token` int NOT NULL AUTO_INCREMENT,

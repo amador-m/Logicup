@@ -118,18 +118,6 @@ CREATE TABLE `exercicio` (
   CONSTRAINT `chk_exercicio_pontos` CHECK ((`pontos` >= 0))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE `historico_recompensa` (
-  `id_historico` int NOT NULL AUTO_INCREMENT,
-  `id_usuario` int NOT NULL,
-  `id_recompensa` int NOT NULL,
-  `data_ganho` datetime DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id_historico`),
-  UNIQUE KEY `uk_aluno_recompensa` (`id_usuario`,`id_recompensa`),
-  KEY `id_recompensa` (`id_recompensa`),
-  CONSTRAINT `historico_recompensa_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `aluno` (`id_usuario`) ON DELETE CASCADE,
-  CONSTRAINT `historico_recompensa_ibfk_2` FOREIGN KEY (`id_recompensa`) REFERENCES `recompensa` (`id_recompensa`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
 CREATE TABLE `modulo` (
   `id_modulo` int NOT NULL AUTO_INCREMENT,
   `titulo` varchar(150) NOT NULL,
@@ -154,15 +142,6 @@ CREATE TABLE `progresso_exercicio` (
   CONSTRAINT `progresso_exercicio_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `aluno` (`id_usuario`) ON DELETE CASCADE,
   CONSTRAINT `progresso_exercicio_ibfk_2` FOREIGN KEY (`id_exercicio`) REFERENCES `exercicio` (`id_exercicio`) ON DELETE CASCADE,
   CONSTRAINT `chk_progresso_valores` CHECK (((`tentativas` >= 0) and (`pontos_ganhos` >= 0)))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-CREATE TABLE `recompensa` (
-  `id_recompensa` int NOT NULL AUTO_INCREMENT,
-  `nome_recompensa` varchar(150) NOT NULL,
-  `descricao` varchar(255) DEFAULT NULL,
-  `criterio_pontos` int NOT NULL,
-  `imagem_badge_url` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id_recompensa`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `rodada` (

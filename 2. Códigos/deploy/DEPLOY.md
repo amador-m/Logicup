@@ -143,7 +143,8 @@ Abra o console em *Compute Engine → Instâncias de VM* e clique em **SSH** na 
 | HTTPS | abrir <https://logicup.dev.br> | cadeado, sem aviso |
 | Redirecionamentos | <http://logicup.dev.br> e <https://www.logicup.dev.br> | vão para `https://logicup.dev.br` |
 | Cabeçalhos de segurança | <https://securityheaders.com> com o domínio | nota A |
-| Cadastro e login | criar uma conta de aluno | entra na trilha |
+| Cadastro e login | criar uma conta de aluno com um e-mail seu | chega o e-mail "Confirme seu e-mail"; o botão leva direto à trilha; depois chega o de boas-vindas |
+| Esqueci a senha | login → "Esqueci minha senha" | chega o e-mail; a senha nova funciona no login |
 | Executor | uma questão de código e o Laboratório → Executar | saída aparece, com acentos |
 | Blocos | F1.Q4 e o Laboratório | blocos aparecem e executam |
 | Celular | abrir no celular | layout ok |
@@ -164,6 +165,8 @@ Abra o console em *Compute Engine → Instâncias de VM* e clique em **SSH** na 
 | Backup manual | `sudo bash backup.sh` |
 | Restaurar um backup | `sudo bash restaurar.sh /var/backups/logicup/logicup_AAAA-MM-DD_HHMMSS.sql.gz` |
 | Reiniciar só o backend | `sudo docker compose restart backend` |
+| Gravar/trocar a chave SMTP da Brevo | `sudo bash configurar_email.sh` e depois `sudo docker compose up -d backend` |
+| Ver se os e-mails estão saindo | `sudo docker compose logs backend \| grep -i "e-mail"` (o endereço aparece mascarado: `m***@gmail.com`) |
 
 **Backups:**
 - **Dump diário**, às 03:15, mantendo 14. Os arquivos `antes-de-restaurar_*` (criados pelo `restaurar.sh`) não são apagados sozinhos.
@@ -192,6 +195,59 @@ O `atualizar.sh` não mexe na estrutura do banco. Quando houver uma migração n
    - saia com `exit`.
 4. Depois rode `sudo bash atualizar.sh`.
 
+> A migração 10 só tem comandos de estrutura (ALTER/CREATE) e um UPDATE: o MySQL grava cada um na hora,
+> então não existe o passo do `COMMIT`/`ROLLBACK`. Para desfazer, use `10_reverter_contas_email_google.sql`.
+
+### Atualização da Sprint 10 (e-mails) — fazer UMA vez, nesta ordem
+
+O backend novo **não sobe** sem a chave da Brevo (de propósito: melhor um erro claro do que cadastros sem e-mail).
+Por isso a ordem importa. Tudo na VM `logicup-app`, na pasta `deploy/app`:
+
+1. Backup: `sudo bash backup.sh`.
+2. Migração 10, como na seção acima, com o arquivo `10_migracao_contas_email_google.sql`.
+   O site antigo continua funcionando com o banco novo (as colunas novas são opcionais para ele).
+   Na conferência do final, `usuarios` e `confirmados` têm que ser **iguais**, e `colunas_novas` = **2**.
+3. Baixe o código novo **sem sudo** (assim aparece o script novo de e-mail):
+   `git -C /opt/logicup/Logicup pull --ff-only`
+4. Grave o login e a chave SMTP da Brevo (a chave não aparece enquanto você cola):
+   `sudo bash configurar_email.sh`
+5. Atualize: `sudo bash atualizar.sh`.
+6. Teste: crie uma conta com um e-mail seu (linhas "Cadastro e login" e "Esqueci a senha" da conferência).
+
+### Alertas (Sprint 10) — fazer UMA vez, no navegador
+
+**1. Site fora do ar → e-mail.** No console do Google Cloud, projeto `logicup`:
+
+1. Menu → **Monitoring** → **Uptime checks** → **Create uptime check**.
+2. Preencha:
+   - *Protocol*: **HTTPS**;
+   - *Resource type*: **URL**;
+   - *Hostname*: `logicup.dev.br`;
+   - *Path*: `/api/auth/csrf`. Esse endereço passa pelo Caddy E pelo backend: se qualquer um dos dois cair, o teste falha;
+   - *Check frequency*: **5 minutes**.
+3. Em *Response validation*, deixe **2xx** e marque a validação do certificado SSL.
+4. Em *Alert & notification*:
+   - deixe o alerta **ligado**, com duração de **5 minutos**. Isso evita alarme por uma falha de poucos segundos;
+   - em *Notification channels* → **Manage notification channels** → *Email* → `logicup.oficial@gmail.com`;
+   - volte e selecione esse canal.
+5. Nome: `LogiCup no ar`. Clique em **Test** (deve aparecer *200*/*204* em verde) e depois em **Create**.
+
+**Custo:** a cada 5 minutos, de 3 regiões, dá cerca de 26 mil verificações por mês. O grátis é **1 milhão por mês** por projeto. Alertas só começam a ser cobrados em setembro de 2027.
+
+**Para conferir:** em `sudo docker compose stop backend`, o e-mail chega em uns 5 a 10 minutos. Depois rode `sudo docker compose start backend`; quando o site voltar, chega o e-mail de "resolvido".
+
+**2. Cota da Brevo perto do fim → e-mail.** Não precisa configurar nada: o backend conta os e-mails do dia (`logicup.email.cota.*`).
+- Ao chegar em **240 de 300**, manda **um** aviso para `contato@logicup.dev.br` (que o ImprovMX encaminha para o Gmail).
+- Em **270**, para as boas-vindas, para sobrar cota para as confirmações.
+- Em **300**, para tudo até a meia-noite.
+- Para ver no log: `sudo docker compose logs backend | grep COTA_EMAIL`.
+
+### Teste de capacidade (Sprint 10)
+
+Na VM `logicup-app`, pasta `deploy/app`: `python3 teste_capacidade.py`.
+- Ele simula uma turma ao mesmo tempo: 40 aberturas do site, 20 logins errados e 30 programas Java no Piston. Depois mostra os tempos.
+- Não grava nada no banco. Os 20 logins errados contam no limite de erros por IP da própria VM, que é esquecido em 15 minutos.
+
 ### Manutenção da VM do Piston
 
 A VM do Piston fica sem internet, então ela não recebe atualizações sozinha. Uma vez por mês (ou para atualizar o Piston):
@@ -212,6 +268,9 @@ antes da VM.
    - `DOMINIO=localhost`;
    - as três senhas por qualquer texto de **24 ou mais letras e números**;
    - `EXECUTOR_URL=http://logicup_piston:2000`.
+   **Salve o `.env` (Ctrl+S) antes de continuar.** O MySQL lê as senhas só na primeira subida; se subir
+   com as senhas de exemplo, o usuário do backend não é criado e o MySQL fica `unhealthy`. Nesse caso,
+   corrija o `.env` e recomece com `docker compose down -v`.
 3. No PowerShell, na pasta `deploy/app`:
    ```powershell
    docker compose up -d --build

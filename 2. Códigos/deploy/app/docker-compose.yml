@@ -61,6 +61,10 @@ services:
       ORIGENS_CONFIAVEIS: https://${DOMINIO}
       EXECUTOR_URL: ${EXECUTOR_URL}
       EXECUTOR_HABILITADO: ${EXECUTOR_HABILITADO:-true}
+      # Sprint 10: e-mails pela Brevo. As duas linhas SMTP_* ficam só no .env da VM (nunca no Git).
+      URL_PUBLICA: https://${DOMINIO}
+      SMTP_USUARIO: ${SMTP_USUARIO:-}
+      SMTP_CHAVE: ${SMTP_CHAVE:-}
     networks:
       - web
       - dados

@@ -14,6 +14,10 @@ source "$(dirname "${BASH_SOURCE[0]}")/comum.sh"
 precisa_root
 precisa_env
 
+# Sprint 10: sem a chave da Brevo o backend novo não sobe; melhor parar AQUI, antes de mexer em algo
+grep -q '^SMTP_CHAVE=.\+' "$PASTA_APP/.env" \
+    || falha "faltam o login e a chave SMTP da Brevo no .env. Rode antes: sudo bash configurar_email.sh"
+
 info "1/5 Backup antes de atualizar"
 bash "$PASTA_APP/backup.sh"
 

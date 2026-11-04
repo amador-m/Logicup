@@ -204,3 +204,35 @@ export const LinkText = styled.p`
     text-decoration-thickness: 3px; /* reforça o sublinhado no hover/foco (teclado) sem trocar a cor */
   }
 `;
+/* Sprint 10: aviso de sucesso/informação (ex.: "enviamos um link para o seu e-mail") */
+export const SuccessMessage = styled.p`
+  background: rgba(40, 128, 120, 0.12);
+  border-left: 4px solid var(--green);
+  color: var(--dark);
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+`;
+
+/* Sprint 10: ação secundária com cara de link (ex.: "Esqueci minha senha", "Reenviar link") */
+export const LinkButton = styled.button`
+  align-self: flex-start;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--brown-dark);
+  text-decoration: underline;
+  text-decoration-color: var(--orange);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+`;

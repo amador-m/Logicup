@@ -30,6 +30,10 @@ export class ApiError extends Error {
 
 /** Sprint 8: código que o AceitePendenteFilter do backend devolve no 403. */
 export const CODIGO_ACEITE_PENDENTE = "ACEITE_PENDENTE";
+/** Sprint 10: senha certa, mas o e-mail ainda não foi confirmado (403 no login). */
+export const CODIGO_EMAIL_NAO_CONFIRMADO = "EMAIL_NAO_CONFIRMADO";
+/** Sprint 10: link de e-mail inexistente, vencido ou já usado (400). */
+export const CODIGO_LINK_INVALIDO = "LINK_INVALIDO";
 
 // função registrada pelo AuthContext para ser chamada quando a sessão expirar
 let aoPerderSessao = null;
@@ -127,8 +131,16 @@ export const authApi = {
     me: () => requisicao("/auth/me"),
     // Sprint 7: "login" aceita e-mail OU nome de usuário (o backend decide pelo "@")
     login: (login, senha) => requisicao("/auth/login", { method: "POST", body: { login, senha } }),
+    // Sprint 10: o cadastro NÃO loga mais; devolve { email, mensagem } e o link de confirmação vai por e-mail
     cadastrar: (dados) => requisicao("/auth/cadastro", { method: "POST", body: dados }),
     logout: () => requisicao("/auth/logout", { method: "POST" }),
+    // Sprint 10: o código do link vai no CORPO (nunca na URL da API): não fica em log nem em histórico
+    confirmarEmail: (token) => requisicao("/auth/confirmar-email", { method: "POST", body: { token } }),
+    // Sprint 10: as duas respondem 202 "pedido recebido" exista ou não a conta (não revelam quem é cadastrado)
+    reenviarConfirmacao: (email) => requisicao("/auth/reenviar-confirmacao", { method: "POST", body: { email } }),
+    esqueciSenha: (email) => requisicao("/auth/esqueci-senha", { method: "POST", body: { email } }),
+    redefinirSenha: (token, novaSenha) =>
+        requisicao("/auth/redefinir-senha", { method: "POST", body: { token, novaSenha } }),
 };
 
 /*

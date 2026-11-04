@@ -11,11 +11,13 @@ import {
     Logo,
     ErrorMessage,
     FieldError,
+    SuccessMessage,
 } from "../Login/styles";
 import LogoImg from "../../assets/images/LogoLight.png";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/useAuth";
 import CaixaAceite from "../../components/ui/CaixaAceite";
+import ReenviarConfirmacao from "../../components/ui/ReenviarConfirmacao";
 import { VERSAO_TERMOS, VERSAO_PRIVACIDADE } from "../../data/legal/versoes";
 
 // Sprint 8: aceiteTermos começa FALSO (a caixa nunca vem marcada)
@@ -35,6 +37,8 @@ const Register = () => {
     const [erro, setErro] = useState("");              // erro geral (ex.: e-mail já cadastrado)
     const [errosCampos, setErrosCampos] = useState({}); // erros por campo vindos do backend
     const [enviando, setEnviando] = useState(false);
+    // Sprint 10: conta criada, esperando a confirmação do e-mail (guarda o e-mail para mostrar e reenviar)
+    const [pendente, setPendente] = useState(null);
 
     // um único handler para todos os campos: usa o "name" do input para saber qual atualizar
     const handleChange = (event) => {
@@ -51,8 +55,10 @@ const Register = () => {
 
         try {
             // Sprint 8: junto com o aceite vão as VERSÕES que a pessoa viu; o backend confere se são as vigentes
-            // C1: já entra logado; o PublicOnlyRoute leva para a trilha
-            await cadastrar({ ...dados, versaoTermos: VERSAO_TERMOS, versaoPrivacidade: VERSAO_PRIVACIDADE });
+            // Sprint 10: a conta é criada, mas a pessoa só entra depois de abrir o link do e-mail
+            const resposta = await cadastrar({ ...dados, versaoTermos: VERSAO_TERMOS, versaoPrivacidade: VERSAO_PRIVACIDADE });
+            setPendente(resposta.email);
+            setDados(DADOS_INICIAIS); // a senha não fica guardada na memória da tela
         } catch (error) {
             const campos = error.campos ?? {};
             setErrosCampos(campos);
@@ -76,6 +82,22 @@ const Register = () => {
                 </LeftSide>
 
                 <RightSide>
+                    {pendente ? (
+                    <>
+                    <h2 id="titulo-cadastro">Verifique seu e-mail</h2>
+                    <p>Falta só um passo para começar a sua trilha.</p>
+                    <SuccessMessage role="status">
+                        Enviamos um link de confirmação para <strong>{pendente}</strong>. Abra o e-mail e clique em
+                        "Confirmar meu e-mail": você entra direto na trilha. O link vale por 24 horas.
+                    </SuccessMessage>
+                    <p>Não chegou em alguns minutos? Confira o spam ou peça outro:</p>
+                    <ReenviarConfirmacao emailInicial={pendente} idCampo="cadastro-reenviar-email" />
+                    <LinkText>
+                        Já confirmou? <Link to="/login">Entrar</Link>
+                    </LinkText>
+                    </>
+                    ) : (
+                    <>
                     <h2 id="titulo-cadastro">Criar conta</h2>
                     <p>Preencha seus dados para começar a aprender no LogiCup</p>
 
@@ -186,6 +208,8 @@ const Register = () => {
                             Já tem conta? <Link to="/login">Entrar</Link>
                         </LinkText>
                     </Form>
+                    </>
+                    )}
                 </RightSide>
         </Box>
     );

@@ -21,6 +21,9 @@ import Onboarding from "../components/ui/Onboarding";
 import Conquistas from "../pages/Conquistas";
 import Laboratorio from "../pages/Laboratorio";
 import NovaConquista from "../components/ui/NovaConquista";
+import ConfirmarEmail from "../pages/ConfirmarEmail";
+import EsqueciSenha from "../pages/EsqueciSenha";
+import RedefinirSenha from "../pages/RedefinirSenha";
 
 const AppRoutes = () => {
     return (
@@ -46,6 +49,31 @@ const AppRoutes = () => {
                         <PublicOnlyRoute>
                             <ModalAuth tituloId="titulo-cadastro"><Register /></ModalAuth>
                         </PublicOnlyRoute>
+                    </>
+                } />
+                {/*
+                  * Sprint 10: links dos e-mails e "esqueci minha senha", também como modal sobre a Home.
+                  * /confirmar-email e /redefinir-senha NÃO usam o PublicOnlyRoute: o link precisa funcionar
+                  * mesmo que a pessoa esteja logada em outra conta neste navegador.
+                  */}
+                <Route path="/confirmar-email" element={
+                    <>
+                        <Home />
+                        <ModalAuth tituloId="titulo-confirmar"><ConfirmarEmail /></ModalAuth>
+                    </>
+                } />
+                <Route path="/esqueci-senha" element={
+                    <>
+                        <Home />
+                        <PublicOnlyRoute>
+                            <ModalAuth tituloId="titulo-esqueci"><EsqueciSenha /></ModalAuth>
+                        </PublicOnlyRoute>
+                    </>
+                } />
+                <Route path="/redefinir-senha" element={
+                    <>
+                        <Home />
+                        <ModalAuth tituloId="titulo-redefinir"><RedefinirSenha /></ModalAuth>
                     </>
                 } />
                 <Route path="/trilha" element={<PrivateRoute><LearningPath /></PrivateRoute>} />

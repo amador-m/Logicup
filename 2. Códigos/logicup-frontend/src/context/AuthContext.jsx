@@ -40,8 +40,15 @@ export function AuthProvider({ children }) {
         return dados;
     }, []);
 
-    const cadastrar = useCallback(async (dadosCadastro) => {
-        const dados = await authApi.cadastrar(dadosCadastro); // C1: o cadastro já deixa logado
+    /*
+     * Sprint 10 (decisão C): o cadastro cria a conta mas NÃO loga. Devolve { email, mensagem } para a tela
+     * mostrar "verifique seu e-mail". A pessoa entra ao abrir o link (confirmarEmail, abaixo).
+     */
+    const cadastrar = useCallback((dadosCadastro) => authApi.cadastrar(dadosCadastro), []);
+
+    /* Sprint 10: abriu o link do e-mail -> o backend confirma, devolve o usuário e o cookie de login. */
+    const confirmarEmail = useCallback(async (token) => {
+        const dados = await authApi.confirmarEmail(token);
         setUsuario(dados);
         return dados;
     }, []);
@@ -71,8 +78,8 @@ export function AuthProvider({ children }) {
     }, []);
 
     const valor = useMemo(
-        () => ({ usuario, carregando, login, cadastrar, logout, atualizarUsuario, aceitarDocumentos }),
-        [usuario, carregando, login, cadastrar, logout, atualizarUsuario, aceitarDocumentos]
+        () => ({ usuario, carregando, login, cadastrar, confirmarEmail, logout, atualizarUsuario, aceitarDocumentos }),
+        [usuario, carregando, login, cadastrar, confirmarEmail, logout, atualizarUsuario, aceitarDocumentos]
     );
 
     return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>;

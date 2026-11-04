@@ -189,6 +189,20 @@ CREATE TABLE `tarefa` (
   CONSTRAINT `fk_tarefa_turma` FOREIGN KEY (`id_turma`) REFERENCES `turma` (`id_turma`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+CREATE TABLE `token_usuario` (
+  `id_token` int NOT NULL AUTO_INCREMENT,
+  `id_usuario` int NOT NULL,
+  `finalidade` enum('CONFIRMAR_EMAIL','REDEFINIR_SENHA') NOT NULL,
+  `hash_token` char(64) NOT NULL COMMENT 'SHA-256 (hex) do código enviado por e-mail; o código em si nunca é gravado',
+  `criado_em` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `expira_em` datetime NOT NULL,
+  `usado_em` datetime DEFAULT NULL COMMENT 'preenchido quando o link é usado (cada link vale uma vez)',
+  PRIMARY KEY (`id_token`),
+  UNIQUE KEY `uk_token_usuario_hash` (`hash_token`),
+  KEY `idx_token_usuario_finalidade` (`id_usuario`,`finalidade`),
+  CONSTRAINT `fk_token_usuario_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id_usuario`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 CREATE TABLE `turma` (
   `id_turma` int NOT NULL AUTO_INCREMENT,
   `nome_turma` varchar(100) NOT NULL,
@@ -206,13 +220,16 @@ CREATE TABLE `usuario` (
   `nome` varchar(150) NOT NULL,
   `username` varchar(20) NOT NULL,
   `e_mail` varchar(150) NOT NULL,
-  `senha` varchar(255) NOT NULL,
+  `senha` varchar(255) DEFAULT NULL COMMENT 'BCrypt; NULL = conta só com o Google (sem senha própria)',
   `tipo_usuario` enum('ALUNO','PROFESSOR','ADMIN') NOT NULL,
   `avatar` varchar(30) NOT NULL DEFAULT 'GATO_CLARO',
   `data_cadastro` datetime DEFAULT CURRENT_TIMESTAMP,
+  `email_confirmado_em` datetime DEFAULT NULL COMMENT 'NULL = e-mail ainda não confirmado (não entra)',
+  `google_id` varchar(255) DEFAULT NULL COMMENT 'sub do Google (OpenID Connect); NULL = não usa o Google',
   PRIMARY KEY (`id_usuario`),
   UNIQUE KEY `e_mail` (`e_mail`),
   UNIQUE KEY `uk_usuario_username` (`username`),
+  UNIQUE KEY `uk_usuario_google_id` (`google_id`),
   KEY `idx_usuario_email` (`e_mail`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 

@@ -102,8 +102,8 @@ class ConquistasAvataresIntegrationTest {
         bossA2 = exercicio(rodadaA2, "IT.C.A2", TipoExercicio.BOSS_CHALLENGE);
         exercicio(rodadaB1, "IT.C.B1", TipoExercicio.MULTIPLA_ESCOLHA);
 
-        professor = usuarioRepository.save(new Usuario("Professora Conquista", "prof.conq.it",
-                "prof.conq.it@teste.com", passwordEncoder.encode(SENHA), TipoUsuario.PROFESSOR));
+        professor = usuarioRepository.save(ContasDeTeste.confirmada(new Usuario("Professora Conquista", "prof.conq.it",
+                "prof.conq.it@teste.com", passwordEncoder.encode(SENHA), TipoUsuario.PROFESSOR)));
         ana = alunoRepository.save(new Aluno("Ana Conquista", "ana.conq.it", "ana.conq.it@teste.com",
                 passwordEncoder.encode(SENHA)));
     }
@@ -302,6 +302,7 @@ class ConquistasAvataresIntegrationTest {
     void loginDaAsConquistasRetroativasDeQuemJaTinhaProgresso() throws Exception {
         // aluno "antigo": já tinha 150 XP e 3 dias de ofensiva antes desta versão (sem nenhuma medalha gravada)
         Aluno veterano = new Aluno("Veterano", "veterano.it", "veterano.it@teste.com", passwordEncoder.encode(SENHA));
+        ContasDeTeste.confirmada(veterano);
         veterano.adicionarPontos(150);
         LocalDate dia = LocalDate.of(2026, 10, 1);
         veterano.registrarAtividade(dia);

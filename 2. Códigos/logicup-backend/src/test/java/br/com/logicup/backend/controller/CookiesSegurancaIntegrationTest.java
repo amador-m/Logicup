@@ -1,5 +1,6 @@
 package br.com.logicup.backend.controller;
 
+import br.com.logicup.backend.email.TipoEmailConta;
 import br.com.logicup.backend.service.AceiteService;
 import br.com.logicup.backend.legal.VersoesLegais;
 import br.com.logicup.backend.model.Aluno;
@@ -13,6 +14,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.event.ApplicationEvents;
+import org.springframework.test.context.event.RecordApplicationEvents;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -45,6 +48,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@RecordApplicationEvents // Sprint 10: para ler o código do link de confirmação
 class CookiesSegurancaIntegrationTest {
 
     private static final String COOKIE_LOGIN = "__Host-LOGICUP_TOKEN";
@@ -59,13 +63,14 @@ class CookiesSegurancaIntegrationTest {
     @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private AlunoRepository alunoRepository;
     @Autowired private AceiteService aceiteService;
+    @Autowired private ApplicationEvents eventos;
 
     private Aluno aluno;
 
     @BeforeEach
     void criarAluno() {
-        aluno = alunoRepository.save(new Aluno("Aluna Cookies", "it.ck.eu", "it.ck.eu@teste.com",
-                passwordEncoder.encode(SENHA)));
+        aluno = alunoRepository.save(ContasDeTeste.confirmada(new Aluno("Aluna Cookies", "it.ck.eu", "it.ck.eu@teste.com",
+                passwordEncoder.encode(SENHA))));
         aceiteService.registrarVersoesVigentes(aluno); // Sprint 8: aluno que já aceitou os Termos
     }
 
@@ -186,16 +191,24 @@ class CookiesSegurancaIntegrationTest {
     }
 
     @Test
-    void cadastroEntregaCookieDeLoginHost() throws Exception {
+    void confirmacaoDoCadastroEntregaCookieDeLoginHost() throws Exception {
+        // Sprint 10: o cadastro NÃO loga mais; o cookie de login nasce ao abrir o link de confirmação
         Cookie csrf = pedirTokenCsrf();
         MvcResult resultado = mockMvc.perform(comCsrf(post("/api/auth/cadastro"), csrf)
                 .contentType(MediaType.APPLICATION_JSON).content("""
                         {"nome":"Aluna Cadastro Cookies","username":"it.ck.novo","email":"it.ck.novo@teste.com",
                          "senha":"%s","perfil":"ALUNO","aceiteTermos":true,"versaoTermos":"%s","versaoPrivacidade":"%s"}""".formatted(SENHA, VersoesLegais.TERMOS, VersoesLegais.PRIVACIDADE))).andReturn();
         assertEquals(201, resultado.getResponse().getStatus());
+        assertFalse(setCookies(resultado).containsKey(COOKIE_LOGIN), "o cadastro não pode deixar logado");
 
-        SetCookie cookieLogin = setCookies(resultado).get(COOKIE_LOGIN);
+        String codigo = ContasDeTeste.ultimoCodigo(eventos, TipoEmailConta.CONFIRMAR_EMAIL, "it.ck.novo@teste.com");
+        MvcResult confirmacao = mockMvc.perform(comCsrf(post("/api/auth/confirmar-email"), pedirTokenCsrf())
+                .contentType(MediaType.APPLICATION_JSON).content("{\"token\":\"" + codigo + "\"}")).andReturn();
+        assertEquals(200, confirmacao.getResponse().getStatus());
+
+        SetCookie cookieLogin = setCookies(confirmacao).get(COOKIE_LOGIN);
         assertNotNull(cookieLogin, "esperava o cookie " + COOKIE_LOGIN);
+        assertNotNull(setCookies(confirmacao).get(COOKIE_CSRF), "entrar na conta troca o token CSRF");
         respeitaHost(cookieLogin);
         sameSiteStrict(cookieLogin);
         assertTrue(cookieLogin.tem("HttpOnly"));

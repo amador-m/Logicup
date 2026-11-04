@@ -14,6 +14,8 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.event.ApplicationEvents;
+import org.springframework.test.context.event.RecordApplicationEvents;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
@@ -46,6 +48,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@RecordApplicationEvents // Sprint 10: para ler o código do link de confirmação
 class AceiteTermosIntegrationTest {
 
     /** Versão vigente dos dois documentos (minuta 0.1 da Luciana). */
@@ -55,6 +58,7 @@ class AceiteTermosIntegrationTest {
     private static final String SENHA = "senhaAceite123";
 
     @Autowired private MockMvc mockMvc;
+    @Autowired private ApplicationEvents eventos;
     @Autowired private TokenService tokenService;
     @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private AlunoRepository alunoRepository;
@@ -66,8 +70,8 @@ class AceiteTermosIntegrationTest {
 
     @BeforeEach
     void criarAlunoAntigo() {
-        antigo = alunoRepository.save(new Aluno("Aluna Antiga", "it.ac.antiga", "it.ac.antiga@teste.com",
-                passwordEncoder.encode(SENHA)));
+        antigo = alunoRepository.save(ContasDeTeste.confirmada(new Aluno("Aluna Antiga", "it.ac.antiga", "it.ac.antiga@teste.com",
+                passwordEncoder.encode(SENHA))));
     }
 
     // ---------- apoio ----------
@@ -150,9 +154,7 @@ class AceiteTermosIntegrationTest {
 
     @Test
     void cadastroComAceiteGravaTermosEPrivacidadeNaVersaoVigente() throws Exception {
-        cadastrar("it.ac.nova", ACEITE_OK)
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.aceitePendente").value(false));
+        cadastrar("it.ac.nova", ACEITE_OK).andExpect(status().isCreated());
 
         Integer id = usuarioRepository.findByUsername("it.ac.nova").orElseThrow().getId();
         assertEquals(1, aceites(id, "TERMOS", VERSAO_TERMOS));
@@ -161,8 +163,10 @@ class AceiteTermosIntegrationTest {
 
     @Test
     void quemSeCadastraJaUsaAApiSemPendencia() throws Exception {
-        Cookie login = cookieDeLogin(cadastrar("it.ac.usa", ACEITE_OK).andReturn());
-        assertNotNull(login);
+        cadastrar("it.ac.usa", ACEITE_OK).andExpect(status().isCreated());
+        // Sprint 10: entra pelo link de confirmação; o aceite do cadastro já vale (sem janela de aceite)
+        Cookie login = ContasDeTeste.confirmarCadastro(mockMvc, eventos, "it.ac.usa@teste.com");
+        mockMvc.perform(get("/api/auth/me").cookie(login)).andExpect(jsonPath("$.aceitePendente").value(false));
         mockMvc.perform(get("/api/trilha").cookie(login)).andExpect(status().isOk());
     }
 

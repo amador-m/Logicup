@@ -13,6 +13,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
+
 /**
  * Prepara o ambiente de DESENVOLVIMENTO (D5: só roda com o perfil "dev").
  *
@@ -41,8 +44,9 @@ public class DatabaseTestRunner implements CommandLineRunner {
     private final String adminEmail;
     private final String adminSenha;
     private final String adminNome;
+    private final Clock clock;
 
-    public DatabaseTestRunner(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder,
+    public DatabaseTestRunner(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, Clock clock,
                               @Value("${logicup.dev.admin-email}") String adminEmail,
                               @Value("${logicup.dev.admin-senha}") String adminSenha,
                               @Value("${logicup.dev.admin-nome:Administrador (dev)}") String adminNome) {
@@ -51,6 +55,7 @@ public class DatabaseTestRunner implements CommandLineRunner {
         this.adminEmail = AuthService.normalizarEmail(adminEmail);
         this.adminSenha = adminSenha;
         this.adminNome = adminNome;
+        this.clock = clock;
     }
 
     @Override
@@ -73,6 +78,9 @@ public class DatabaseTestRunner implements CommandLineRunner {
         String username = usuarioRepository.existsByUsername("admin") ? "admin_dev" : "admin";
         Usuario admin = new Usuario(adminNome, username, adminEmail,
                 passwordEncoder.encode(adminSenha), TipoUsuario.ADMIN);
+        // Sprint 10: o e-mail do ADMIN é informado por quem administra o servidor, não por um link:
+        // já nasce confirmado (senão o login dele seria recusado com "confirme seu e-mail").
+        admin.confirmarEmail(LocalDateTime.now(clock));
         usuarioRepository.save(admin);
         log.info("ADMIN criado: {} (username: {})", adminEmail, username);
     }

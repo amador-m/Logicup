@@ -1,8 +1,12 @@
 package br.com.logicup.backend.controller;
 
 import br.com.logicup.backend.dto.AutenticacaoResultado;
+import br.com.logicup.backend.dto.CadastroPendenteResponse;
 import br.com.logicup.backend.dto.CadastroRequest;
+import br.com.logicup.backend.dto.ConfirmarEmailRequest;
+import br.com.logicup.backend.dto.EmailRequest;
 import br.com.logicup.backend.dto.LoginRequest;
+import br.com.logicup.backend.dto.RedefinirSenhaRequest;
 import br.com.logicup.backend.dto.UsuarioResponse;
 import br.com.logicup.backend.legal.VersoesLegais;
 import br.com.logicup.backend.security.CookiesLegados;
@@ -54,12 +58,48 @@ public class AuthController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Sprint 10: o cadastro cria a conta (201) mas NÃO faz login: não há cookie de sessão na resposta.
+     * A pessoa entra quando abrir o link de confirmação (POST /confirmar-email).
+     */
     @PostMapping("/cadastro")
-    public ResponseEntity<UsuarioResponse> cadastrar(@Valid @RequestBody CadastroRequest dados,
-                                                     HttpServletRequest request, HttpServletResponse response) {
-        AutenticacaoResultado resultado = authService.cadastrar(dados, request.getRemoteAddr()); // se falhar, nada abaixo acontece
+    public ResponseEntity<CadastroPendenteResponse> cadastrar(@Valid @RequestBody CadastroRequest dados,
+                                                              HttpServletRequest request) {
+        CadastroPendenteResponse pendente = authService.cadastrar(dados, request.getRemoteAddr());
+        return ResponseEntity.status(HttpStatus.CREATED).body(pendente);
+    }
+
+    /** Sprint 10: o React lê o código do link (depois do "#") e manda aqui. Deu certo -> já sai logado. */
+    @PostMapping("/confirmar-email")
+    public ResponseEntity<UsuarioResponse> confirmarEmail(@Valid @RequestBody ConfirmarEmailRequest dados,
+                                                          HttpServletRequest request, HttpServletResponse response) {
+        AutenticacaoResultado resultado = authService.confirmarEmail(dados.token()); // link ruim -> 400 LINK_INVALIDO
         trocarTokenCsrf(request, response);
-        return comCookieDeLogin(HttpStatus.CREATED, resultado, response);
+        return comCookieDeLogin(HttpStatus.OK, resultado, response);
+    }
+
+    /**
+     * Sprint 10: 202 Accepted = "pedido recebido". É a MESMA resposta para e-mail cadastrado ou não
+     * (não dá para usar este endpoint para descobrir quem tem conta).
+     */
+    @PostMapping("/reenviar-confirmacao")
+    public ResponseEntity<Void> reenviarConfirmacao(@Valid @RequestBody EmailRequest dados, HttpServletRequest request) {
+        authService.reenviarConfirmacao(dados.email(), request.getRemoteAddr());
+        return ResponseEntity.accepted().build();
+    }
+
+    /** Sprint 10: "Esqueci minha senha". Mesma resposta (202) exista ou não a conta. */
+    @PostMapping("/esqueci-senha")
+    public ResponseEntity<Void> esqueciSenha(@Valid @RequestBody EmailRequest dados, HttpServletRequest request) {
+        authService.esqueciSenha(dados.email(), request.getRemoteAddr());
+        return ResponseEntity.accepted().build();
+    }
+
+    /** Sprint 10: grava a senha nova. 204 = deu certo; a pessoa entra pelo login com a senha nova. */
+    @PostMapping("/redefinir-senha")
+    public ResponseEntity<Void> redefinirSenha(@Valid @RequestBody RedefinirSenhaRequest dados) {
+        authService.redefinirSenha(dados.token(), dados.novaSenha());
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/login")

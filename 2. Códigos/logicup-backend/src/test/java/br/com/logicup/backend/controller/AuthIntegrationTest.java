@@ -1,5 +1,6 @@
 package br.com.logicup.backend.controller;
 
+import br.com.logicup.backend.email.TipoEmailConta;
 import br.com.logicup.backend.legal.VersoesLegais;
 import br.com.logicup.backend.model.Usuario;
 import br.com.logicup.backend.repository.AlunoRepository;
@@ -11,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.event.ApplicationEvents;
+import org.springframework.test.context.event.RecordApplicationEvents;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@RecordApplicationEvents // Sprint 10: para ler o código do link de confirmação
 class AuthIntegrationTest {
 
     private static final String SENHA = "senhaForte123";
@@ -37,6 +41,7 @@ class AuthIntegrationTest {
     @Autowired private MockMvc mockMvc;
     @Autowired private UsuarioRepository usuarioRepository;
     @Autowired private AlunoRepository alunoRepository;
+    @Autowired private ApplicationEvents eventos;
 
     // usernames dos testes começam com "it." para não colidir com usuários reais do banco
     private static String jsonCadastro(String nome, String username, String email, String senha, String perfil) {
@@ -62,23 +67,37 @@ class AuthIntegrationTest {
                 .andReturn();
     }
 
+    /** Sprint 10: cadastro + abrir o link de confirmação (agora é assim que a conta fica pronta para entrar). */
+    private Cookie cadastrarEConfirmar(String email) throws Exception {
+        assertEquals(201, cadastrar(email, "ALUNO").getResponse().getStatus());
+        return ContasDeTeste.confirmarCadastro(mockMvc, eventos, email);
+    }
+
     // ---------- cadastro ----------
 
     @Test
-    void cadastroDeAlunoCriaContaEJaDeixaLogado() throws Exception {
+    void cadastroDeAlunoCriaContaPendenteEOLinkDeixaLogado() throws Exception {
         MvcResult resultado = mockMvc.perform(post("/api/auth/cadastro").with(csrfValido())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonCadastro("Aluna Teste", "it.aluna.auth", "aluna.auth@teste.com", SENHA, "ALUNO")))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.role").value("ALUNO"))
-                .andExpect(jsonPath("$.username").value("it.aluna.auth"))
+                .andExpect(jsonPath("$.email").value("aluna.auth@teste.com"))
                 .andExpect(jsonPath("$.senha").doesNotExist())   // senha nunca sai na resposta
-                .andExpect(jsonPath("$.token").doesNotExist())   // token só no cookie
+                .andExpect(jsonPath("$.token").doesNotExist())
                 .andReturn();
 
-        Cookie cookie = resultado.getResponse().getCookie(TokenService.NOME_COOKIE);
-        assertNotNull(cookie, "o cadastro deve devolver o cookie de login (C1)");
+        // Sprint 10 (decisão C): conta criada, mas sem login e com o e-mail ainda não confirmado
+        assertNull(resultado.getResponse().getCookie(TokenService.NOME_COOKIE), "o cadastro não pode deixar logado");
+        assertFalse(usuarioRepository.findByEmail("aluna.auth@teste.com").orElseThrow().isEmailConfirmado());
+        assertEquals(1, ContasDeTeste.pedidos(eventos, TipoEmailConta.CONFIRMAR_EMAIL, "aluna.auth@teste.com").size(),
+                "o cadastro pede UM e-mail de confirmação");
+
+        // o link do e-mail confirma e já entrega o cookie de login
+        Cookie cookie = ContasDeTeste.confirmarCadastro(mockMvc, eventos, "aluna.auth@teste.com");
         assertTrue(cookie.isHttpOnly());
+        assertTrue(usuarioRepository.findByEmail("aluna.auth@teste.com").orElseThrow().isEmailConfirmado());
+        assertEquals(1, ContasDeTeste.pedidos(eventos, TipoEmailConta.BOAS_VINDAS, "aluna.auth@teste.com").size(),
+                "confirmar pede o e-mail de boas-vindas (D1-A)");
 
         // com o cookie, o /me reconhece a pessoa
         mockMvc.perform(get("/api/auth/me").cookie(cookie))
@@ -169,8 +188,8 @@ class AuthIntegrationTest {
         mockMvc.perform(post("/api/auth/cadastro").with(csrfValido())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonCadastro("Pessoa", "  IT.Maiusculo ", "maiusculo@teste.com", SENHA, "ALUNO")))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.username").value("it.maiusculo"));
+                .andExpect(status().isCreated());
+        assertTrue(usuarioRepository.findByUsername("it.maiusculo").isPresent());
     }
 
     @Test
@@ -190,7 +209,7 @@ class AuthIntegrationTest {
 
     @Test
     void loginPeloUsernameFunciona() throws Exception {
-        cadastrar("login.username@teste.com", "ALUNO"); // username "it.login.username"
+        cadastrarEConfirmar("login.username@teste.com"); // username "it.login.username"
 
         MvcResult resultado = mockMvc.perform(post("/api/auth/login").with(csrfValido())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -213,7 +232,7 @@ class AuthIntegrationTest {
 
     @Test
     void loginComDadosCorretosDevolveCookie() throws Exception {
-        cadastrar("login.ok@teste.com", "ALUNO");
+        cadastrarEConfirmar("login.ok@teste.com");
 
         MvcResult resultado = mockMvc.perform(post("/api/auth/login").with(csrfValido())
                         .contentType(MediaType.APPLICATION_JSON)

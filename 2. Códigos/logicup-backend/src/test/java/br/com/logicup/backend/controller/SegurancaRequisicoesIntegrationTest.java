@@ -1,5 +1,6 @@
 package br.com.logicup.backend.controller;
 
+import br.com.logicup.backend.email.TipoEmailConta;
 import br.com.logicup.backend.legal.VersoesLegais;
 import br.com.logicup.backend.model.Aluno;
 import br.com.logicup.backend.model.Exercicio;
@@ -22,6 +23,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.event.ApplicationEvents;
+import org.springframework.test.context.event.RecordApplicationEvents;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
@@ -66,6 +69,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(properties = "logicup.seguranca.origens-confiaveis=" + SegurancaRequisicoesIntegrationTest.ORIGEM_CONFIAVEL)
 @AutoConfigureMockMvc
 @Transactional
+@RecordApplicationEvents // Sprint 10: para ler o código do link de confirmação
 class SegurancaRequisicoesIntegrationTest {
 
     static final String ORIGEM_CONFIAVEL = "http://localhost:5173";
@@ -77,6 +81,7 @@ class SegurancaRequisicoesIntegrationTest {
     private static final String MENSAGEM_CSRF = "Token CSRF ausente ou inválido. Recarregue a página e tente novamente.";
 
     @Autowired private MockMvc mockMvc;
+    @Autowired private ApplicationEvents eventos;
     @Autowired private TokenService tokenService;
     @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private AlunoRepository alunoRepository;
@@ -483,12 +488,18 @@ class SegurancaRequisicoesIntegrationTest {
         assertEquals(204, navegar(get("/api/auth/csrf"), false).getResponse().getStatus());
         assertNotNull(cookiesDoNavegador.get(NOME_COOKIE_CSRF), "o servidor tem que entregar o cookie CSRF");
 
-        // 2) cadastro (rota pública): devolve o cookie de login
+        // 2) cadastro (rota pública). Sprint 10: ainda NÃO loga; a pessoa entra ao abrir o link do e-mail
         MvcResult cadastro = navegar(post("/api/auth/cadastro").contentType(MediaType.APPLICATION_JSON).content("""
                 {"nome":"Aluna Fluxo","username":"it.seg.fluxo","email":"it.seg.fluxo@teste.com",
                  "senha":"%s","perfil":"ALUNO","aceiteTermos":true,"versaoTermos":"%s","versaoPrivacidade":"%s"}""".formatted(SENHA, VersoesLegais.TERMOS, VersoesLegais.PRIVACIDADE)), true);
         assertEquals(201, cadastro.getResponse().getStatus());
-        assertNotNull(cookiesDoNavegador.get(TokenService.NOME_COOKIE), "o cadastro tem que deixar a pessoa logada");
+        assertFalse(cookiesDoNavegador.containsKey(TokenService.NOME_COOKIE), "o cadastro não pode deixar logado");
+
+        // 2b) o link do e-mail: o React lê o código depois do "#" e manda num POST (rota pública, com CSRF)
+        String codigo = ContasDeTeste.ultimoCodigo(eventos, TipoEmailConta.CONFIRMAR_EMAIL, "it.seg.fluxo@teste.com");
+        assertEquals(200, navegar(post("/api/auth/confirmar-email").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"token\":\"" + codigo + "\"}"), true).getResponse().getStatus());
+        assertNotNull(cookiesDoNavegador.get(TokenService.NOME_COOKIE), "confirmar o e-mail tem que deixar a pessoa logada");
 
         // 3) leitura, edição do perfil e envio de respostas, com os cookies e o token que o servidor entregou
         assertEquals(200, navegar(get("/api/auth/me"), false).getResponse().getStatus());

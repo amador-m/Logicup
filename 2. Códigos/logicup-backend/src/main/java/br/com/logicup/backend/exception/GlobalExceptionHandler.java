@@ -93,6 +93,20 @@ public class GlobalExceptionHandler {
         return resposta(HttpStatus.FORBIDDEN, new ErroResponse(403, "Acesso negado", ex.getMessage()));
     }
 
+    // Sprint 10: senha certa, e-mail ainda não confirmado -> 403 com código (o login mostra "Reenviar e-mail")
+    @ExceptionHandler(EmailNaoConfirmadoException.class)
+    public ResponseEntity<ErroResponse> emailNaoConfirmado(EmailNaoConfirmadoException ex) {
+        return resposta(HttpStatus.FORBIDDEN, ErroResponse.comCodigo(403, "E-mail não confirmado", ex.getMessage(),
+                EmailNaoConfirmadoException.CODIGO));
+    }
+
+    // Sprint 10: link de e-mail inexistente, usado ou vencido -> 400 com código (a tela oferece um link novo)
+    @ExceptionHandler(LinkInvalidoException.class)
+    public ResponseEntity<ErroResponse> linkInvalido(LinkInvalidoException ex) {
+        return resposta(HttpStatus.BAD_REQUEST, ErroResponse.comCodigo(400, "Link inválido", ex.getMessage(),
+                LinkInvalidoException.CODIGO));
+    }
+
     @ExceptionHandler(EmailJaCadastradoException.class)
     public ResponseEntity<ErroResponse> emailJaCadastrado(EmailJaCadastradoException ex) {
         return resposta(HttpStatus.CONFLICT, new ErroResponse(409, "Conflito", ex.getMessage()));

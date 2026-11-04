@@ -37,6 +37,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "logicup.limites.login-ip.maximo=6",
         "logicup.limites.codigo-turma.maximo=3",
         "logicup.limites.cadastro.maximo=2",
+        "logicup.limites.email-endereco.maximo=3",
+        "logicup.limites.email-ip.maximo=5",
 })
 @AutoConfigureMockMvc
 @Transactional
@@ -59,8 +61,8 @@ class LimiteTentativasIntegrationTest {
     }
 
     private Aluno aluno(String username) {
-        return alunoRepository.save(new Aluno("Aluno Limite", username, username + "@teste.com",
-                passwordEncoder.encode(SENHA)));
+        return alunoRepository.save(ContasDeTeste.confirmada(new Aluno("Aluno Limite", username, username + "@teste.com",
+                passwordEncoder.encode(SENHA))));
     }
 
     private ResultActions login(String login, String senha, String ip) throws Exception {
@@ -185,5 +187,35 @@ class LimiteTentativasIntegrationTest {
                 .andExpect(jsonPath("$.mensagem", containsString("cadastro")));
         // outra rede continua podendo se cadastrar
         cadastro("it.lim.cad4", "10.0.0.10").andExpect(status().isCreated());
+    }
+
+    // ---------------- Sprint 10: pedidos de e-mail ----------------
+
+    private ResultActions pedirEmail(String rota, String email, String ip) throws Exception {
+        return mockMvc.perform(post(rota).with(csrfValido()).with(doIp(ip))
+                .contentType(MediaType.APPLICATION_JSON).content("{\"email\": \"" + email + "\"}"));
+    }
+
+    @Test
+    void reenvioDeConfirmacaoLimitadoPorEmail() throws Exception {
+        // conta inexistente: conta igual (o limite não pode revelar quem está cadastrado)
+        for (int i = 0; i < 3; i++) {
+            pedirEmail("/api/auth/reenviar-confirmacao", "it.lim.mail@teste.com", "10.0.1.1").andExpect(status().isAccepted());
+        }
+        // o 4º pedido para o MESMO e-mail é recusado, mesmo vindo de outra rede e com maiúsculas
+        pedirEmail("/api/auth/reenviar-confirmacao", "IT.Lim.Mail@teste.com", "10.0.1.2")
+                .andExpect(status().isTooManyRequests())
+                .andExpect(header().exists("Retry-After"));
+        // "esqueci minha senha" tem contagem própria
+        pedirEmail("/api/auth/esqueci-senha", "it.lim.mail@teste.com", "10.0.1.3").andExpect(status().isAccepted());
+    }
+
+    @Test
+    void pedidosDeEmailLimitadosPorIp() throws Exception {
+        for (int i = 1; i <= 5; i++) { // e-mails diferentes, mesmo IP
+            pedirEmail("/api/auth/esqueci-senha", "it.lim.ip" + i + "@teste.com", "10.0.1.9").andExpect(status().isAccepted());
+        }
+        pedirEmail("/api/auth/esqueci-senha", "it.lim.ip6@teste.com", "10.0.1.9").andExpect(status().isTooManyRequests());
+        pedirEmail("/api/auth/esqueci-senha", "it.lim.ip6@teste.com", "10.0.1.10").andExpect(status().isAccepted());
     }
 }

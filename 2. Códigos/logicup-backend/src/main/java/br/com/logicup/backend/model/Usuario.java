@@ -31,7 +31,9 @@ public class Usuario {
     @Column(name = "e_mail", nullable = false, unique = true, length = 150)
     private String email;
 
-    @Column(nullable = false)
+    // Sprint 10: pode ser NULL = conta criada só pelo Google (sem senha própria). O login por senha
+    // recusa essas contas; a pessoa pode criar uma senha pelo "Esqueci minha senha".
+    @Column
     private String senha;
 
     @Enumerated(EnumType.STRING) // pra salvar o enum tipo user como string e não um número/posição na declaração (0, 1, 2)
@@ -45,6 +47,15 @@ public class Usuario {
     // não exijam migração. Só muda pelo trocarAvatar(); quem confere se o usuário POSSUI o avatar é o AvatarService.
     @Column(nullable = false, length = 30)
     private String avatar = Avatar.PADRAO.name();
+
+    // Sprint 10: quando a pessoa clicou no link de confirmação. NULL = ainda não confirmou (não entra).
+    // Só muda pelo confirmarEmail(): não há setter, para ninguém "confirmar" sem passar pela regra.
+    @Column(name = "email_confirmado_em")
+    private LocalDateTime emailConfirmadoEm;
+
+    // Sprint 10: identificador fixo da pessoa no Google ("sub"), para o "Entrar com Google".
+    @Column(name = "google_id", unique = true)
+    private String googleId;
 
     public Usuario() {} // exigência do hibernate ter um construtor sem argumentos pra instanciar internamente
 
@@ -79,6 +90,24 @@ public class Usuario {
 
     /** O avatar em uso. Um código que não existe mais no catálogo vira o padrão (nunca quebra a tela). */
     public Avatar getAvatar() { return Avatar.porCodigo(avatar).orElse(Avatar.PADRAO); }
+
+    // ---------------- Sprint 10: confirmação de e-mail e senha ----------------
+
+    public boolean isEmailConfirmado() { return emailConfirmadoEm != null; }
+
+    public LocalDateTime getEmailConfirmadoEm() { return emailConfirmadoEm; }
+
+    /** Marca o e-mail como confirmado. Confirmar de novo não muda a data original (idempotente). */
+    public void confirmarEmail(LocalDateTime quando) {
+        if (emailConfirmadoEm == null) {
+            emailConfirmadoEm = java.util.Objects.requireNonNull(quando);
+        }
+    }
+
+    /** true quando a conta tem senha própria (contas criadas só pelo Google não têm). */
+    public boolean temSenha() { return senha != null; }
+
+    public String getGoogleId() { return googleId; }
 
     public void trocarAvatar(Avatar novo) {
         this.avatar = java.util.Objects.requireNonNull(novo, "O avatar é obrigatório").name();

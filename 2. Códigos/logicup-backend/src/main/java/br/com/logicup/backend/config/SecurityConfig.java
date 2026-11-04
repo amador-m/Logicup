@@ -87,7 +87,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/api/auth/csrf").permitAll()
                         .requestMatchers(HttpMethod.POST,
-                                "/api/auth/cadastro", "/api/auth/login", "/api/auth/logout").permitAll()
+                                "/api/auth/cadastro", "/api/auth/login", "/api/auth/logout",
+                                // Sprint 10: links dos e-mails (quem usa ainda não está logado)
+                                "/api/auth/confirmar-email", "/api/auth/reenviar-confirmacao",
+                                "/api/auth/esqueci-senha", "/api/auth/redefinir-senha").permitAll()
                         .requestMatchers("/error").permitAll()
                         // PE1: só ALUNO responde exercícios (professor/admin apenas visualizam)
                         .requestMatchers(HttpMethod.POST, "/api/rodadas/*/respostas").hasRole("ALUNO")

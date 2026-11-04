@@ -95,9 +95,12 @@ services:
     networks:
       - dados
     healthcheck:
-      # pela rede (127.0.0.1) e não pelo socket: durante a carga inicial do seed o MySQL roda sem
-      # rede, então o backend só sobe quando o banco estiver completo
-      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 --silent"]
+      # "Saudável" = respondendo pela rede E com o usuário do backend criado.
+      #  - pela rede (127.0.0.1) e não pelo socket: durante a carga inicial do seed o MySQL roda sem
+      #    rede, então o backend só sobe quando o banco estiver completo;
+      #  - confere o logicup_app: se o 03_usuario_app.sh falhou (ex.: .env sem a senha certa na 1ª
+      #    subida), o MySQL fica "unhealthy" e o problema aparece AQUI, e não como "Access denied" no backend.
+      test: ["CMD-SHELL", "MYSQL_PWD=\"$$MYSQL_ROOT_PASSWORD\" mysql -h 127.0.0.1 -uroot -N -e \"SELECT COUNT(*) FROM mysql.user WHERE user = 'logicup_app'\" | grep -qx 1"]
       interval: 10s
       timeout: 5s
       retries: 10

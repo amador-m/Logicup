@@ -15,8 +15,9 @@ public final class VersoesLegais {
 
     // Sprint 9: 0.2 — turmas (o professor passa a ver dados dos alunos da turma dele)
     // Sprint 9: 0.3 — conquistas, gemas (moeda virtual) e avatares
-    public static final String TERMOS = "0.3";
-    public static final String PRIVACIDADE = "0.3";
+    // Sprint 10: 0.4 — confirmação de e-mail, recuperação de senha, e-mails pela Brevo, hospedagem e canal de contato
+    public static final String TERMOS = "0.4";
+    public static final String PRIVACIDADE = "0.4";
 
     /** O que vai DENTRO do token de quem aceitou a versão vigente dos dois documentos. Ex.: "T0.1|P0.1". */
     public static final String IDENTIFICADOR = "T" + TERMOS + "|P" + PRIVACIDADE;

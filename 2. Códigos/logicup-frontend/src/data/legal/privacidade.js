@@ -7,6 +7,8 @@ import { VERSAO_PRIVACIDADE, ATUALIZADO_EM } from "./versoes";
  * Se um campo novo for criado no banco, esta página precisa ser atualizada junto.
  * v0.2 (Sprint 9): turmas — matrícula, tarefas e o que o professor vê dos alunos da turma dele.
  * v0.3 (Sprint 9): conquistas, gemas e avatares (tabelas aluno_conquista e aluno_avatar; usuario.avatar; aluno.gemas).
+ * v0.4 (Sprint 10): confirmação de e-mail (usuario.email_confirmado_em), códigos dos links (token_usuario, só o hash),
+ *   fornecedores efetivamente usados (Google Cloud, Brevo, ImprovMX) e canal de contato.
  */
 export const privacidade = {
     slug: "privacidade",
@@ -34,7 +36,7 @@ export const privacidade = {
                 {
                     lista: [
                         "Responsável: equipe do projeto LogiCup. A identificação formal do controlador dos dados será feita na versão definitiva.",
-                        "Canal de contato para assuntos de privacidade: será divulgado pela equipe na versão definitiva.",
+                        "Canal de contato para assuntos de privacidade: contato@logicup.dev.br.",
                         "Encarregado pelo tratamento de dados: não designado nesta versão preliminar.",
                     ],
                 },
@@ -57,6 +59,8 @@ export const privacidade = {
                 {
                     lista: [
                         "data de cadastro;",
+                        "a data em que você confirmou o seu e-mail;",
+                        "códigos dos links enviados por e-mail (confirmação da conta e criação de senha nova): guardamos só um resumo criptográfico (hash) de cada código, a finalidade, quando foi criado, quando vence e quando foi usado. O código em si não fica guardado, e os registros são apagados 30 dias depois de vencerem;",
                         "o avatar escolhido: uma ilustração do catálogo da plataforma (não é uma foto sua);",
                         "para alunos: pontos de experiência (XP), nível, sequência de dias de estudo e data da última atividade;",
                         "para cada exercício respondido: situação (em andamento ou concluído), número de tentativas, pontos ganhos, a última resposta enviada e a data da resposta;",
@@ -83,6 +87,8 @@ export const privacidade = {
                 {
                     lista: [
                         "criar e administrar a sua conta;",
+                        "confirmar que o e-mail informado no cadastro pertence a você;",
+                        "enviar e-mails da própria conta: confirmação do cadastro, boas-vindas e o link de \"esqueci minha senha\". Não enviamos e-mails de propaganda;",
                         "confirmar a sua identidade ao entrar e manter a sessão aberta;",
                         "mostrar exercícios, corrigir respostas e dar feedback;",
                         "registrar XP, nível, sequência de estudo e progresso na trilha;",
@@ -134,6 +140,8 @@ export const privacidade = {
                         colunas: ["Dados", "Para quê", "Por quanto tempo"],
                         linhas: [
                             ["Cadastro (nome, nome de usuário, e-mail, hash da senha, perfil)", "Criar e administrar a conta", "Enquanto a conta existir"],
+                            ["Data de confirmação do e-mail", "Liberar a entrada na conta", "Enquanto a conta existir"],
+                            ["Códigos dos links enviados por e-mail (só o hash)", "Confirmar o e-mail e criar uma senha nova", "Até 30 dias depois de vencerem (o link em si vale 24 horas ou 30 minutos)"],
                             ["Sessão (cookie de login)", "Manter você conectado", "Até 8 horas ou até você sair"],
                             ["Progresso (XP, nível, respostas, tentativas)", "Oferecer os exercícios e acompanhar a aprendizagem", "Enquanto a conta existir"],
                             ["Conquistas, gemas e avatares", "Gamificação: medalhas, saldo de gemas e loja de avatares", "Enquanto a conta existir"],
@@ -152,9 +160,14 @@ export const privacidade = {
                 "O LogiCup não vende dados pessoais e não os compartilha com terceiros para publicidade ou qualquer " +
                 "finalidade diferente das descritas aqui.",
                 "A fonte de letras usada no site é servida pelo próprio LogiCup, sem requisições a serviços externos.",
-                "Quando a plataforma for publicada em um serviço de hospedagem, esse fornecedor terá acesso técnico " +
-                "aos dados para manter o sistema funcionando. Os fornecedores efetivamente usados, o que cada um acessa " +
-                "e se há armazenamento fora do Brasil serão informados na versão definitiva desta Política.",
+                "Para funcionar, o LogiCup usa os fornecedores abaixo. Eles acessam dados apenas para prestar o serviço:",
+                {
+                    lista: [
+                        "Google Cloud (hospedagem): os servidores e o banco de dados ficam na região de São Paulo, no Brasil.",
+                        "Brevo (envio de e-mails): recebe o seu e-mail, o seu primeiro nome e o conteúdo da mensagem para entregá-la. A Brevo é uma empresa europeia e informa que guarda os dados em servidores na União Europeia; por isso, esses dados podem ser tratados fora do Brasil.",
+                        "ImprovMX (encaminhamento de e-mails): as mensagens que você enviar para endereços @logicup.dev.br, como contato@logicup.dev.br, passam por esse serviço, de uma empresa dos Estados Unidos, antes de chegar à caixa da equipe.",
+                    ],
+                },
             ],
         },
         {
@@ -164,6 +177,9 @@ export const privacidade = {
                 {
                     lista: [
                         "senhas guardadas apenas como hash;",
+                        "o e-mail precisa ser confirmado antes do primeiro acesso;",
+                        "os links enviados por e-mail valem uma única vez e por pouco tempo (24 horas para confirmar a conta, 30 minutos para criar uma senha nova);",
+                        "limite de pedidos de e-mail, para impedir que alguém encha a caixa de entrada de outra pessoa;",
                         "cookie de login inacessível a scripts da página e enviado apenas ao próprio site;",
                         "proteção contra pedidos forjados por outros sites (CSRF e verificação de origem);",
                         "acesso a cada recurso conforme o tipo de perfil.",
@@ -178,7 +194,7 @@ export const privacidade = {
             blocos: [
                 "Os dados são mantidos enquanto forem necessários para as finalidades descritas.",
                 "Nesta versão, ainda não é possível excluir a conta pela própria plataforma. Pedidos de exclusão " +
-                "serão atendidos pelo canal de contato, quando ele for divulgado.",
+                "são atendidos pelo canal de contato (contato@logicup.dev.br).",
                 "Excluir a conta não significa, necessariamente, apagar no mesmo instante todos os registros: alguns " +
                 "podem precisar ser guardados quando houver fundamento legal. Procedimentos e prazos serão definidos " +
                 "na versão definitiva.",
@@ -201,7 +217,7 @@ export const privacidade = {
                         "petição à Autoridade Nacional de Proteção de Dados (ANPD).",
                     ],
                 },
-                "As solicitações serão recebidas pelo canal de contato que a equipe divulgará na versão definitiva.",
+                "As solicitações são recebidas pelo canal de contato: contato@logicup.dev.br.",
             ],
         },
         {

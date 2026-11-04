@@ -6,6 +6,7 @@ import { VERSAO_TERMOS, ATUALIZADO_EM } from "./versoes";
  * Pontos ainda sem definição (responsável jurídico, canal de contato, prazos) ficam genéricos de propósito.
  *
  * v0.3 (Sprint 9): conquistas, gemas (moeda virtual, sem valor em dinheiro) e loja de avatares.
+ * v0.4 (Sprint 10): confirmação de e-mail obrigatória, recuperação de senha e canal de contato.
  *
  * Formato de cada bloco: texto = parágrafo; { lista: [...] } = lista; { tabela: {...} } = tabela.
  */
@@ -26,8 +27,8 @@ export const termos = {
                 "atividades interativas e recursos de gamificação.",
                 "O projeto é desenvolvido por uma equipe acadêmica. Sua disponibilização não implica, por si só, " +
                 "a constituição de uma empresa ou a existência de uma pessoa jurídica responsável pela operação.",
-                "Responsável pela disponibilização: equipe do projeto LogiCup. O canal oficial de contato será " +
-                "divulgado pela equipe na versão definitiva destes Termos.",
+                "Responsável pela disponibilização: equipe do projeto LogiCup. Canal oficial de contato: " +
+                "contato@logicup.dev.br.",
             ],
         },
         {
@@ -50,7 +51,7 @@ export const termos = {
                 "O LogiCup tem finalidade educacional. Nesta versão, a plataforma oferece:",
                 {
                     lista: [
-                        "cadastro, entrada e saída da conta;",
+                        "cadastro com confirmação do e-mail, entrada e saída da conta e criação de uma senha nova por e-mail (\"esqueci minha senha\");",
                         "perfil, com edição de nome, nome de usuário e senha;",
                         "uma trilha de fases e rodadas, com teoria, exemplos e exercícios;",
                         "exercícios de diferentes formatos (por exemplo, múltipla escolha, ordenação e associação), com feedback sobre cada resposta;",
@@ -71,6 +72,8 @@ export const termos = {
             titulo: "Cadastro e conta",
             blocos: [
                 "Ao se cadastrar, informe dados verdadeiros e compatíveis com os campos pedidos.",
+                "Use um e-mail que seja seu: a conta só pode ser usada depois que você abrir o link de confirmação " +
+                "enviado para ele, e é por esse e-mail que você cria uma senha nova se esquecer a atual.",
                 "Você é responsável por:",
                 {
                     lista: [
@@ -82,8 +85,8 @@ export const termos = {
                     ],
                 },
                 "A conta é de uso individual.",
-                "Nesta versão, ainda não há recuperação de senha nem exclusão de conta pela própria plataforma. " +
-                "Essas solicitações serão atendidas pelo canal de contato quando ele for divulgado.",
+                "Nesta versão, ainda não é possível excluir a conta pela própria plataforma. Esse pedido é atendido " +
+                "pelo canal de contato (contato@logicup.dev.br).",
             ],
         },
         {
@@ -162,7 +165,7 @@ export const termos = {
         {
             titulo: "Suspensão, encerramento e exclusão de conta",
             blocos: [
-                "Você pode pedir o encerramento da sua conta pelo canal de contato, quando ele for divulgado.",
+                "Você pode pedir o encerramento da sua conta pelo canal de contato (contato@logicup.dev.br).",
                 "A equipe pode suspender ou encerrar contas em casos de abuso, fraude, risco à segurança ou violação " +
                 "destes Termos, de forma proporcional e respeitando os seus direitos.",
                 "Excluir a conta não significa, necessariamente, apagar no mesmo instante todos os registros ligados a " +
@@ -182,7 +185,7 @@ export const termos = {
             titulo: "Contato e disposições finais",
             blocos: [
                 "Dúvidas, reclamações e solicitações sobre o uso da plataforma podem ser encaminhadas à equipe do " +
-                "projeto pelo canal oficial, que será divulgado na versão definitiva destes Termos.",
+                "projeto pelo canal oficial: contato@logicup.dev.br.",
                 "Estes Termos são interpretados conforme a legislação brasileira. Nenhuma disposição pretende afastar " +
                 "direitos garantidos por normas de aplicação obrigatória.",
             ],

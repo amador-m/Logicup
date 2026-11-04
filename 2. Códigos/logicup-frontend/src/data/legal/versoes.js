@@ -7,9 +7,10 @@
  */
 // Sprint 9: 0.2 — turmas (o professor passa a ver dados dos alunos da turma dele)
 // Sprint 9: 0.3 — conquistas, gemas (moeda virtual) e avatares
-export const VERSAO_TERMOS = "0.3";
-export const VERSAO_PRIVACIDADE = "0.3";
+// Sprint 10: 0.4 — confirmação de e-mail, recuperação de senha, e-mails pela Brevo, hospedagem e canal de contato
+export const VERSAO_TERMOS = "0.4";
+export const VERSAO_PRIVACIDADE = "0.4";
 export const VERSAO_COOKIES = "0.1";
 
 /** Data da última atualização dos textos (aparece no topo de cada documento). */
-export const ATUALIZADO_EM = "22 de outubro de 2026";
+export const ATUALIZADO_EM = "4 de novembro de 2026";

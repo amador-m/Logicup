@@ -1,12 +1,19 @@
 import { Link } from "react-router-dom";
-import { Container, Copyright, Item, LinksLegais } from "./styles";
+import { FaInstagram } from "react-icons/fa6";
+import { FiMail } from "react-icons/fi";
+import { Container, Contatos, Copyright, Item, LinksLegais } from "./styles";
 import LogoImg from "../../../assets/images/LogoLight.png";
 
 /*
  * Rodapé (Sprint 7): fundo escuro para "fechar" a página e SÓ links que levam a algum lugar.
  * Saíram os itens decorativos (redes sociais e tópicos sem página).
  * Sprint 8: os links legais voltaram, agora que as páginas de Termos, Privacidade e Cookies existem.
+ * Deploy (04/11): contatos oficiais. O endereço de e-mail fica escrito por extenso (não só no link), porque
+ * nem todo mundo tem um programa de e-mail configurado para abrir o "mailto:".
  */
+const INSTAGRAM = "https://www.instagram.com/logicup.oficial/";
+const EMAIL_CONTATO = "contato@logicup.dev.br";
+
 const Footer = () => (
     <>
         <Container>
@@ -40,6 +47,18 @@ const Footer = () => (
                     Trabalho de Conclusão de Curso: uma plataforma gamificada para o ensino
                     de programação em Java.
                 </p>
+                <Contatos aria-label="Contatos do LogiCup">
+                    <li>
+                        <a href={INSTAGRAM} target="_blank" rel="noopener noreferrer">
+                            <FaInstagram aria-hidden="true" /> @logicup.oficial
+                        </a>
+                    </li>
+                    <li>
+                        <a href={`mailto:${EMAIL_CONTATO}`}>
+                            <FiMail aria-hidden="true" /> {EMAIL_CONTATO}
+                        </a>
+                    </li>
+                </Contatos>
             </Item>
         </Container>
 

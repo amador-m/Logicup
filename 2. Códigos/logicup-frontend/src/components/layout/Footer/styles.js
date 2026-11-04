@@ -44,6 +44,27 @@ export const Item = styled.div`
   }
 `;
 
+/* Deploy (04/11): Instagram e e-mail de contato, embaixo de "Sobre o projeto" */
+export const Contatos = styled.ul`
+  margin-top: 16px;
+
+  li {
+    padding: 6px 0;
+  }
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    overflow-wrap: anywhere; /* o e-mail não estoura a coluna no celular */
+  }
+
+  svg {
+    flex-shrink: 0;
+    font-size: 18px;
+  }
+`;
+
 export const Copyright = styled.div`
   display: flex;
   flex-wrap: wrap;

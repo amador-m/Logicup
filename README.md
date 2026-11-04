@@ -1,8 +1,8 @@
-# 🎮 Logicup
+# 🎮 LogiCup
 
 > Plataforma gamificada para o ensino de programação em Java.
 
-O **Logicup** é um projeto de TCC desenvolvido com o objetivo de tornar o aprendizado de programação em Java mais acessível, interativo e motivador por meio de elementos de gamificação, desafios práticos e progressão por níveis.
+O **LogiCup** é um projeto de TCC desenvolvido com o objetivo de tornar o aprendizado de programação em Java mais acessível, interativo e motivador por meio de elementos de gamificação, desafios práticos e progressão por níveis.
 
 ---
 

@@ -39,7 +39,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
- * Configuração central de segurança do LogicUp.
+ * Configuração central de segurança do LogiCup.
  *
  * Toda requisição HTTP passa por uma CADEIA DE FILTROS do Spring Security antes de chegar ao Controller.
  * Aqui dizemos o que cada filtro deve fazer:

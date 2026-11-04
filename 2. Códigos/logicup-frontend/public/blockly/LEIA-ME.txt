@@ -1,0 +1,4 @@
+Ícones e cursores da biblioteca Blockly (Apache License 2.0, https://github.com/RaspberryPiFoundation/blockly),
+copiados de node_modules/blockly/media. Ficam no próprio site para o Blockly não buscar arquivos em
+outro domínio (static.blockly.com). Os sons (.mp3) não foram copiados: o LogiCup usa o Blockly sem som.
+Ao atualizar o pacote blockly, copie a pasta media de novo.

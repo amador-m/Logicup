@@ -4,6 +4,7 @@ import { avisarProgresso, pedirComemoracao } from "../../../util/gamificacao";
 import TeoriaRodada from "./TeoriaRodada";
 import FluxoQuestoes from "./FluxoQuestoes";
 import ConclusaoRodada from "./ConclusaoRodada";
+import { respostaParaEnvio } from "../respostas";
 import {
     Card,
     CardHeader,
@@ -151,7 +152,7 @@ const PainelRodada = ({
         setErroEnvio(null);
         try {
             const correcao = await trilhaApi.enviarRespostas(rodada.id, [
-                { exercicioId: exercicio.id, resposta: respostas[exercicio.id] },
+                { exercicioId: exercicio.id, resposta: respostaParaEnvio(exercicio, respostas[exercicio.id]) },
             ]);
             const resultado = correcao.resultados[0];
             setResultados((atuais) => ({ ...atuais, [exercicio.id]: resultado }));

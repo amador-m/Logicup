@@ -9,11 +9,15 @@ Esta pasta é a **fonte da verdade do banco de dados**: a estrutura (schema), o 
 | `00_impressao_digital_schema.sql` | Um hash por tabela, que resume colunas, tipos, chaves, FKs e CHECKs. Serve para provar que dois bancos têm a mesma estrutura. | Não (só leitura) |
 | `01_schema.sql` | A estrutura completa, criada do zero e sem dados. Serve para o desenvolvimento e para a produção. | Sim (cria as tabelas) |
 | `02_seed_conteudo.sql` | As 10 fases, 20 rodadas, 110 questões e 4 dicas. É **gerado** pelo `gerador/gerar_seed.py`, então não edite à mão. | Sim (INSERT) |
-| `03_conferencia_seed.sql` | 25 verificações de integridade, cada uma com o valor esperado e o encontrado. Todas precisam dar "OK". | Não (só leitura) |
+| `03_conferencia_seed.sql` | 26 verificações de integridade, cada uma com o valor esperado e o encontrado. Todas precisam dar "OK". | Não (só leitura) |
 | `gerador/gerar_seed.py` | Lê o `BancoDeQuestoesLogiCup_v3_0.docx` e gera o `02_seed_conteudo.sql`. | — |
 | `07a_migracao_formato_codigo.sql` | **Sprint 9 (ADR-001).** Acrescenta o formato `CODIGO` ao ENUM. Não altera nenhuma questão. | Sim (só a estrutura) |
 | `07b_migracao_questoes_codigo.sql` | **Sprint 9.** As 9 questões "Escrever código" passam a ser corrigidas executando o código. Faz backup antes (`exercicio_backup_s9`). **Aplicar só junto com o editor de código no frontend.** É **gerado** por `gerador/codigo/gerar_migracao_07b.py`. | Sim (9 questões) |
 | `07b_reverter_questoes_codigo.sql` | Desfaz a 07b a partir do backup (as 9 questões voltam exatamente como eram). | Sim (9 questões) |
+| `08_migracao_questao_blocos.sql` | **Sprint 9 (Blockly).** A F5.Q8 deixa de ser ordenação de linhas e passa a ser montada com **blocos** (formato `BLOCOS`, que já existia no ENUM). Faz backup antes (`exercicio_backup_s9_blocos`). Não mexe no progresso. **Aplicar só junto com o frontend do Blockly.** É **gerado** por `gerador/codigo/gerar_migracao_08.py`. | Sim (1 questão) |
+| `08_reverter_questao_blocos.sql` | Desfaz a 08 a partir do backup (a F5.Q8 volta exatamente como era). | Sim (1 questão) |
+| `09_migracao_mais_blocos.sql` | **03/11.** Mais 5 questões de ordenação viram **blocos**: F1.Q4 (passos do café), F2.Q4 (programa completo, mais difícil, com blocos que não devem ser usados), F4.Q5, F9.R2.Q8 e F10.Q5. Muda tipo, formato, gabarito, alternativas e o enunciado ("encaixe os blocos"); XP e progresso não mudam. Backup em `exercicio_backup_0311_blocos`. **Aplicar só junto com o frontend dos blocos de linha e o backend com o modo PROGRAMA.** Gerado por `gerador/codigo/gerar_migracao_09.py`. | Sim (5 questões) |
+| `09_reverter_mais_blocos.sql` | Desfaz a 09 a partir do backup (as 5 voltam exatamente como eram; a F5.Q8 continua em blocos). | Sim (5 questões) |
 | `gerador/codigo/` | Programas de teste das 9 questões de código (`questoes_codigo.py`), o gerador/validador (`gerar_questoes_codigo.py`), a conversão usada pelo seed e pela 07b (`aplicar_codigo.py`) e o gerador da 07b. | — |
 | `gerador/ajustes_seed.py` | O que o documento não diz de forma legível por programa: as respostas aceitas das lacunas, os ícones da F1.Q8 e as saídas de várias linhas. | — |
 | `historico/` | As migrações antigas (S6 a S9) e o gerador antigo da Fase 1. Ficam só como registro. | — |
@@ -29,7 +33,7 @@ Esta pasta é a **fonte da verdade do banco de dados**: a estrutura (schema), o 
 3. Execute `DROP DATABASE Logicup;`.
 4. Execute `01_schema.sql` (o arquivo inteiro).
 5. Execute `02_seed_conteudo.sql`. A primeira consulta precisa mostrar "OK: banco vazio, pode seguir".
-6. Execute `03_conferencia_seed.sql`. As 24 linhas do primeiro resultado precisam estar "OK".
+6. Execute `03_conferencia_seed.sql`. As 26 linhas do primeiro resultado precisam estar "OK".
 7. Suba o backend no perfil `dev`. O `DatabaseTestRunner` cria o ADMIN a partir de `ADMIN_EMAIL` e `ADMIN_SENHA`.
 8. Rode os testes: `mvnw test` na pasta do backend.
 
@@ -74,6 +78,16 @@ Para mudar uma dessas questões (casos, programa de teste, exemplos):
 4. Copie `gerador/codigo/questoes-codigo-teste.json` para `src/test/resources/questoes/` do backend e rode o `QuestoesCodigoRealTest` com o Piston ligado.
 
 O gabarito continua com as palavras-chave: elas são a **reserva** quando o executor está fora do ar. Nesse caso, a questão fica *pendente*, sem XP e sem contar como erro.
+
+## Questões de blocos (Sprint 9, etapa 1 do Blockly)
+
+A F5.Q8 é montada com **blocos** (Blockly). Os blocos viram Java no navegador e a correção é a mesma das
+questões de código: o Java gerado roda no programa de teste. Os blocos iniciais (soltos e embaralhados, sem
+poder apagar) ficam em `alternativas_json.blocosIniciais`; o gabarito tem o mesmo formato das questões de código.
+
+Para mudar a questão: edite `gerador/codigo/questoes_blocos.py` e siga os mesmos passos das questões de código
+(o `gerar_questoes_codigo.py` valida as duas), usando `gerar_migracao_08.py` para o banco existente.
+A `referencia` precisa ser **exatamente** o Java que o gerador de blocos produz com a montagem certa.
 
 ## Testar uma fase sem jogar as anteriores (só em desenvolvimento)
 

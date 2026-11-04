@@ -11,6 +11,7 @@ import { ProgressoCasos, CasoQueFalhou, Dica } from "./estilosCodigo";
  *   RESPOSTA_CURTA -> "texto"  ou, com várias lacunas (Sprint 9), ["int", "18"]
  *   TEXTO_LIVRE    -> "resposta modelo" (as palavras-chave nunca saem do servidor)
  *   CODIGO         -> "resposta modelo" (código; os casos de teste nunca saem do servidor)
+ *   BLOCOS         -> o Java do programa montado certo (mesma correção do CODIGO)
  */
 function RespostaCorreta({ formato, valor }) {
     switch (formato) {
@@ -61,6 +62,13 @@ function RespostaCorreta({ formato, valor }) {
             return (
                 <>
                     <p>Uma solução possível:</p>
+                    <CodigoJava codigo={valor} titulo="Resposta modelo" />
+                </>
+            );
+        case "BLOCOS": // Sprint 9 (Blockly): o Java do programa montado na ordem certa
+            return (
+                <>
+                    <p>Montado na ordem certa, os blocos formam este Java:</p>
                     <CodigoJava codigo={valor} titulo="Resposta modelo" />
                 </>
             );

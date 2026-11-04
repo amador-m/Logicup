@@ -1,5 +1,5 @@
 /*
- * Catálogo VISUAL das 10 fases planejadas do LogicUp.
+ * Catálogo VISUAL das 10 fases planejadas do LogiCup.
  * Serve só para desenhar o mapa completo: o que é real (status, rodadas, XP) vem da API.
  * Fases que ainda não existem no banco aparecem como "Em breve" usando estes títulos e tópicos.
  *

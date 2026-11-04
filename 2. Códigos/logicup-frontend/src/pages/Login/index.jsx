@@ -42,7 +42,7 @@ const Login = () => {
         // Sprint 7: sem o <Container> de página inteira; o card agora aparece dentro do ModalAuth
         <Box>
                 <LeftSide>
-                    <Link to="/"><Logo src={LogoImg} alt="Logo Logicup"/></Link>
+                    <Link to="/"><Logo src={LogoImg} alt="Logo LogiCup"/></Link>
                     <h2>Continue sua trilha de aprendizado</h2>
                     <p>
                         Entre na sua conta para acessar missões, acompanhar seu progresso,

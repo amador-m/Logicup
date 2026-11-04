@@ -6,6 +6,7 @@ Para cada questão:
                  TRECHO  = dentro de um método nosso (as variáveis "já declaradas" viram parâmetros)
                  MEMBRO  = dentro da classe Main (o aluno escreve um método)
                  CLASSES = depois da classe Main (o aluno escreve uma ou mais classes)
+                 PROGRAMA = o programa inteiro, com a classe Main (03/11: só a F2.Q4, de blocos)
   comparacao  -> como comparar a saída de cada caso:
                  EXATA         = o texto, linha a linha (ignorando espaços no fim e linhas em branco nas pontas)
                  NUMEROS       = só a sequência de números inteiros (aceita "Missão 2" ou "2")

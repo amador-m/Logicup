@@ -67,7 +67,7 @@ const Register = () => {
         // Sprint 7: sem o <Container> de página inteira; o card agora aparece dentro do ModalAuth
         <Box>
                 <LeftSide>
-                    <Link to="/"><Logo src={LogoImg} alt="Logo Logicup"/></Link>
+                    <Link to="/"><Logo src={LogoImg} alt="Logo LogiCup"/></Link>
                     <h2>Comece sua jornada em Java</h2>
                     <p>
                         Crie sua conta para acessar a trilha, concluir missões e evoluir
@@ -77,7 +77,7 @@ const Register = () => {
 
                 <RightSide>
                     <h2 id="titulo-cadastro">Criar conta</h2>
-                    <p>Preencha seus dados para começar a aprender no Logicup</p>
+                    <p>Preencha seus dados para começar a aprender no LogiCup</p>
 
                     <Form onSubmit={handleRegister}>
                         <InputGroup>

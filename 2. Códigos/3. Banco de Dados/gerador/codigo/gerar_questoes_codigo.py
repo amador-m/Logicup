@@ -1,5 +1,6 @@
 """
-Sprint 9 (ADR-001): gera e VALIDA a correção por execução das 9 questões "Escrever código".
+Sprint 9 (ADR-001): gera e VALIDA a correção por execução das 9 questões "Escrever código"
+e das questões de BLOCOS (questoes_blocos.py; elas são corrigidas do mesmo jeito).
 
 O que faz, para cada questão de questoes_codigo.py:
   1. monta o programa de teste com a solução de REFERÊNCIA e executa com Java (no modo do Piston:
@@ -7,7 +8,7 @@ O que faz, para cada questão de questoes_codigo.py:
   2. guarda a saída de cada caso como a SAÍDA ESPERADA (assim o gabarito nunca contradiz a solução);
   3. VALIDA: todas as soluções "certas" precisam passar e todos os erros "errados" precisam reprovar.
      Se alguma validação falhar, o script PARA e nada é gerado (não vai gabarito errado para o banco).
-  4. escreve questoes_codigo.json (lido pela migração e pelo gerador do seed).
+  4. escreve questoes_codigo.json e questoes_blocos.json (lidos pelas migrações e pelo gerador do seed).
 
 A montagem do programa segue exatamente as mesmas regras da classe Java MontadorPrograma do backend.
 
@@ -22,6 +23,7 @@ import tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from questoes_codigo import QUESTOES, MARCA  # noqa: E402
+from questoes_blocos import QUESTOES_BLOCOS  # noqa: E402  Sprint 9: questões de BLOCOS (mesma validação)
 
 PONTO = "//@CODIGO_DO_ALUNO"
 IMPORT = re.compile(r"^\s*import\s+(static\s+)?[\w.]+(\.\*)?\s*;\s*$")
@@ -100,9 +102,10 @@ def avaliar(q, saidas_esperadas, codigo):
     return True, "ok"
 
 
-def main():
-    resultado, problemas = {}, []
-    for codigo_questao, q in QUESTOES.items():
+def validar(questoes, problemas):
+    """Gera as saídas esperadas e valida cada questão. Devolve {codigo: dados} (os problemas vão para a lista)."""
+    resultado = {}
+    for codigo_questao, q in questoes.items():
         assert len(q["casos"]) > 0
         # 1-2) saídas esperadas a partir da referência
         rc, saida, erros = executar(montar(q["teste"], q["referencia"]))
@@ -141,6 +144,23 @@ def main():
             "exemplos": q["exemplos"],
             "saidaDosExemplos": normalizar(saida_exemplo),
         }
+    return resultado
+
+
+def main():
+    problemas = []
+    resultado = validar(QUESTOES, problemas)
+    # Sprint 9 (Blockly): as questões de blocos são validadas do mesmo jeito (a referência é o Java gerado pelos blocos)
+    blocos = validar(QUESTOES_BLOCOS, problemas)
+    for codigo_questao, dados in blocos.items():
+        q = QUESTOES_BLOCOS[codigo_questao]
+        dados.pop("codigoInicial")
+        dados.update(blocosIniciais=q["blocos_iniciais"], palavrasChave=q["palavras_chave"],
+                     minimo=q["minimo"], respostaModelo=q["resposta_modelo"], sobram=q.get("sobram", False))
+        # 03/11: textos que substituem os do documento ("organize as linhas" -> "encaixe os blocos")
+        for campo in ("enunciado", "explicacao", "habilidade"):
+            if campo in q:
+                dados[campo] = q[campo]
 
     if problemas:
         print("\n*** VALIDAÇÃO FALHOU — nada foi gerado ***")
@@ -152,19 +172,24 @@ def main():
     destino = os.path.join(pasta, "questoes_codigo.json")
     with open(destino, "w", encoding="utf-8") as f:
         json.dump(resultado, f, ensure_ascii=False, indent=2)
+    destino_blocos = os.path.join(pasta, "questoes_blocos.json")
+    with open(destino_blocos, "w", encoding="utf-8") as f:
+        json.dump(blocos, f, ensure_ascii=False, indent=2)
 
     # Arquivo para o teste JUnit com o Piston REAL (QuestoesCodigoRealTest): gabarito + a solução de
     # referência (precisa passar) + o primeiro erro típico (precisa reprovar). Vai para src/test/resources.
     fixture = {}
-    for codigo_questao, dados in resultado.items():
-        q = QUESTOES[codigo_questao]
+    todas = {**QUESTOES, **QUESTOES_BLOCOS}
+    for codigo_questao, dados in {**resultado, **blocos}.items():
+        q = todas[codigo_questao]
         nome_erro, codigo_erro = next(iter(q["erradas"].items()))
         fixture[codigo_questao] = {"gabarito": dados, "referencia": q["referencia"],
                                    "erro": {"nome": nome_erro, "codigo": codigo_erro}}
     destino_teste = os.path.join(pasta, "questoes-codigo-teste.json")
     with open(destino_teste, "w", encoding="utf-8") as f:
         json.dump(fixture, f, ensure_ascii=False, indent=2)
-    print(f"\nOK: {len(resultado)} questões validadas -> {destino} e {destino_teste}")
+    print(f"\nOK: {len(resultado)} questões de código e {len(blocos)} de blocos validadas -> "
+          f"{destino}, {destino_blocos} e {destino_teste}")
 
 
 if __name__ == "__main__":

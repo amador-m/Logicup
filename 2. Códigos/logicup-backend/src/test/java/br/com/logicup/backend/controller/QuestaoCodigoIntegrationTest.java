@@ -89,6 +89,7 @@ class QuestaoCodigoIntegrationTest {
     private Exercicio questaoCodigo;
     private Exercicio questaoEscolha;
     private Exercicio questaoDaRodada2;
+    private Exercicio questaoBlocos;
     private Aluno aluno;
 
     @BeforeEach
@@ -104,6 +105,9 @@ class QuestaoCodigoIntegrationTest {
         questaoEscolha = exercicioRepository.save(questaoEscolha);
         questaoDaRodada2 = exercicioRepository.save(new Exercicio(rodada2, "IT.C2.Q1", "Código 2", 1,
                 TipoExercicio.ESCREVER_CODIGO, FormatoResposta.CODIGO, 25, "Escreva...", GABARITO, "Explicação"));
+        // Sprint 9 (Blockly): questão de BLOCOS com o mesmo gabarito (é corrigida como código)
+        questaoBlocos = exercicioRepository.save(new Exercicio(rodada1, "IT.C1.Q3", "Blocos", 3,
+                TipoExercicio.BLOCOS, FormatoResposta.BLOCOS, 25, "Monte os blocos...", GABARITO, "Explicação dos blocos"));
         aluno = alunoRepository.save(new Aluno("Aluno Código", "aluno.codigo.teste", "aluno.codigo@teste.com", "hash"));
         executor.recebidos().clear();
         executorPassaNosCasos();
@@ -242,5 +246,43 @@ class QuestaoCodigoIntegrationTest {
                         .content("{\"codigo\": \"public class Main { public static void main(String[] a) {} }\"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.mensagem", containsString("só o trecho pedido")));
+    }
+
+    // ---------------------------------------------------------------- Blocos (Sprint 9, etapa 1 do Blockly)
+
+    /** O navegador manda o Java gerado E o desenho dos blocos; o servidor corrige só o Java. */
+    private static final String BLOCOS_DO_ALUNO = CODIGO_DO_ALUNO.replaceFirst("\\}$",
+            ", \"blocos\": {\"blocks\": {\"languageVersion\": 0, \"blocks\": []}}}");
+
+    @Test
+    void questaoDeBlocosECorrigidaExecutandoOJavaGerado() throws Exception {
+        enviar(rodada1, item(questaoBlocos, BLOCOS_DO_ALUNO))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.resultados[0].correta").value(true))
+                .andExpect(jsonPath("$.resultados[0].xpGanho").value(25))
+                .andExpect(jsonPath("$.resultados[0].execucao.tipo").value("TESTES_OK"))
+                .andExpect(jsonPath("$.resultados[0].respostaCorreta").value("if (x > 0) ..."));
+        assertEquals(1, executor.recebidos().size());
+        assertTrue(executor.recebidos().getFirst().codigoFonte().contains("System.out.println(\"positivo\")"),
+                "o Java gerado pelos blocos foi encaixado no programa de teste");
+    }
+
+    @Test
+    void questaoDeBlocosComExecutorForaDoArFicaPendente() throws Exception {
+        executorForaDoAr();
+        enviar(rodada1, item(questaoBlocos, BLOCOS_DO_ALUNO))
+                .andExpect(jsonPath("$.resultados[0].pendente").value(true))
+                .andExpect(jsonPath("$.resultados[0].xpGanho").value(0));
+        assertTrue(progressoRepository.findByAlunoIdAndExercicioId(aluno.getId(), questaoBlocos.getId()).isEmpty());
+    }
+
+    @Test
+    void executarDaQuestaoTambemServeParaBlocos() throws Exception {
+        executor.quandoExecutar(p -> new ResultadoExecucao(SituacaoExecucao.SUCESSO, "positivo\n", "", 0, 650L));
+        mockMvc.perform(post("/api/exercicios/{id}/execucoes", questaoBlocos.getId()).with(comoAluno()).with(csrfValido())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"codigo\": \"System.out.println(\\\"positivo\\\");\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.situacao").value("SUCESSO"));
     }
 }

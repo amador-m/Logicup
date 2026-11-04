@@ -11,7 +11,6 @@ import br.com.logicup.backend.execucao.ProgramaJava;
 import br.com.logicup.backend.execucao.ResultadoExecucao;
 import br.com.logicup.backend.execucao.SituacaoExecucao;
 import br.com.logicup.backend.model.Exercicio;
-import br.com.logicup.backend.model.FormatoResposta;
 import br.com.logicup.backend.repository.ExercicioRepository;
 import br.com.logicup.backend.security.LimitadorTentativas;
 import br.com.logicup.backend.security.UsuarioLogado;
@@ -68,12 +67,13 @@ public class ExecucaoService {
 
     /**
      * Botão "Executar" de uma questão de código (sem XP, sem correção, sem gravar nada).
-     * Só exercícios no formato CODIGO; o gabarito nunca sai daqui (só a saída do programa de exemplo).
+     * Só exercícios no formato CODIGO ou BLOCOS (os blocos chegam aqui já como Java, gerado no navegador);
+     * o gabarito nunca sai daqui (só a saída do programa de exemplo).
      */
     public ExecucaoResponse executarExercicio(Integer exercicioId, ExecucaoExercicioRequest pedido, UsuarioLogado usuario) {
         Exercicio exercicio = exercicioRepository.findById(exercicioId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Exercício não encontrado."));
-        if (exercicio.getFormatoResposta() != FormatoResposta.CODIGO) {
+        if (!exercicio.getFormatoResposta().executaCodigo()) {
             throw new RequisicaoInvalidaException("Este exercício não é de escrever código.");
         }
         contarExecucao(usuario);

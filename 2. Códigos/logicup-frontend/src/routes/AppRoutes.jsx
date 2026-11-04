@@ -19,6 +19,7 @@ import AvisoCookies from "../components/layout/AvisoCookies";
 import ModalAceite from "../components/ui/ModalAceite";
 import Onboarding from "../components/ui/Onboarding";
 import Conquistas from "../pages/Conquistas";
+import Laboratorio from "../pages/Laboratorio";
 import NovaConquista from "../components/ui/NovaConquista";
 
 const AppRoutes = () => {
@@ -59,6 +60,8 @@ const AppRoutes = () => {
                 <Route path="/turma" element={<PrivateRoute><MinhaTurma /></PrivateRoute>} />
                 {/* Sprint 9: conquistas e gemas (a página explica se um professor abrir) */}
                 <Route path="/conquistas" element={<PrivateRoute><Conquistas /></PrivateRoute>} />
+                {/* Sprint 9 (ADR-001): Laboratório de Blocos — livre, sem XP, para qualquer pessoa logada */}
+                <Route path="/laboratorio" element={<PrivateRoute><Laboratorio /></PrivateRoute>} />
                 {/* Sprint 8: documentos legais, PÚBLICOS (lidos antes do cadastro e por quem tem aceite pendente) */}
                 <Route path="/termos" element={<Legal documento="termos" />} />
                 <Route path="/privacidade" element={<Legal documento="privacidade" />} />

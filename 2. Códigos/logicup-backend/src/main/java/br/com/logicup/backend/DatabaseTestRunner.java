@@ -23,9 +23,14 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * (Até a Sprint 5 este runner criava "Prof. Carlos", "Ana Souza" e uma turma só para testar
  *  o mapeamento de Turma/AlunoTurma; esse teste agora é o TurmaAlunoTurmaRepositoryTest.)
+ *
+ * Deploy (03/11): também roda com o perfil "criar-admin", usado UMA vez em produção pelo
+ * deploy/app/criar_admin.sh para criar o primeiro ADMIN. Nesse perfil a aplicação sobe SEM servidor web
+ * (application-criar-admin.properties), cria o admin e termina. Reaproveitar este runner garante as
+ * mesmas regras do cadastro (e-mail normalizado, BCrypt, username único) em vez de um INSERT à mão.
  */
 @Component
-@Profile("dev")
+@Profile({"dev", "criar-admin"})
 public class DatabaseTestRunner implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(DatabaseTestRunner.class);
@@ -35,21 +40,24 @@ public class DatabaseTestRunner implements CommandLineRunner {
     private final PasswordEncoder passwordEncoder;
     private final String adminEmail;
     private final String adminSenha;
+    private final String adminNome;
 
     public DatabaseTestRunner(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder,
                               @Value("${logicup.dev.admin-email}") String adminEmail,
-                              @Value("${logicup.dev.admin-senha}") String adminSenha) {
+                              @Value("${logicup.dev.admin-senha}") String adminSenha,
+                              @Value("${logicup.dev.admin-nome:Administrador (dev)}") String adminNome) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.adminEmail = AuthService.normalizarEmail(adminEmail);
         this.adminSenha = adminSenha;
+        this.adminNome = adminNome;
     }
 
     @Override
     @Transactional
     public void run(String... args) {
         if (adminEmail == null || adminEmail.isBlank() || adminSenha == null || adminSenha.isBlank()) {
-            log.warn("ADMIN_EMAIL/ADMIN_SENHA não configurados: o ADMIN de desenvolvimento NÃO foi criado.");
+            log.warn("ADMIN_EMAIL/ADMIN_SENHA não configurados: o ADMIN NÃO foi criado.");
             return;
         }
         if (adminSenha.length() < SENHA_MINIMA) {
@@ -57,15 +65,15 @@ public class DatabaseTestRunner implements CommandLineRunner {
             return;
         }
         if (usuarioRepository.existsByEmail(adminEmail)) {
-            log.info("ADMIN de desenvolvimento já existe ({}), nada a fazer.", adminEmail);
+            log.info("ADMIN já existe ({}), nada a fazer.", adminEmail);
             return;
         }
 
         // Sprint 7: todo usuário tem username; o ADMIN de dev fica com "admin" (ou "admin_dev", se já existir)
         String username = usuarioRepository.existsByUsername("admin") ? "admin_dev" : "admin";
-        Usuario admin = new Usuario("Administrador (dev)", username, adminEmail,
+        Usuario admin = new Usuario(adminNome, username, adminEmail,
                 passwordEncoder.encode(adminSenha), TipoUsuario.ADMIN);
         usuarioRepository.save(admin);
-        log.info("ADMIN de desenvolvimento criado: {}", adminEmail);
+        log.info("ADMIN criado: {} (username: {})", adminEmail, username);
     }
 }

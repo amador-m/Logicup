@@ -1,0 +1,79 @@
+# =====================================================================
+# LogiCup — configuração do Caddy (servidor web), deploy 03/11/2026
+#
+# O que o Caddy faz por nós:
+#  - HTTPS AUTOMÁTICO: pede o certificado ao Let's Encrypt na primeira subida e RENOVA sozinho
+#    (o certificado vale 90 dias). Para isso o domínio precisa apontar para o IP da VM e as portas
+#    80 e 443 precisam estar abertas.
+#  - redireciona http:// -> https:// sozinho.
+#  - UM ÚNICO ENDEREÇO PÚBLICO: o site (React) e a API (/api) no mesmo domínio. O navegador vê tudo
+#    como o mesmo site, então o cookie de login (__Host-, SameSite=Strict) funciona sem CORS.
+#
+# {$NOME} = variável de ambiente (vem do .env, pelo docker-compose.yml).
+# =====================================================================
+{
+	email {$ACME_EMAIL}
+}
+
+# www.logicup.dev.br -> logicup.dev.br (um endereço só; o cookie e a lista de origens confiáveis
+# do backend conhecem apenas o domínio principal)
+www.{$DOMINIO} {
+	redir https://{$DOMINIO}{uri} permanent
+}
+
+{$DOMINIO} {
+	encode zstd gzip
+
+	# --- Cabeçalhos de segurança (valem para todas as respostas) ---
+	header {
+		# HSTS: o navegador passa a usar SÓ https neste domínio por 1 ano (protege contra rebaixamento)
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		# o navegador não "adivinha" o tipo do arquivo (evita executar um upload como script)
+		X-Content-Type-Options "nosniff"
+		# outros sites não podem colocar o LogiCup dentro de um <iframe> (clickjacking)
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		# o site não usa câmera, microfone, localização etc.: desligados
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+		# CSP: de onde a página pode carregar cada coisa. Tudo só do próprio domínio ('self').
+		#  style-src 'unsafe-inline': o styled-components e o Blockly criam <style> em tempo de execução.
+		#  img-src data: blob:  -> ícones embutidos e imagens geradas pelo Blockly.
+		#  frame-ancestors 'none' = versão moderna do X-Frame-Options.
+		Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+		# não anunciar qual servidor é
+		-Server
+	}
+
+	# --- API: repassa para o backend ---
+	handle /api/* {
+		# nenhuma requisição legítima do LogiCup chega perto de 1 MB (um código de aluno tem poucos KB)
+		request_body {
+			max_size 1MB
+		}
+		# reverse_proxy escreve X-Forwarded-For com o IP REAL do aluno e descarta o que o navegador
+		# mandou (o Caddy só confia em X-Forwarded-For vindo de proxies listados em trusted_proxies,
+		# e aqui não há nenhum). O backend confia só no Caddy (application-prod.properties).
+		reverse_proxy {$BACKEND:backend:8080}
+	}
+
+	# --- Site (React): arquivos estáticos ---
+	handle {
+		root * {$SITE:/srv}
+		# rotas do React (/trilha, /missao/3...) não são arquivos: devolve o index.html e o
+		# react-router decide a tela
+		try_files {path} /index.html
+		file_server
+	}
+
+	# Os arquivos de /assets têm um "hash" no nome (index-a1b2c3.js): se o conteúdo muda, o nome muda.
+	# Então podem ficar no cache do navegador por 1 ano. O index.html nunca fica em cache, para o
+	# navegador sempre descobrir a versão nova depois de uma atualização.
+	@assets path /assets/*
+	header @assets Cache-Control "public, max-age=31536000, immutable"
+	# todo o resto (index.html e as rotas do React): o "?" só define se ninguém definiu antes
+	header ?Cache-Control "no-cache"
+
+	# SEM log de acesso, de propósito: o log de acesso do Caddy grava o IP de cada visita, e a Política de
+	# Privacidade (v0.3) diz que "a aplicação não registra o seu endereço IP". Se um dia ligarmos o log
+	# (diretiva "log"), a Política precisa mudar antes.
+}

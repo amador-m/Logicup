@@ -10,7 +10,7 @@ import java.util.Set;
 /**
  * Diz ao Spring Security ONDE procurar o token.
  * Por padrão ele procura no cabeçalho "Authorization: Bearer ...";
- * no LogicUp o token fica no cookie httpOnly LOGICUP_TOKEN (PE3).
+ * no LogiCup o token fica no cookie httpOnly LOGICUP_TOKEN (PE3).
  */
 @Component
 public class CookieTokenResolver implements BearerTokenResolver {

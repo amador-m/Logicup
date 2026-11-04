@@ -17,6 +17,7 @@ import iconeRanking from "../../../assets/icones/trofeu.svg"; // provisório: tr
 import iconeTurma from "../../../assets/icones/users.png";
 import iconeEmenta from "../../../assets/icones/clipboard-list-check.png";
 import iconeConquistas from "../../../assets/icones/diamond.png";
+import iconeBlocos from "../../../assets/icones/blocos.svg";
 import LogoImg from "../../../assets/images/LogoLight.png";
 import { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
@@ -75,7 +76,7 @@ const Header = () => {
 
     return (
         <Container>
-            <Link to="/"><Img><img src={LogoImg} alt="Página inicial do LogicUp" /></Img></Link>
+            <Link to="/"><Img><img src={LogoImg} alt="Página inicial do LogiCup" /></Img></Link>
 
             {/* botão ☰ / ✕: só visível no celular e tablet (CSS) */}
             <BotaoMenu
@@ -102,6 +103,8 @@ const Header = () => {
             <Menu>
                 <MenuItem><NavLink to="/" end><IconeMenu $icone={iconeInicio} />Início</NavLink></MenuItem>
                 <MenuItem><NavLink to="/trilha"><IconeMenu $icone={iconeTrilha} />Trilha</NavLink></MenuItem>
+                {/* Sprint 9 (ADR-001): laboratório livre de blocos, ao lado da trilha (para todos os logados) */}
+                {usuario && <MenuItem><NavLink to="/laboratorio"><IconeMenu $icone={iconeBlocos} />Laboratório</NavLink></MenuItem>}
                 <MenuItem><NavLink to="/ranking"><IconeMenu $icone={iconeRanking} />Ranking</NavLink></MenuItem>
                 {mostrarEmenta && <MenuItem><NavLink to="/ementa"><IconeMenu $icone={iconeEmenta} />Ementa</NavLink></MenuItem>}
                 {/* Sprint 9: turmas — o professor gerencia as dele; o aluno vê a sua */}

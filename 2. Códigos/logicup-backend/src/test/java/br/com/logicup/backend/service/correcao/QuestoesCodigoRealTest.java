@@ -21,7 +21,8 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Sprint 9 (ADR-001): as 9 questões REAIS de código, corrigidas pelo CorretorCodigo no PISTON DE VERDADE.
+ * Sprint 9 (ADR-001): as questões REAIS de código (as 9 de escrever código e a F5.Q8 de blocos, que é
+ * corrigida do mesmo jeito), corrigidas pelo CorretorCodigo no PISTON DE VERDADE.
  *
  * Só roda com a variável PISTON_URL (igual ao ExecutorPistonRealTest). Para cada questão:
  *   - a solução de referência precisa dar CORRETA;

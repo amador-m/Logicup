@@ -1,0 +1,9 @@
+# Segredos de produção: só existem na VM
+.env
+*.env
+!.env.exemplo
+# Backups do banco nunca vão para o Git (contêm dados dos alunos)
+*.sql.gz
+backups/
+# dados do Piston (o Java instalado)
+piston/dados/

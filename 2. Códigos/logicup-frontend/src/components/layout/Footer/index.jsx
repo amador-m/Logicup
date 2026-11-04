@@ -12,7 +12,7 @@ const Footer = () => (
         <Container>
             <Item>
                 <Link to="/">
-                    <img src={LogoImg} alt="Página inicial do LogicUp" />
+                    <img src={LogoImg} alt="Página inicial do LogiCup" />
                 </Link>
                 <p>Aprenda Java avançando por fases, como num jogo.</p>
             </Item>
@@ -45,7 +45,7 @@ const Footer = () => (
 
         <Copyright>
             <p>
-                © 2026 LogicUp. Todos os direitos reservados.
+                © 2026 LogiCup. Todos os direitos reservados.
                 {/* Sprint 9 (E3): crédito exigido pela licença gratuita do pacote de ícones */}
                 {" "}Ícones: <a href="https://www.flaticon.com/uicons" target="_blank" rel="noopener noreferrer">UIcons por Flaticon</a>.
             </p>

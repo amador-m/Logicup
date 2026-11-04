@@ -32,8 +32,12 @@ public final class MontadorPrograma {
     private static final Pattern METODO_MAIN = Pattern.compile("\\bstatic\\s+void\\s+main\\s*\\(");
     private static final Pattern LINHA_DO_ARQUIVO = Pattern.compile("Main\\.java:(\\d+)");
 
-    /** Onde o código do aluno entra (ver questoes_codigo.py). */
-    public enum Modo { TRECHO, MEMBRO, CLASSES }
+    /**
+     * Onde o código do aluno entra (ver questoes_codigo.py).
+     * PROGRAMA (03/11, F2.Q4 em blocos): o aluno monta o programa INTEIRO, com a classe Main e o método main.
+     * O programa de teste tem outra classe antes (LogicupTeste), que chama o Main.main do aluno.
+     */
+    public enum Modo { TRECHO, MEMBRO, CLASSES, PROGRAMA }
 
     /**
      * O programa pronto para executar + onde está o código do aluno nele.
@@ -118,6 +122,9 @@ public final class MontadorPrograma {
             case CLASSES -> {
                 if (temClasseMain) throw new RequisicaoInvalidaException(
                         "Escreva só a(s) classe(s) pedida(s). A classe Main já existe no programa de teste.");
+            }
+            case PROGRAMA -> {
+                // aqui a classe Main e o main SÃO a resposta: nada a recusar (o compilador cuida do resto)
             }
         }
     }

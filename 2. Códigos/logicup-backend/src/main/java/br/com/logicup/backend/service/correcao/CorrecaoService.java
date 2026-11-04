@@ -38,7 +38,7 @@ public class CorrecaoService {
 
     private Corretor corretorPara(Exercicio exercicio) {
         Corretor corretor = corretores.get(exercicio.getFormatoResposta());
-        if (corretor == null) { // hoje: BLOCOS (X4)
+        if (corretor == null) { // não deve acontecer: todo formato tem um corretor (CorretorBlocos desde a Sprint 9)
             throw new RequisicaoInvalidaException(
                     "O formato " + exercicio.getFormatoResposta() + " ainda não é suportado.");
         }

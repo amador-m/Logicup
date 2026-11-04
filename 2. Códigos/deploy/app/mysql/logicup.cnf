@@ -1,0 +1,17 @@
+# =====================================================================
+# LogiCup — ajustes do MySQL para a VM de produção (4 GB de RAM divididos com backend e Caddy)
+# =====================================================================
+[mysqld]
+character-set-server = utf8mb4
+collation-server = utf8mb4_0900_ai_ci
+# Mesmo fuso do backend (ClockConfig): os DEFAULT CURRENT_TIMESTAMP ficam no horário de Brasília.
+# Offset fixo porque o Brasil não tem horário de verão desde 2019 (não depende das tabelas de fuso).
+default-time-zone = '-03:00'
+
+# Memória: o padrão do MySQL 8 usa ~400 MB só com o performance_schema ligado.
+innodb_buffer_pool_size = 256M
+performance_schema = OFF
+max_connections = 40          # o backend usa no máximo 10 (pool do Hikari) + folga para backup/manutenção
+
+# Não faz DNS reverso de quem conecta: o usuário do backend é liberado por IP (172.29.0.%)
+skip-name-resolve

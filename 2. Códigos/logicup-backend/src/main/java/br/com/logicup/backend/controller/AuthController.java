@@ -66,8 +66,8 @@ public class AuthController {
     public ResponseEntity<UsuarioResponse> login(@Valid @RequestBody LoginRequest dados,
                                                  HttpServletRequest request, HttpServletResponse response) {
         // Sprint 9: o IP vai para o limite de tentativas. getRemoteAddr() = quem abriu a conexão com o servidor.
-        // ATENÇÃO (deploy): atrás de um proxy, isso seria o IP do PROXY; lá configuramos o Spring para ler
-        // o IP real do X-Forwarded-For, aceitando esse cabeçalho só do proxy confiável.
+        // Em produção (atrás do Caddy), o Tomcat já troca este valor pelo IP real do aluno, lido do
+        // X-Forwarded-For e aceito SÓ quando vem do proxy confiável (application-prod.properties).
         AutenticacaoResultado resultado = authService.login(dados, request.getRemoteAddr()); // senha errada -> 401
         trocarTokenCsrf(request, response);
         return comCookieDeLogin(HttpStatus.OK, resultado, response);

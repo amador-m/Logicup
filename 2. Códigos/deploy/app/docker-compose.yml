@@ -1,0 +1,122 @@
+# =====================================================================
+# LogiCup — produção, VM "logicup-app" (deploy, 03/11/2026)
+#
+# 3 serviços, cada um num contêiner:
+#   caddy   -> servidor web: HTTPS automático, entrega o site (React) e repassa /api para o backend
+#   backend -> Spring Boot (perfil "prod")
+#   mysql   -> banco de dados (dados num volume, que sobrevive a atualizações)
+# O Piston (executor de código) roda em OUTRA VM; ver deploy/piston/.
+#
+# REDES (quem enxerga quem):
+#   web   : caddy <-> backend.             O backend sai por ela para falar com o Piston.
+#   dados : backend <-> mysql. "internal": SEM acesso à internet. O Caddy não enxerga o banco.
+# PORTAS ABERTAS NA VM: só 80 e 443 (Caddy). Backend e MySQL não têm "ports": ninguém de fora
+# consegue falar com eles diretamente.
+#
+# Uso (na pasta deploy/app, com o arquivo .env preenchido pelo instalar.sh):
+#   docker compose up -d --build     sobe/atualiza tudo
+#   docker compose ps                situação de cada serviço
+#   docker compose logs -f backend   log do backend ao vivo
+# =====================================================================
+name: logicup
+
+services:
+  caddy:
+    build:
+      context: ../../logicup-frontend
+    image: logicup-web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"     # HTTP/3
+    environment:
+      DOMINIO: ${DOMINIO}
+      ACME_EMAIL: ${ACME_EMAIL}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_dados:/data          # certificados HTTPS (não pedir de novo a cada reinício)
+      - caddy_config:/config
+    networks:
+      web:
+        ipv4_address: 172.28.0.10
+    depends_on:
+      backend:
+        condition: service_healthy
+    mem_limit: 256m
+    logging: &logs
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }   # o log não enche o disco
+
+  backend:
+    build:
+      context: ../../logicup-backend
+    image: logicup-backend
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_HOST: mysql
+      DB_PASSWORD: ${DB_APP_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      ORIGENS_CONFIAVEIS: https://${DOMINIO}
+      EXECUTOR_URL: ${EXECUTOR_URL}
+      EXECUTOR_HABILITADO: ${EXECUTOR_HABILITADO:-true}
+    networks:
+      - web
+      - dados
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      # pergunta ao próprio backend se ele responde (GET /api/auth/csrf devolve 204); sem curl na imagem
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/8080 && printf 'GET /api/auth/csrf HTTP/1.0\\r\\n\\r\\n' >&3 && head -1 <&3 | grep -q ' 204 '"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+    mem_limit: 1g
+    logging: *logs
+
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      DB_APP_PASSWORD: ${DB_APP_PASSWORD}     # lido só na 1ª subida, pelo 03_usuario_app.sh
+      TZ: America/Sao_Paulo
+    volumes:
+      - mysql_dados:/var/lib/mysql
+      - ./mysql/logicup.cnf:/etc/mysql/conf.d/logicup.cnf:ro
+      # Na PRIMEIRA subida (volume vazio), o MySQL executa estes arquivos em ordem alfabética.
+      # Depois disso, eles são ignorados: o banco existente nunca é recriado por acidente.
+      - "../../3. Banco de Dados/01_schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro"
+      - "../../3. Banco de Dados/02_seed_conteudo.sql:/docker-entrypoint-initdb.d/02_seed_conteudo.sql:ro"
+      - ./mysql/03_usuario_app.sh:/docker-entrypoint-initdb.d/03_usuario_app.sh:ro
+    networks:
+      - dados
+    healthcheck:
+      # pela rede (127.0.0.1) e não pelo socket: durante a carga inicial do seed o MySQL roda sem
+      # rede, então o backend só sobe quando o banco estiver completo
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 120s
+    mem_limit: 1g
+    logging: *logs
+
+networks:
+  web:
+    ipam:
+      config:
+        - subnet: 172.28.0.0/24      # igual ao server.tomcat.remoteip.internal-proxies do perfil prod
+  dados:
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.29.0.0/24      # igual ao usuário 'logicup_app'@'172.29.0.%' do MySQL
+
+volumes:
+  mysql_dados:
+  caddy_dados:
+  caddy_config:

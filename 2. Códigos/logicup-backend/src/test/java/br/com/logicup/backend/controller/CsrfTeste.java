@@ -4,7 +4,7 @@ import jakarta.servlet.http.Cookie;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 /**
- * CSRF nos testes, do MESMO jeito que o navegador faz com o LogicUp:
+ * CSRF nos testes, do MESMO jeito que o navegador faz com o LogiCup:
  * manda o cookie __Host-XSRF-TOKEN e o cabeçalho X-XSRF-TOKEN com o mesmo valor ("double submit cookie").
  *
  * Por que não usar o csrf() do spring-security-test?

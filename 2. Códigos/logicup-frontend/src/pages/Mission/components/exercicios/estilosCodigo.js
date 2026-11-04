@@ -117,3 +117,38 @@ export const CasoQueFalhou = styled.p`
     border-radius: 6px;
   }
 `;
+
+/* Sprint 9 (Blockly): instrução em cima da área de blocos da questão */
+export const AvisoBlocos = styled.p`
+  margin: 0 0 4px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(40, 128, 120, 0.1);
+  line-height: 1.5;
+  font-size: 14px;
+
+  .contador {
+    display: block;
+    margin-top: 4px;
+    font-weight: 800;
+    color: var(--green);
+  }
+`;
+
+/* Sprint 9 (Blockly): o Java dos blocos fica recolhido (o foco da questão é montar, não ler o código) */
+export const VerJava = styled.details`
+  margin: 4px 0 8px;
+
+  summary {
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--brown-dark);
+    padding: 6px 0;
+  }
+
+  summary:focus-visible {
+    outline: 3px solid var(--yellow);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+`;

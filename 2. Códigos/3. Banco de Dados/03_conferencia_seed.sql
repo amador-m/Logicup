@@ -96,6 +96,18 @@ FROM (
                  AND JSON_LENGTH(gabarito_json, '$.casos') > 0
                  AND JSON_LENGTH(gabarito_json, '$.palavrasChave') > 0
                  AND JSON_EXTRACT(alternativas_json, '$.codigoInicial') IS NOT NULL) AS CHAR)
+    -- Sprint 9 (Blockly): as questões de blocos com blocos iniciais, programa de teste e reserva
+    -- (F5.Q8 na migração 08; F1.Q4, F2.Q4, F4.Q5, F9.R2.Q8 e F10.Q5 na migração 09, em 03/11)
+    UNION ALL SELECT 26, 'BLOCOS: 6 questões com blocos iniciais, programa de teste e reserva',
+           'F1.Q4,F10.Q5,F2.Q4,F4.Q5,F5.Q8,F9.R2.Q8',
+           COALESCE((SELECT GROUP_CONCAT(codigo_questao ORDER BY codigo_questao) FROM exercicio
+                 WHERE formato_resposta = 'BLOCOS'
+                 AND tipo_exercicio = 'BLOCOS'
+                 AND JSON_LENGTH(alternativas_json, '$.blocosIniciais.blocks.blocks') >= 5
+                 AND LOCATE('//@CODIGO_DO_ALUNO', JSON_UNQUOTE(JSON_EXTRACT(gabarito_json, '$.programaTeste'))) > 0
+                 AND JSON_LENGTH(gabarito_json, '$.casos') > 0
+                 AND JSON_LENGTH(gabarito_json, '$.palavrasChave') > 0
+                 AND JSON_EXTRACT(gabarito_json, '$.respostaModelo') IS NOT NULL), '(nenhuma)')
 ) verificacoes
 ORDER BY n;
 
@@ -107,5 +119,6 @@ SELECT m.ordenacao AS fase, r.ordenacao AS rodada, r.titulo, COUNT(e.id_exercici
  ORDER BY m.ordenacao, r.ordenacao;
 
 -- Quantidade por formato de resposta (esperado: ESCOLHA_UNICA 69, RESPOSTA_CURTA 12, ASSOCIACAO 9,
--- CODIGO 9, ORDENACAO 7, TEXTO_LIVRE 4). Sprint 9: 9 das 13 de TEXTO_LIVRE passaram a CODIGO.
+-- CODIGO 9, BLOCOS 6, TEXTO_LIVRE 4, ORDENACAO 1). Sprint 9: 9 das 13 de TEXTO_LIVRE passaram a CODIGO
+-- e 6 das 7 de ORDENACAO passaram a BLOCOS (só a F5.Q4 continua como ordenação).
 SELECT formato_resposta, COUNT(*) AS questoes FROM exercicio GROUP BY formato_resposta ORDER BY 2 DESC;

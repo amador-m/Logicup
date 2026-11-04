@@ -12,6 +12,14 @@ export const Container = styled.header`
   position: relative; /* referência para o painel do menu no celular */
   z-index: 50;
 
+  /*
+   * Sprint 9 (Blockly): com o item "Laboratório", o menu não cabia em 1280px com 120px de margem
+   * (o logo encostava no "Início" e o "Conquistas" nas gemas). Margem menor nas telas de notebook.
+   */
+  @media (max-width: 1440px) {
+    padding: 0 56px;
+  }
+
   /* Sprint 7: telas médias — menos margem para tudo caber em uma linha */
   @media (max-width: 1100px) {
     padding: 0 40px;
@@ -47,6 +55,10 @@ export const Logo = styled.h1`
 export const Menu = styled.ul`
   display: flex;
   gap: 30px;
+
+  @media (max-width: 1440px) {
+    gap: 24px;
+  }
 
   @media (max-width: 1100px) {
     gap: 20px;

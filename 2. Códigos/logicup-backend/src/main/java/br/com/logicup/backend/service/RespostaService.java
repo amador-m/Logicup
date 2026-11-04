@@ -11,7 +11,6 @@ import br.com.logicup.backend.exception.RodadaBloqueadaException;
 import br.com.logicup.backend.exception.SessaoInvalidaException;
 import br.com.logicup.backend.model.Aluno;
 import br.com.logicup.backend.model.Exercicio;
-import br.com.logicup.backend.model.FormatoResposta;
 import br.com.logicup.backend.model.ProgressoExercicio;
 import br.com.logicup.backend.model.Rodada;
 import br.com.logicup.backend.model.StatusRodada;
@@ -110,7 +109,7 @@ public class RespostaService {
             validarEnvio(envio, daRodada);
             return envio.respostas().stream()
                     .map(item -> daRodada.get(item.exercicioId()))
-                    .filter(exercicio -> exercicio.getFormatoResposta() == FormatoResposta.CODIGO)
+                    .filter(exercicio -> exercicio.getFormatoResposta().executaCodigo()) // CODIGO e BLOCOS
                     .toList();
         });
 

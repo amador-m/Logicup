@@ -351,5 +351,1000 @@
       "nome": "chama getValor() sem super (estoura a pilha)",
       "codigo": "public class ItemRaro extends Item {\n    public ItemRaro(String nome, int valor) { super(nome, valor); }\n    @Override public int getValor() { return getValor() * 2; }\n}"
     }
+  },
+  "F5.Q8": {
+    "gabarito": {
+      "modo": "TRECHO",
+      "comparacao": "EXATA",
+      "programaTeste": "public class Main {\n    static void executar() {\n//@CODIGO_DO_ALUNO\n    }\n\n    public static void main(String[] args) {\n        System.out.print(\"<<<LOGICUP-CASO>>>\");\n        executar();\n    }\n}\n",
+      "programaExemplo": "public class Main {\n    static void executar() {\n//@CODIGO_DO_ALUNO\n    }\n\n    public static void main(String[] args) {\n        executar();\n    }\n}\n",
+      "casos": [
+        {
+          "descricao": "trilha de 20 casas",
+          "saida": "Baús: 6"
+        }
+      ],
+      "exemplos": [],
+      "saidaDosExemplos": "Baús: 6",
+      "blocosIniciais": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "java_main",
+              "id": "main",
+              "x": 20,
+              "y": 20,
+              "deletable": false
+            },
+            {
+              "type": "java_imprimir",
+              "id": "imprimir",
+              "x": 380,
+              "y": 40,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "METODO": "println"
+              },
+              "inputs": {
+                "TEXTO": {
+                  "block": {
+                    "type": "java_aritmetica",
+                    "id": "juntar",
+                    "fields": {
+                      "OP": "+"
+                    },
+                    "inputs": {
+                      "A": {
+                        "block": {
+                          "type": "java_texto",
+                          "id": "texto",
+                          "fields": {
+                            "TEXTO": "Baús: "
+                          },
+                          "deletable": false,
+                          "editable": false,
+                          "movable": false
+                        }
+                      },
+                      "B": {
+                        "block": {
+                          "type": "java_variavel",
+                          "id": "baus_no_texto",
+                          "fields": {
+                            "VAR": {
+                              "id": "var_baus"
+                            }
+                          },
+                          "deletable": false,
+                          "editable": false,
+                          "movable": false
+                        }
+                      }
+                    },
+                    "deletable": false,
+                    "editable": false,
+                    "movable": false
+                  }
+                }
+              }
+            },
+            {
+              "type": "java_if",
+              "id": "se",
+              "x": 40,
+              "y": 190,
+              "deletable": false,
+              "editable": false,
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "java_comparacao",
+                    "id": "comparar",
+                    "fields": {
+                      "OP": "=="
+                    },
+                    "inputs": {
+                      "A": {
+                        "block": {
+                          "type": "java_aritmetica",
+                          "id": "resto",
+                          "fields": {
+                            "OP": "%"
+                          },
+                          "inputs": {
+                            "A": {
+                              "block": {
+                                "type": "java_variavel",
+                                "id": "casa_no_if",
+                                "fields": {
+                                  "VAR": {
+                                    "id": "var_casa"
+                                  }
+                                },
+                                "deletable": false,
+                                "editable": false,
+                                "movable": false
+                              }
+                            },
+                            "B": {
+                              "block": {
+                                "type": "java_numero",
+                                "id": "tres",
+                                "fields": {
+                                  "NUM": "3"
+                                },
+                                "deletable": false,
+                                "editable": false,
+                                "movable": false
+                              }
+                            }
+                          },
+                          "deletable": false,
+                          "editable": false,
+                          "movable": false
+                        }
+                      },
+                      "B": {
+                        "block": {
+                          "type": "java_numero",
+                          "id": "zero_if",
+                          "fields": {
+                            "NUM": "0"
+                          },
+                          "deletable": false,
+                          "editable": false,
+                          "movable": false
+                        }
+                      }
+                    },
+                    "deletable": false,
+                    "editable": false,
+                    "movable": false
+                  }
+                }
+              }
+            },
+            {
+              "type": "java_declarar",
+              "id": "declarar",
+              "x": 400,
+              "y": 150,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "TIPO": "int",
+                "VAR": {
+                  "id": "var_baus"
+                }
+              },
+              "inputs": {
+                "VALOR": {
+                  "block": {
+                    "type": "java_numero",
+                    "id": "zero",
+                    "fields": {
+                      "NUM": "0"
+                    },
+                    "deletable": false,
+                    "editable": false,
+                    "movable": false
+                  }
+                }
+              }
+            },
+            {
+              "type": "java_incremento",
+              "id": "somar",
+              "x": 60,
+              "y": 330,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "VAR": {
+                  "id": "var_baus"
+                },
+                "OP": "++"
+              }
+            },
+            {
+              "type": "java_for",
+              "id": "para",
+              "x": 330,
+              "y": 270,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "VAR": {
+                  "id": "var_casa"
+                },
+                "OP": "<=",
+                "PASSO": "++"
+              },
+              "inputs": {
+                "INICIO": {
+                  "block": {
+                    "type": "java_numero",
+                    "id": "um",
+                    "fields": {
+                      "NUM": "1"
+                    },
+                    "deletable": false,
+                    "editable": false,
+                    "movable": false
+                  }
+                },
+                "FIM": {
+                  "block": {
+                    "type": "java_numero",
+                    "id": "vinte",
+                    "fields": {
+                      "NUM": "20"
+                    },
+                    "deletable": false,
+                    "editable": false,
+                    "movable": false
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "variables": [
+          {
+            "name": "baus",
+            "id": "var_baus"
+          },
+          {
+            "name": "casa",
+            "id": "var_casa"
+          }
+        ]
+      },
+      "palavrasChave": [
+        [
+          "int baus"
+        ],
+        [
+          "for"
+        ],
+        [
+          "if"
+        ],
+        [
+          "%"
+        ],
+        [
+          "baus++"
+        ],
+        [
+          "println"
+        ]
+      ],
+      "minimo": 6,
+      "respostaModelo": "int baus = 0;\nfor (int casa = 1; casa <= 20; casa++) {\n    if (casa % 3 == 0) {\n        baus++;\n    }\n}\nSystem.out.println(\"Baús: \" + baus);",
+      "sobram": false
+    },
+    "referencia": "int baus = 0;\nfor (int casa = 1; casa <= 20; casa++) {\n    if (casa % 3 == 0) {\n        baus++;\n    }\n}\nSystem.out.println(\"Baús: \" + baus);\n",
+    "erro": {
+      "nome": "baus++ fora do if (conta todas as casas)",
+      "codigo": "int baus = 0;\nfor (int casa = 1; casa <= 20; casa++) {\n    if (casa % 3 == 0) {\n    }\n    baus++;\n}\nSystem.out.println(\"Baús: \" + baus);\n"
+    }
+  },
+  "F1.Q4": {
+    "gabarito": {
+      "modo": "TRECHO",
+      "comparacao": "EXATA",
+      "programaTeste": "public class Main {\n    static void executar() {\n//@CODIGO_DO_ALUNO\n    }\n\n    public static void main(String[] args) {\n        System.out.print(\"<<<LOGICUP-CASO>>>\");\n        executar();\n    }\n}\n",
+      "programaExemplo": "public class Main {\n    static void executar() {\n//@CODIGO_DO_ALUNO\n    }\n\n    public static void main(String[] args) {\n        executar();\n    }\n}\n",
+      "casos": [
+        {
+          "descricao": "o café da manhã do Gattuccino",
+          "saida": "Ferver a água\nAdicionar pó de café\nCoar o café\nServir"
+        }
+      ],
+      "exemplos": [],
+      "saidaDosExemplos": "Ferver a água\nAdicionar pó de café\nCoar o café\nServir",
+      "blocosIniciais": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "java_algoritmo",
+              "id": "algoritmo",
+              "x": 20,
+              "y": 20,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "TITULO": "café da manhã do Gattuccino ☕"
+              }
+            },
+            {
+              "type": "java_passo",
+              "id": "servir",
+              "x": 400,
+              "y": 30,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "TEXTO": "Servir"
+              }
+            },
+            {
+              "type": "java_passo",
+              "id": "po",
+              "x": 380,
+              "y": 110,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "TEXTO": "Adicionar pó de café"
+              }
+            },
+            {
+              "type": "java_passo",
+              "id": "coar",
+              "x": 60,
+              "y": 200,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "TEXTO": "Coar o café"
+              }
+            },
+            {
+              "type": "java_passo",
+              "id": "ferver",
+              "x": 330,
+              "y": 200,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "TEXTO": "Ferver a água"
+              }
+            }
+          ]
+        }
+      },
+      "palavrasChave": [
+        [
+          "Ferver a água"
+        ],
+        [
+          "Adicionar pó de café"
+        ],
+        [
+          "Coar o café"
+        ],
+        [
+          "Servir"
+        ]
+      ],
+      "minimo": 4,
+      "respostaModelo": "System.out.println(\"Ferver a água\");\nSystem.out.println(\"Adicionar pó de café\");\nSystem.out.println(\"Coar o café\");\nSystem.out.println(\"Servir\");",
+      "sobram": false,
+      "enunciado": "O Gattuccino não começa uma missão sem café. Encaixe os passos dentro do algoritmo, na ordem correta, para ele preparar o café da manhã:"
+    },
+    "referencia": "System.out.println(\"Ferver a água\");\nSystem.out.println(\"Adicionar pó de café\");\nSystem.out.println(\"Coar o café\");\nSystem.out.println(\"Servir\");\n",
+    "erro": {
+      "nome": "coar antes de pôr o pó",
+      "codigo": "System.out.println(\"Ferver a água\");\nSystem.out.println(\"Coar o café\");\nSystem.out.println(\"Adicionar pó de café\");\nSystem.out.println(\"Servir\");\n"
+    }
+  },
+  "F2.Q4": {
+    "gabarito": {
+      "modo": "PROGRAMA",
+      "comparacao": "EXATA",
+      "programaTeste": "public class LogicupTeste {\n    public static void main(String[] args) {\n        System.out.print(\"<<<LOGICUP-CASO>>>\");\n        Main.main(new String[0]);\n    }\n}\n\n//@CODIGO_DO_ALUNO\n",
+      "programaExemplo": "public class LogicupTeste {\n    public static void main(String[] args) {\n        Main.main(new String[0]);\n    }\n}\n\n//@CODIGO_DO_ALUNO\n",
+      "casos": [
+        {
+          "descricao": "o programa completo",
+          "saida": "Bem-vindo ao LogiCup!\nFase 2 de 10"
+        }
+      ],
+      "exemplos": [],
+      "saidaDosExemplos": "Bem-vindo ao LogiCup!\nFase 2 de 10",
+      "blocosIniciais": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "java_raiz",
+              "id": "classe",
+              "x": 20,
+              "y": 20,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "TEXTO": "public class Main {"
+              }
+            },
+            {
+              "type": "java_linha",
+              "id": "fase_println",
+              "x": 420,
+              "y": 20,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "TEXTO": "System.out.println(\"Fase 2\");"
+              }
+            },
+            {
+              "type": "java_bloco",
+              "id": "main_falso",
+              "x": 30,
+              "y": 160,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "TEXTO": "public static void main(String args) {"
+              }
+            },
+            {
+              "type": "java_linha",
+              "id": "total",
+              "x": 420,
+              "y": 90,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "TEXTO": "System.out.println(\" de 10\");"
+              }
+            },
+            {
+              "type": "java_linha",
+              "id": "sem_aspas",
+              "x": 420,
+              "y": 160,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "TEXTO": "System.out.println(Bem-vindo ao LogiCup!);"
+              }
+            },
+            {
+              "type": "java_bloco",
+              "id": "main_certo",
+              "x": 30,
+              "y": 300,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "TEXTO": "public static void main(String[] args) {"
+              }
+            },
+            {
+              "type": "java_linha",
+              "id": "comentario",
+              "x": 420,
+              "y": 230,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "TEXTO": "// Mostra as boas-vindas e a fase atual"
+              }
+            },
+            {
+              "type": "java_linha",
+              "id": "fase",
+              "x": 420,
+              "y": 300,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "TEXTO": "System.out.print(\"Fase 2\");"
+              }
+            },
+            {
+              "type": "java_linha",
+              "id": "boas_vindas",
+              "x": 420,
+              "y": 370,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "TEXTO": "System.out.println(\"Bem-vindo ao LogiCup!\");"
+              }
+            }
+          ]
+        }
+      },
+      "palavrasChave": [
+        [
+          "class Main"
+        ],
+        [
+          "main(String[] args)"
+        ],
+        [
+          "\"Bem-vindo ao LogiCup!\""
+        ],
+        [
+          "print(\"Fase 2\")"
+        ],
+        [
+          "println(\" de 10\")"
+        ]
+      ],
+      "minimo": 5,
+      "respostaModelo": "public class Main {\n    public static void main(String[] args) {\n        // Mostra as boas-vindas e a fase atual\n        System.out.println(\"Bem-vindo ao LogiCup!\");\n        System.out.print(\"Fase 2\");\n        System.out.println(\" de 10\");\n    }\n}",
+      "sobram": true,
+      "enunciado": "Monte um programa Java completo que exiba exatamente estas duas linhas:\n\nBem-vindo ao LogiCup!\nFase 2 de 10\n\nAtenção: alguns blocos parecem certos, mas têm erros, e nem todos os blocos devem ser usados.",
+      "explicacao": "A classe Main envolve todo o programa, e o método main fica dentro dela: é por ele que a execução começa. O main precisa ter exatamente a forma public static void main(String[] args); com String args (sem os colchetes), o Java não reconhece o ponto de partida do programa. Os comandos ficam dentro do main, e todo texto precisa estar entre aspas. Como o print não pula linha, \"Fase 2\" e \" de 10\" aparecem na mesma linha; o println do final é que pula para a próxima. O comentário (//) é opcional: ele não muda nada na saída.",
+      "habilidade": "Montar um programa Java completo (classe, método main e instruções), reconhecendo erros de estrutura e de sintaxe e a diferença entre print e println."
+    },
+    "referencia": "public class Main {\n    public static void main(String[] args) {\n        // Mostra as boas-vindas e a fase atual\n        System.out.println(\"Bem-vindo ao LogiCup!\");\n        System.out.print(\"Fase 2\");\n        System.out.println(\" de 10\");\n    }\n}\n",
+    "erro": {
+      "nome": "main com String args, sem os colchetes (não compila)",
+      "codigo": "public class Main {\n    public static void main(String args) {\n        System.out.println(\"Bem-vindo ao LogiCup!\");\n        System.out.print(\"Fase 2\");\n        System.out.println(\" de 10\");\n    }\n}\n"
+    }
+  },
+  "F4.Q5": {
+    "gabarito": {
+      "modo": "TRECHO",
+      "comparacao": "EXATA",
+      "programaTeste": "public class Main {\n    static void executar(int xp) {\n//@CODIGO_DO_ALUNO\n    }\n\n    public static void main(String[] args) {\n        int[] valores = {150, 100, 99, 0};\n        for (int valor : valores) {\n            System.out.print(\"<<<LOGICUP-CASO>>>\");\n            executar(valor);\n        }\n    }\n}\n",
+      "programaExemplo": "public class Main {\n    static void executar(int xp) {\n//@CODIGO_DO_ALUNO\n    }\n\n    public static void main(String[] args) {\n        System.out.println(\"--- Exemplo: xp = 120 ---\");\n        executar(120);\n        System.out.println(\"--- Exemplo: xp = 40 ---\");\n        executar(40);\n    }\n}\n",
+      "casos": [
+        {
+          "descricao": "xp = 150",
+          "saida": "Subiu de nível!"
+        },
+        {
+          "descricao": "xp = 100 (exatamente o mínimo)",
+          "saida": "Subiu de nível!"
+        },
+        {
+          "descricao": "xp = 99",
+          "saida": "Continue praticando!"
+        },
+        {
+          "descricao": "xp = 0",
+          "saida": "Continue praticando!"
+        }
+      ],
+      "exemplos": [
+        "xp = 120",
+        "xp = 40"
+      ],
+      "saidaDosExemplos": "--- Exemplo: xp = 120 ---\nSubiu de nível!\n--- Exemplo: xp = 40 ---\nContinue praticando!",
+      "blocosIniciais": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "java_main",
+              "id": "main",
+              "x": 20,
+              "y": 20,
+              "deletable": false
+            },
+            {
+              "type": "java_imprimir",
+              "id": "continue",
+              "x": 380,
+              "y": 30,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "METODO": "println"
+              },
+              "inputs": {
+                "TEXTO": {
+                  "block": {
+                    "type": "java_texto",
+                    "id": "texto_continue",
+                    "fields": {
+                      "TEXTO": "Continue praticando!"
+                    },
+                    "deletable": false,
+                    "editable": false,
+                    "movable": false
+                  }
+                }
+              }
+            },
+            {
+              "type": "java_if_else",
+              "id": "se_senao",
+              "x": 40,
+              "y": 160,
+              "deletable": false
+            },
+            {
+              "type": "java_imprimir",
+              "id": "subiu",
+              "x": 380,
+              "y": 110,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "METODO": "println"
+              },
+              "inputs": {
+                "TEXTO": {
+                  "block": {
+                    "type": "java_texto",
+                    "id": "texto_subiu",
+                    "fields": {
+                      "TEXTO": "Subiu de nível!"
+                    },
+                    "deletable": false,
+                    "editable": false,
+                    "movable": false
+                  }
+                }
+              }
+            },
+            {
+              "type": "java_comparacao",
+              "id": "condicao",
+              "x": 400,
+              "y": 200,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "OP": ">="
+              },
+              "inputs": {
+                "A": {
+                  "block": {
+                    "type": "java_variavel",
+                    "id": "xp_na_condicao",
+                    "fields": {
+                      "VAR": {
+                        "id": "var_xp"
+                      }
+                    },
+                    "deletable": false,
+                    "editable": false,
+                    "movable": false
+                  }
+                },
+                "B": {
+                  "block": {
+                    "type": "java_numero",
+                    "id": "cem",
+                    "fields": {
+                      "NUM": "100"
+                    },
+                    "deletable": false,
+                    "editable": false,
+                    "movable": false
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "variables": [
+          {
+            "name": "xp",
+            "id": "var_xp"
+          }
+        ]
+      },
+      "palavrasChave": [
+        [
+          "if"
+        ],
+        [
+          "xp >= 100"
+        ],
+        [
+          "else"
+        ],
+        [
+          "Subiu de nível!"
+        ],
+        [
+          "Continue praticando!"
+        ]
+      ],
+      "minimo": 5,
+      "respostaModelo": "if (xp >= 100) {\n    System.out.println(\"Subiu de nível!\");\n} else {\n    System.out.println(\"Continue praticando!\");\n}",
+      "sobram": false,
+      "enunciado": "O Gattuccino precisa exibir “Subiu de nível!” quando o XP for de pelo menos 100 e “Continue praticando!” nos demais casos. Encaixe os blocos para montar esse trecho:",
+      "explicacao": "A condição xp >= 100 vai no if. Dentro do if fica a mensagem do caso verdadeiro; dentro do else, a do caso falso. O else não tem condição: ele vale para todos os casos em que a condição do if deu false. Repare no >=: com exatamente 100 de XP, o Gattuccino já sobe de nível."
+    },
+    "referencia": "if (xp >= 100) {\n    System.out.println(\"Subiu de nível!\");\n} else {\n    System.out.println(\"Continue praticando!\");\n}\n",
+    "erro": {
+      "nome": "mensagens trocadas",
+      "codigo": "if (xp >= 100) {\n    System.out.println(\"Continue praticando!\");\n} else {\n    System.out.println(\"Subiu de nível!\");\n}\n"
+    }
+  },
+  "F9.R2.Q8": {
+    "gabarito": {
+      "modo": "CLASSES",
+      "comparacao": "EXATA",
+      "programaTeste": "public class Main {\n    public static void main(String[] args) throws Exception {\n        BugBlindado casco = new BugBlindado(\"Casco\", 8);\n        Bug comoBug = new BugBlindado(\"Muralha\", 3);\n        System.out.print(\"<<<LOGICUP-CASO>>>\");\n        System.out.println(casco.atacar());\n        System.out.print(\"<<<LOGICUP-CASO>>>\");\n        System.out.println(casco.getVida());\n        System.out.print(\"<<<LOGICUP-CASO>>>\");\n        System.out.println(casco.getNome());\n        System.out.print(\"<<<LOGICUP-CASO>>>\");\n        java.lang.reflect.Field campo = BugBlindado.class.getDeclaredField(\"escudo\");\n        campo.setAccessible(true);\n        System.out.println(campo.get(casco));\n        System.out.print(\"<<<LOGICUP-CASO>>>\");\n        System.out.println(comoBug.atacar() + \" \" + new Bug(\"Comum\", 50).atacar());\n    }\n}\n\n//@CODIGO_DO_ALUNO\n\nclass Bug {\n    private String nome;\n    private int vida;\n\n    public Bug(String nome, int vida) {\n        this.nome = nome;\n        this.vida = vida;\n    }\n\n    public int atacar() {\n        return 10;\n    }\n\n    public String getNome() {\n        return nome;\n    }\n\n    public int getVida() {\n        return vida;\n    }\n}\n",
+      "programaExemplo": "public class Main {\n    public static void main(String[] args) {\n        System.out.println(\"--- Exemplo: Bug casco = new BugBlindado(\\\"Casco\\\", 8) ---\");\n        Bug casco = new BugBlindado(\"Casco\", 8);\n        System.out.println(\"atacar(): \" + casco.atacar());\n        System.out.println(\"vida: \" + casco.getVida());\n    }\n}\n\n//@CODIGO_DO_ALUNO\n\nclass Bug {\n    private String nome;\n    private int vida;\n\n    public Bug(String nome, int vida) {\n        this.nome = nome;\n        this.vida = vida;\n    }\n\n    public int atacar() {\n        return 10;\n    }\n\n    public String getNome() {\n        return nome;\n    }\n\n    public int getVida() {\n        return vida;\n    }\n}\n",
+      "casos": [
+        {
+          "descricao": "new BugBlindado(\"Casco\", 8).atacar()",
+          "saida": "5"
+        },
+        {
+          "descricao": "vida inicial de new BugBlindado(\"Casco\", 8)",
+          "saida": "50"
+        },
+        {
+          "descricao": "nome de new BugBlindado(\"Casco\", 8)",
+          "saida": "Casco"
+        },
+        {
+          "descricao": "o construtor guarda o escudo recebido (8)",
+          "saida": "8"
+        },
+        {
+          "descricao": "Bug b = new BugBlindado(...) ataca com 5, e um Bug comum continua com 10",
+          "saida": "5 10"
+        }
+      ],
+      "exemplos": [
+        "Bug casco = new BugBlindado(\"Casco\", 8)"
+      ],
+      "saidaDosExemplos": "--- Exemplo: Bug casco = new BugBlindado(\"Casco\", 8) ---\natacar(): 5\nvida: 50",
+      "blocosIniciais": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "java_raiz",
+              "id": "classe",
+              "x": 20,
+              "y": 20,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "TEXTO": "public class BugBlindado extends Bug {"
+              }
+            },
+            {
+              "type": "java_linha",
+              "id": "this_escudo",
+              "x": 470,
+              "y": 20,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "TEXTO": "this.escudo = escudo;"
+              }
+            },
+            {
+              "type": "java_bloco",
+              "id": "metodo",
+              "x": 30,
+              "y": 160,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "TEXTO": "public int atacar() {"
+              }
+            },
+            {
+              "type": "java_linha",
+              "id": "super",
+              "x": 470,
+              "y": 90,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "TEXTO": "super(nome, 50);"
+              }
+            },
+            {
+              "type": "java_linha",
+              "id": "override",
+              "x": 260,
+              "y": 160,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "TEXTO": "@Override"
+              }
+            },
+            {
+              "type": "java_linha",
+              "id": "retorno",
+              "x": 470,
+              "y": 160,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "TEXTO": "return 5;"
+              }
+            },
+            {
+              "type": "java_bloco",
+              "id": "construtor",
+              "x": 30,
+              "y": 300,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "TEXTO": "public BugBlindado(String nome, int escudo) {"
+              }
+            },
+            {
+              "type": "java_linha",
+              "id": "atributo",
+              "x": 470,
+              "y": 230,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "TEXTO": "private int escudo;"
+              }
+            }
+          ]
+        }
+      },
+      "palavrasChave": [
+        [
+          "extends Bug"
+        ],
+        [
+          "private int escudo"
+        ],
+        [
+          "super(nome, 50)"
+        ],
+        [
+          "this.escudo = escudo"
+        ],
+        [
+          "@Override"
+        ],
+        [
+          "return 5"
+        ]
+      ],
+      "minimo": 6,
+      "respostaModelo": "public class BugBlindado extends Bug {\n    private int escudo;\n    public BugBlindado(String nome, int escudo) {\n        super(nome, 50);\n        this.escudo = escudo;\n    }\n    @Override\n    public int atacar() {\n        return 5;\n    }\n}",
+      "sobram": false,
+      "enunciado": "Monte a classe BugBlindado encaixando os blocos. O Bug Blindado começa com 50 de vida, guarda o escudo que recebe no construtor e, por ser lento, ataca com apenas 5. No construtor, a chamada super(...) precisa ser a primeira instrução. Use a convenção da trilha: primeiro o atributo, depois o construtor e, por fim, o método."
+    },
+    "referencia": "public class BugBlindado extends Bug {\n    private int escudo;\n    public BugBlindado(String nome, int escudo) {\n        super(nome, 50);\n        this.escudo = escudo;\n    }\n    @Override\n    public int atacar() {\n        return 5;\n    }\n}\n",
+    "erro": {
+      "nome": "this.escudo antes do super (não compila)",
+      "codigo": "public class BugBlindado extends Bug {\n    private int escudo;\n    public BugBlindado(String nome, int escudo) {\n        this.escudo = escudo;\n        super(nome, 50);\n    }\n    @Override\n    public int atacar() {\n        return 5;\n    }\n}\n"
+    }
+  },
+  "F10.Q5": {
+    "gabarito": {
+      "modo": "MEMBRO",
+      "comparacao": "EXATA",
+      "programaTeste": "import java.util.*;\n\npublic class Main {\n//@CODIGO_DO_ALUNO\n\n    static ArrayList<Bug> criarHorda(Bug... bugs) {\n        return new ArrayList<>(Arrays.asList(bugs));\n    }\n\n    public static void main(String[] args) {\n        List<ArrayList<Bug>> hordas = new ArrayList<>();\n        hordas.add(criarHorda(new Bug(\"Comum\", 50), new BugVeloz(\"Zip\"), new BugVeloz(\"Flash\")));\n        hordas.add(criarHorda());\n        hordas.add(criarHorda(new Bug(\"Comum\", 50), new BugBlindado(\"Casco\")));\n        hordas.add(criarHorda(new BugVeloz(\"A\"), new Bug(\"B\", 50), new BugVeloz(\"C\"), new BugBlindado(\"D\"),\n                new BugVeloz(\"E\")));\n        for (ArrayList<Bug> horda : hordas) {\n            System.out.print(\"<<<LOGICUP-CASO>>>\");\n            System.out.println(contarPerigosos(horda));\n        }\n    }\n}\n\nclass Bug {\n    private String nome;\n    private int vida;\n\n    public Bug(String nome, int vida) {\n        this.nome = nome;\n        this.vida = vida;\n    }\n\n    public int atacar() {\n        return 10;\n    }\n\n    public String getNome() {\n        return nome;\n    }\n\n    public int getVida() {\n        return vida;\n    }\n}\n\nclass BugVeloz extends Bug {\n    public BugVeloz(String nome) {\n        super(nome, 20);\n    }\n\n    @Override\n    public int atacar() {\n        return 15;\n    }\n}\n\nclass BugBlindado extends Bug {\n    public BugBlindado(String nome) {\n        super(nome, 50);\n    }\n\n    @Override\n    public int atacar() {\n        return 5;\n    }\n}\n",
+      "programaExemplo": "import java.util.*;\n\npublic class Main {\n//@CODIGO_DO_ALUNO\n\n    static ArrayList<Bug> criarHorda(Bug... bugs) {\n        return new ArrayList<>(Arrays.asList(bugs));\n    }\n\n    public static void main(String[] args) {\n        List<ArrayList<Bug>> hordas = new ArrayList<>();\n        hordas.add(criarHorda(new Bug(\"Comum\", 50), new BugVeloz(\"Zip\"), new BugVeloz(\"Flash\")));\n        hordas.add(criarHorda());\n        hordas.add(criarHorda(new Bug(\"Comum\", 50), new BugBlindado(\"Casco\")));\n        hordas.add(criarHorda(new BugVeloz(\"A\"), new Bug(\"B\", 50), new BugVeloz(\"C\"), new BugBlindado(\"D\"),\n                new BugVeloz(\"E\")));\n        System.out.println(\"--- Exemplo: Bug comum, BugVeloz e BugVeloz ---\");\n        System.out.println(\"perigosos: \" + contarPerigosos(hordas.get(0)));\n    }\n}\n\nclass Bug {\n    private String nome;\n    private int vida;\n\n    public Bug(String nome, int vida) {\n        this.nome = nome;\n        this.vida = vida;\n    }\n\n    public int atacar() {\n        return 10;\n    }\n\n    public String getNome() {\n        return nome;\n    }\n\n    public int getVida() {\n        return vida;\n    }\n}\n\nclass BugVeloz extends Bug {\n    public BugVeloz(String nome) {\n        super(nome, 20);\n    }\n\n    @Override\n    public int atacar() {\n        return 15;\n    }\n}\n\nclass BugBlindado extends Bug {\n    public BugBlindado(String nome) {\n        super(nome, 50);\n    }\n\n    @Override\n    public int atacar() {\n        return 5;\n    }\n}\n",
+      "casos": [
+        {
+          "descricao": "horda: Bug comum, BugVeloz e BugVeloz",
+          "saida": "2"
+        },
+        {
+          "descricao": "horda vazia",
+          "saida": "0"
+        },
+        {
+          "descricao": "horda: Bug comum e BugBlindado",
+          "saida": "0"
+        },
+        {
+          "descricao": "horda: 3 BugVeloz, 1 Bug comum e 1 BugBlindado",
+          "saida": "3"
+        }
+      ],
+      "exemplos": [
+        "horda: Bug comum, BugVeloz e BugVeloz"
+      ],
+      "saidaDosExemplos": "--- Exemplo: Bug comum, BugVeloz e BugVeloz ---\nperigosos: 2",
+      "blocosIniciais": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "java_raiz",
+              "id": "metodo",
+              "x": 20,
+              "y": 20,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "TEXTO": "public static int contarPerigosos(ArrayList<Bug> horda) {"
+              }
+            },
+            {
+              "type": "java_linha",
+              "id": "somar",
+              "x": 520,
+              "y": 20,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "TEXTO": "perigosos++;"
+              }
+            },
+            {
+              "type": "java_bloco",
+              "id": "se",
+              "x": 30,
+              "y": 160,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "TEXTO": "if (horda.get(i).atacar() > 10) {"
+              }
+            },
+            {
+              "type": "java_linha",
+              "id": "retorno",
+              "x": 520,
+              "y": 90,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "TEXTO": "return perigosos;"
+              }
+            },
+            {
+              "type": "java_bloco",
+              "id": "para",
+              "x": 30,
+              "y": 300,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "TEXTO": "for (int i = 0; i < horda.size(); i++) {"
+              }
+            },
+            {
+              "type": "java_linha",
+              "id": "contador",
+              "x": 520,
+              "y": 160,
+              "deletable": false,
+              "editable": false,
+              "fields": {
+                "TEXTO": "int perigosos = 0;"
+              }
+            }
+          ]
+        }
+      },
+      "palavrasChave": [
+        [
+          "int perigosos = 0"
+        ],
+        [
+          "for"
+        ],
+        [
+          "horda.size()"
+        ],
+        [
+          "atacar() > 10"
+        ],
+        [
+          "perigosos++"
+        ],
+        [
+          "return perigosos"
+        ]
+      ],
+      "minimo": 6,
+      "respostaModelo": "public static int contarPerigosos(ArrayList<Bug> horda) {\n    int perigosos = 0;\n    for (int i = 0; i < horda.size(); i++) {\n        if (horda.get(i).atacar() > 10) {\n            perigosos++;\n        }\n    }\n    return perigosos;\n}",
+      "sobram": false,
+      "enunciado": "Monte o método que conta quantos Bugs da horda atacam com força maior que 10 (lembre-se: cada subclasse de Bug pode ter a sua versão de atacar(), como na Fase 9). Encaixe os blocos dentro do método, prestando atenção em quem fica dentro de quem."
+    },
+    "referencia": "public static int contarPerigosos(ArrayList<Bug> horda) {\n    int perigosos = 0;\n    for (int i = 0; i < horda.size(); i++) {\n        if (horda.get(i).atacar() > 10) {\n            perigosos++;\n        }\n    }\n    return perigosos;\n}\n",
+    "erro": {
+      "nome": "perigosos++ fora do if (conta todos)",
+      "codigo": "public static int contarPerigosos(ArrayList<Bug> horda) {\n    int perigosos = 0;\n    for (int i = 0; i < horda.size(); i++) {\n        if (horda.get(i).atacar() > 10) {\n        }\n        perigosos++;\n    }\n    return perigosos;\n}\n"
+    }
   }
 }

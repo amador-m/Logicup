@@ -30,7 +30,7 @@ import java.util.List;
  *
  * Gabarito (gabarito_json):
  *  {"palavrasChave": [...], "minimo": 6, "respostaModelo": "...",      <- reserva + resposta exibida
- *   "modo": "TRECHO|MEMBRO|CLASSES", "comparacao": "EXATA|NUMEROS|ULTIMO_NUMERO",
+ *   "modo": "TRECHO|MEMBRO|CLASSES|PROGRAMA", "comparacao": "EXATA|NUMEROS|ULTIMO_NUMERO",
  *   "programaTeste": "...//@CODIGO_DO_ALUNO...", "programaExemplo": "...",
  *   "casos": [{"descricao": "energia = 0", "saida": "Exausto: hora do café!"}, ...]}
  * Resposta do aluno: {"codigo": "..."}

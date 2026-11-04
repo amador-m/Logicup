@@ -178,7 +178,7 @@ export const ActionButton = styled.button`
 
 /* ====================== Sprint 7: mapa estilo jogo ====================== */
 
-/* "Tabuleiro" creme com borda amarela (identidade do LogicUp) onde fica o caminho das fases */
+/* "Tabuleiro" creme com borda amarela (identidade do LogiCup) onde fica o caminho das fases */
 export const Mapa = styled.section`
   position: relative;
   max-width: 780px;

@@ -1,0 +1,41 @@
+# =====================================================================
+# LogiCup — Piston (executor de código) em PRODUÇÃO, VM "logicup-piston" (deploy, 03/11/2026)
+#
+# Mesmos limites do "7. Piston/piston/docker-compose.yml" (desenvolvimento). A diferença é a porta:
+#   desenvolvimento: "127.0.0.1:2000:2000" (só o próprio PC)
+#   produção:        "2000:2000" nesta VM, que NÃO tem IP público. Quem decide quem pode chegar
+#                    na porta 2000 é o firewall do Google Cloud: SÓ a VM logicup-app (ver DEPLOY.md).
+#
+# Por que uma VM separada (defesa em profundidade):
+#   o código dos alunos roda AQUI, numa máquina que não tem banco, senhas nem acesso à internet.
+#   Se um dia alguém escapar da sandbox do Piston, encontra uma VM vazia e isolada.
+# privileged: o Piston precisa para criar as sandboxes (isolate + cgroups). Risco aceito no ADR-001.
+# =====================================================================
+name: piston
+
+services:
+  piston:
+    image: ghcr.io/engineer-man/piston:latest
+    restart: unless-stopped
+    privileged: true
+    ports:
+      - "2000:2000"
+    environment:
+      PISTON_DISABLE_NETWORKING: "true"      # programas dos alunos SEM rede
+      PISTON_RUN_TIMEOUT: "6000"             # 6 s de relógio por execução (inclui compilar)
+      PISTON_RUN_CPU_TIME: "5000"            # 5 s de CPU
+      PISTON_RUN_MEMORY_LIMIT: "268435456"   # 256 MB (o padrão do Piston é ILIMITADO)
+      PISTON_COMPILE_MEMORY_LIMIT: "268435456"
+      PISTON_MAX_PROCESS_COUNT: "64"
+      PISTON_MAX_OPEN_FILES: "256"
+      PISTON_MAX_FILE_SIZE: "1000000"        # 1 MB por arquivo criado pelo programa
+      PISTON_OUTPUT_MAX_SIZE: "20000"        # 20.000 caracteres de saída
+      PISTON_MAX_CONCURRENT_JOBS: "3"        # igual a logicup.executor.simultaneas
+    volumes:
+      - ./dados/packages:/piston/packages    # o Java instalado (e o ajuste de UTF-8) fica salvo aqui
+    tmpfs:
+      - /tmp:exec
+    mem_limit: 1500m                         # 3 execuções x 256 MB + o próprio Piston, numa VM de 2 GB
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }

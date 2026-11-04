@@ -1,0 +1,8 @@
+# O que NÃO vai para dentro da imagem (deixa o build mais rápido e evita vazar arquivos locais)
+target/
+.idea/
+*.iml
+.vscode/
+HELP.md
+.env
+*.log

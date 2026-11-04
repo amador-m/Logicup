@@ -1,0 +1,7 @@
+# Scripts e configurações que rodam no Linux (VM e contêineres) precisam de fim de linha LF.
+# Sem isto, um clone no Windows com autocrlf converteria para CRLF e o bash/Caddy/MySQL quebrariam.
+*.sh        text eol=lf
+Caddyfile   text eol=lf
+*.cnf       text eol=lf
+*.yml       text eol=lf
+.env*       text eol=lf

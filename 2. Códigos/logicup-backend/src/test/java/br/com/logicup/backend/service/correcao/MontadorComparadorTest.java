@@ -76,6 +76,8 @@ class MontadorComparadorTest {
         assertDoesNotThrow(() -> MontadorPrograma.conferirEstrutura(Modo.CLASSES,
                 "class Bau { public static void main(String[] a) {} }"));
         assertDoesNotThrow(() -> MontadorPrograma.conferirEstrutura(Modo.TRECHO, "System.out.println(1);"));
+        // 03/11: no modo PROGRAMA (F2.Q4 em blocos), o programa inteiro É a resposta
+        assertDoesNotThrow(() -> MontadorPrograma.conferirEstrutura(Modo.PROGRAMA, programaInteiro));
     }
 
     // ---------------- ComparadorSaida ----------------

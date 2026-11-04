@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.vite/
+.idea/
+.vscode/
+.env
+.env.*
+*.log

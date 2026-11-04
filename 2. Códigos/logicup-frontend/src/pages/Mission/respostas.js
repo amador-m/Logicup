@@ -38,7 +38,19 @@ export function estaRespondida(exercicio, resposta) {
             const inicial = (exercicio.alternativas?.codigoInicial ?? "").trim();
             return codigo.length > 0 && codigo !== inicial;
         }
+        case "BLOCOS":
+            // Sprint 9 (Blockly): algum bloco dentro do main e nenhum encaixe vazio (o "!" no bloco)
+            return (resposta.codigo ?? "").trim().length > 0 && !resposta.faltando;
         default:
-            return false; // BLOCOS (X4) não é enviado
+            return false;
     }
+}
+
+/*
+ * Sprint 9 (Blockly): o que vai para o backend. Na questão de BLOCOS a tela guarda também o desenho dos
+ * blocos (para não perder a montagem), mas o backend só corrige o Java: mandamos só { codigo }.
+ */
+export function respostaParaEnvio(exercicio, resposta) {
+    if (exercicio.formato === "BLOCOS") return { codigo: resposta.codigo };
+    return resposta;
 }

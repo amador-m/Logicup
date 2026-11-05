@@ -4,6 +4,7 @@ import CodigoJava from "../../../../components/ui/CodigoJava";
 import { execucaoApi } from "../../../../services/api";
 import { AcoesEditor, BotaoExecutar, Situacao, Dica, AvisoBlocos, VerJava } from "./estilosCodigo";
 import { StatusMessage } from "../../styles";
+import { useTextoExecutando } from "../../../../util/useTextoExecutando";
 
 /*
  * Sprint 9 (ADR-001, etapa 1 do Blockly): questão de BLOCOS.
@@ -57,6 +58,7 @@ const CampoBlocos = ({ exercicio, valor, aoMudar, desabilitado }) => {
     const [execucao, setExecucao] = useState(null);
     const [erro, setErro] = useState(null);
     const [executando, setExecutando] = useState(false);
+    const textoExecutar = useTextoExecutando(executando); // Sprint 10: avisa quando está na fila
     const [situacao, setSituacao] = useState({ foraDoMain: 0, faltando: 0, principal: "java_main" });
 
     const codigo = valor?.codigo ?? "";
@@ -109,7 +111,7 @@ const CampoBlocos = ({ exercicio, valor, aoMudar, desabilitado }) => {
 
             <AcoesEditor>
                 <BotaoExecutar type="button" onClick={executar} disabled={executando || vazio || situacao.faltando > 0}>
-                    <span aria-hidden="true">▶</span> {executando ? "Executando..." : "Executar"}
+                    <span aria-hidden="true">▶</span> {textoExecutar}
                 </BotaoExecutar>
                 <span className="exemplos">
                     Testa o programa sem valer XP. Para valer, use <strong>Verificar</strong>.

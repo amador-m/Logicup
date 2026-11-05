@@ -4,6 +4,7 @@ import CodigoJava from "../../../../components/ui/CodigoJava";
 import { execucaoApi } from "../../../../services/api";
 import { AcoesEditor, BotaoExecutar, Situacao, Dica } from "./estilosCodigo";
 import { StatusMessage } from "../../styles";
+import { useTextoExecutando } from "../../../../util/useTextoExecutando";
 
 /*
  * Sprint 9 (ADR-001): CODIGO — o aluno escreve código Java de verdade.
@@ -26,6 +27,7 @@ const CampoCodigo = ({ exercicio, valor, aoMudar, desabilitado }) => {
     const [execucao, setExecucao] = useState(null);   // resposta do POST /execucoes
     const [erro, setErro] = useState(null);           // 503, 429, 400...
     const [executando, setExecutando] = useState(false);
+    const textoExecutar = useTextoExecutando(executando); // Sprint 10: avisa quando está na fila
 
     const executar = async () => {
         setExecutando(true);
@@ -53,7 +55,7 @@ const CampoCodigo = ({ exercicio, valor, aoMudar, desabilitado }) => {
 
             <AcoesEditor>
                 <BotaoExecutar type="button" onClick={executar} disabled={executando || codigo.trim() === ""}>
-                    <span aria-hidden="true">▶</span> {executando ? "Executando..." : "Executar"}
+                    <span aria-hidden="true">▶</span> {textoExecutar}
                 </BotaoExecutar>
                 {exemplos.length > 0 && (
                     <span className="exemplos">

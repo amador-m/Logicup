@@ -8,6 +8,7 @@ import MascoteReacao from "../Mission/components/MascoteReacao";
 import { execucaoApi } from "../../services/api";
 import { useAuth } from "../../context/useAuth";
 import { EXEMPLOS } from "./exemplos";
+import { useTextoExecutando } from "../../util/useTextoExecutando";
 import {
     Page, Hero, Painel, Ferramentas, BotaoExecutar, BotaoSecundario, Seletor, Salvo, Abas, Aba, Grade, Coluna,
     Avisos, Aviso, Situacao, Dica, ConsoleVazio,
@@ -60,6 +61,7 @@ const Laboratorio = () => {
     const [execucao, setExecucao] = useState(null);
     const [erro, setErro] = useState("");
     const [executando, setExecutando] = useState(false);
+    const textoExecutar = useTextoExecutando(executando); // Sprint 10: avisa quando está na fila
     const [mascote, setMascote] = useState({ humor: "neutro", fala: FALAS.inicio, vez: 0 });
     const [trocarPor, setTrocarPor] = useState(null); // { nome, estado } aguardando confirmação
 
@@ -141,7 +143,7 @@ const Laboratorio = () => {
                 <Painel>
                     <Ferramentas>
                         <BotaoExecutar type="button" onClick={executar} disabled={!blocos || executando}>
-                            <span aria-hidden="true">▶</span> {executando ? "Executando..." : "Executar"}
+                            <span aria-hidden="true">▶</span> {textoExecutar}
                         </BotaoExecutar>
                         <Seletor>
                             <span className="rotulo">Exemplos</span>

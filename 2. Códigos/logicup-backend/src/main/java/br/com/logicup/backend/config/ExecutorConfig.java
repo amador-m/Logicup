@@ -37,7 +37,7 @@ public class ExecutorConfig {
             @Value("${logicup.executor.tempo-cpu:5s}") Duration tempoCpu,
             @Value("${logicup.executor.memoria-mb:256}") long memoriaMb,
             @Value("${logicup.executor.simultaneas:3}") int simultaneas,
-            @Value("${logicup.executor.espera-na-fila:10s}") Duration esperaNaFila) {
+            @Value("${logicup.executor.espera-na-fila:30s}") Duration esperaNaFila) {
 
         if (!habilitado) {
             log.info("Executor de código DESLIGADO (logicup.executor.habilitado=false)");

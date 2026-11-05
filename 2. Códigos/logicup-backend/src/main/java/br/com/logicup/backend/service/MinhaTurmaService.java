@@ -69,12 +69,13 @@ public class MinhaTurmaService {
      */
     @Transactional
     public MinhaTurmaResponse entrar(Integer alunoId, EntrarTurmaRequest dados) {
-        protecao.verificarCodigoTurma(alunoId); // Sprint 9 (D2): 10 códigos errados em 15 min -> 429
+        // Sprint 9 (D2): 10 códigos errados em 15 min -> 429. Sprint 10: confere e conta de uma vez (atômico)
+        protecao.reservarTentativaDeCodigoTurma(alunoId);
         Optional<Turma> encontrada = turmaRepository.findByCodigoConvite(dados.codigo());
         if (encontrada.isEmpty()) {
-            protecao.registrarCodigoTurmaInexistente(alunoId); // só código INEXISTENTE conta (409/403 não)
             throw new RecursoNaoEncontradoException("Código de turma não encontrado. Confira com o professor.");
         }
+        protecao.registrarCodigoTurmaEncontrado(alunoId); // só código INEXISTENTE conta (409/403 não)
         Turma turma = encontrada.get();
         Aluno aluno = alunoRepository.findById(alunoId).orElseThrow(SessaoInvalidaException::new);
 

@@ -129,8 +129,9 @@ public class AuthService {
         // a MESMA normalização da busca: "Ana@X.com" e "ana@x.com" contam como a mesma conta no limite
         String login = dados.ehEmail() ? normalizarEmail(dados.login()) : CadastroRequest.normalizarUsername(dados.login());
 
-        // Sprint 9 (D1): bloqueado -> 429 ANTES do BCrypt (nem gasta processamento; e nem a senha certa entra)
-        protecao.verificarLogin(login, ip);
+        // Sprint 9 (D1): bloqueado -> 429 ANTES do BCrypt (nem gasta processamento; e nem a senha certa entra).
+        // Sprint 10: a tentativa já é contada aqui, de forma atômica (sem brecha para tentativas simultâneas).
+        protecao.reservarTentativaDeLogin(login, ip);
 
         Optional<Usuario> usuario = dados.ehEmail()
                 ? usuarioRepository.findByEmail(login)
@@ -142,11 +143,10 @@ public class AuthService {
                 && usuario.map(Usuario::temSenha).orElse(false);
 
         if (usuario.isEmpty() || !senhaConfere) {
-            // conta o erro mesmo se a conta não existe: assim o limite não revela quem está cadastrado
-            protecao.registrarErroDeLogin(login, ip);
+            // o erro já foi contado na reserva, mesmo se a conta não existe: o limite não revela quem está cadastrado
             throw new CredenciaisInvalidasException(); // mesma mensagem em todos os casos (AU7)
         }
-        protecao.registrarLoginCerto(login, ip);
+        protecao.registrarLoginCerto(login, ip); // senha certa: devolve a tentativa reservada
         // Sprint 10 (decisão C): senha certa, mas e-mail não confirmado -> 403 EMAIL_NAO_CONFIRMADO.
         // Só quem ACERTOU a senha recebe essa resposta, então ela não revela nada a quem está chutando.
         // O frontend mostra o botão "reenviar link" (por isso a exceção leva o e-mail).

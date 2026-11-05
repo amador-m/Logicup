@@ -64,38 +64,51 @@ public class ProtecaoForcaBruta {
 
     // ---------------- LOGIN ----------------
 
-    /** Chamar ANTES de conferir a senha (requisição bloqueada nem gasta tempo com o BCrypt). */
-    public void verificarLogin(String loginNormalizado, String ip) {
-        Duration espera = maior(loginContaIp.bloqueioRestante(chave(loginNormalizado, ip)).orElse(null),
-                loginIp.bloqueioRestante(ip).orElse(null));
-        if (espera != null) {
+    /**
+     * Chamar ANTES de conferir a senha (requisição bloqueada nem gasta tempo com o BCrypt).
+     *
+     * Sprint 10: a tentativa já é CONTADA aqui, de forma atômica (LimitadorTentativas.tentar), e não só depois
+     * do BCrypt. Antes, tentativas simultâneas escapavam do limite (condição de corrida). Se a senha estiver
+     * certa, registrarLoginCerto() devolve a contagem: o resultado final é o mesmo de "só erros contam".
+     */
+    public void reservarTentativaDeLogin(String loginNormalizado, String ip) {
+        String chaveConta = chave(loginNormalizado, ip);
+        Duration esperaConta = loginContaIp.tentar(chaveConta).orElse(null);
+        Duration esperaIp = loginIp.tentar(ip).orElse(null);
+        if (esperaConta != null || esperaIp != null) {
+            // uma das duas regras bloqueou: a outra não pode ficar com uma tentativa que nem aconteceu
+            if (esperaConta == null) loginContaIp.estornar(chaveConta);
+            if (esperaIp == null) loginIp.estornar(ip);
+            Duration espera = maior(esperaConta, esperaIp);
             throw new MuitasTentativasException(
                     "Muitas tentativas de login. Por segurança, aguarde " + minutos(espera) + " e tente novamente.",
                     espera);
         }
     }
 
-    public void registrarErroDeLogin(String loginNormalizado, String ip) {
-        loginContaIp.registrarErro(chave(loginNormalizado, ip));
-        loginIp.registrarErro(ip);
-    }
-
+    /**
+     * Senha certa: zera a regra "conta + IP" e devolve a tentativa contada na regra do IP (que só conta ERROS).
+     * A regra do IP NÃO é zerada: senão um atacante com uma conta válida "limparia" o próprio IP no meio do ataque.
+     */
     public void registrarLoginCerto(String loginNormalizado, String ip) {
-        loginContaIp.limpar(chave(loginNormalizado, ip)); // a regra do IP continua valendo (ver comentário da classe)
+        loginContaIp.limpar(chave(loginNormalizado, ip));
+        loginIp.estornar(ip);
     }
 
     // ---------------- CÓDIGO DE TURMA ----------------
 
-    public void verificarCodigoTurma(Integer alunoId) {
-        codigoTurma.bloqueioRestante(String.valueOf(alunoId)).ifPresent(espera -> {
+    /** Sprint 10: confere e conta de uma vez (atômico, ver reservarTentativaDeLogin). */
+    public void reservarTentativaDeCodigoTurma(Integer alunoId) {
+        codigoTurma.tentar(String.valueOf(alunoId)).ifPresent(espera -> {
             throw new MuitasTentativasException(
                     "Muitos códigos de turma incorretos. Confira o código com o professor e tente novamente em "
                             + minutos(espera) + ".", espera);
         });
     }
 
-    public void registrarCodigoTurmaInexistente(Integer alunoId) {
-        codigoTurma.registrarErro(String.valueOf(alunoId));
+    /** O código existia: a tentativa não conta (só código INEXISTENTE conta, decisão D2). */
+    public void registrarCodigoTurmaEncontrado(Integer alunoId) {
+        codigoTurma.estornar(String.valueOf(alunoId));
     }
 
     // ---------------- CADASTRO ----------------
@@ -106,12 +119,11 @@ public class ProtecaoForcaBruta {
      * descobrir quais e-mails existem. Dados inválidos (400) nem chegam aqui: são barrados pelo @Valid.
      */
     public void verificarERegistrarCadastro(String ip) {
-        cadastro.bloqueioRestante(ip).ifPresent(espera -> {
+        cadastro.tentar(ip).ifPresent(espera -> { // Sprint 10: atômico (confere e conta de uma vez)
             throw new MuitasTentativasException(
                     "Muitas tentativas de cadastro a partir desta rede. Tente novamente em " + minutos(espera) + ".",
                     espera);
         });
-        cadastro.registrarErro(ip);
     }
 
     // ---------------- E-MAILS DE CONTA (Sprint 10) ----------------
@@ -124,15 +136,16 @@ public class ProtecaoForcaBruta {
     public void verificarERegistrarPedidoDeEmail(String tipo, String emailNormalizado, String ip) {
         String chaveEmail = tipo + "|" + emailNormalizado;
         String chaveIp = tipo + "|" + ip;
-        Duration espera = maior(emailPorEndereco.bloqueioRestante(chaveEmail).orElse(null),
-                emailPorIp.bloqueioRestante(chaveIp).orElse(null));
-        if (espera != null) {
+        Duration esperaEmail = emailPorEndereco.tentar(chaveEmail).orElse(null); // Sprint 10: atômico
+        Duration esperaIp = emailPorIp.tentar(chaveIp).orElse(null);
+        if (esperaEmail != null || esperaIp != null) {
+            if (esperaEmail == null) emailPorEndereco.estornar(chaveEmail);
+            if (esperaIp == null) emailPorIp.estornar(chaveIp);
+            Duration espera = maior(esperaEmail, esperaIp);
             throw new MuitasTentativasException(
                     "Você já pediu vários e-mails em pouco tempo. Confira sua caixa de entrada e o spam, "
                             + "ou tente novamente em " + minutos(espera) + ".", espera);
         }
-        emailPorEndereco.registrarErro(chaveEmail);
-        emailPorIp.registrarErro(chaveIp);
     }
 
     // ---------------- utilidades ----------------

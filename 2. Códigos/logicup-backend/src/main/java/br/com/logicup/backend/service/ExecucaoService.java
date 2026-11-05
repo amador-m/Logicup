@@ -85,11 +85,11 @@ public class ExecucaoService {
 
     private void contarExecucao(UsuarioLogado usuario) {
         String chave = String.valueOf(usuario.id());
-        limite.bloqueioRestante(chave).ifPresent(espera -> {
+        // Sprint 10: confere e conta de uma vez (atômico): cliques simultâneos não escapam do limite
+        limite.tentar(chave).ifPresent(espera -> {
             throw new MuitasTentativasException(
                     "Você executou muitos programas em pouco tempo. Aguarde alguns segundos e tente novamente.", espera);
         });
-        limite.registrarErro(chave); // "registrarErro" = contar mais uma execução nesta janela
     }
 
     /** Uma frase por situação, pensada para quem está aprendendo. */

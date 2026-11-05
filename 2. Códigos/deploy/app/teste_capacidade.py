@@ -5,11 +5,11 @@
 #
 # Simula uma turma usando o site ao mesmo tempo e mede quanto tempo cada pedido leva:
 #   1) 40 pessoas abrindo o site juntas (GET /api/auth/csrf, passa por Caddy + Spring);
-#   2) 20 logins errados juntos (mede o BCrypt, a parte mais "pesada" do login);
+#   2) 20 logins errados juntos, com e-mails diferentes (mede o BCrypt, a parte mais "pesada" do login);
 #   3) 30 programas Java executados juntos DIRETO no Piston (o gargalo esperado).
 #
-# Não cria contas, não grava nada no banco e não usa senhas reais. Os 20 logins errados usam um
-# e-mail que não existe e contam no limite de erros por IP desta VM (esquecido em 15 minutos).
+# Não cria contas, não grava nada no banco e não usa senhas reais. Os 20 logins errados usam e-mails
+# que não existem e contam no limite de erros por IP desta VM (150 em 15 minutos; esquecido depois).
 # Só usa a biblioteca padrão do Python (nada para instalar).
 # =====================================================================
 import concurrent.futures as cf
@@ -19,6 +19,7 @@ import statistics
 import time
 import urllib.error
 import urllib.request
+import uuid
 
 SITE = "https://logicup.dev.br"
 PISTON = "http://10.10.0.3:2000/api/v2/execute"
@@ -55,7 +56,10 @@ def login_errado():
     abridor = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
     abridor.open(SITE + "/api/auth/csrf", timeout=30)
     csrf = next(c.value for c in jar if c.name == "__Host-XSRF-TOKEN")
-    corpo = json.dumps({"login": "teste.capacidade@nao-existe.invalid", "senha": "senhaErrada123"}).encode()
+    # um e-mail DIFERENTE por pedido: mede o login (BCrypt), e não o limite de 5 erros por conta.
+    # (o limite por conta é testado nos testes automáticos, inclusive com tentativas simultâneas)
+    email = "teste.capacidade." + uuid.uuid4().hex[:8] + "@nao-existe.invalid"
+    corpo = json.dumps({"login": email, "senha": "senhaErrada123"}).encode()
     pedido = urllib.request.Request(SITE + "/api/auth/login", data=corpo, method="POST", headers={
         "Content-Type": "application/json", "X-XSRF-TOKEN": csrf, "Origin": SITE})
     t = time.perf_counter()

@@ -204,11 +204,13 @@ O backend novo **não sobe** sem a chave da Brevo (de propósito: melhor um erro
 Por isso a ordem importa. Tudo na VM `logicup-app`, na pasta `deploy/app`:
 
 1. Backup: `sudo bash backup.sh`.
-2. Migração 10, como na seção acima, com o arquivo `10_migracao_contas_email_google.sql`.
+2. Baixe o código novo **sem sudo**: `git -C /opt/logicup/Logicup pull --ff-only`.
+   Só troca os ARQUIVOS: os contêineres continuam rodando a versão antiga até o passo 5.
+   (É o pull que traz as migrações e o script de e-mail para a VM; por isso vem antes delas.)
+3. Migração 10, como na seção acima, com o arquivo `10_migracao_contas_email_google.sql`.
    O site antigo continua funcionando com o banco novo (as colunas novas são opcionais para ele).
    Na conferência do final, `usuarios` e `confirmados` têm que ser **iguais**, e `colunas_novas` = **2**.
-3. Baixe o código novo **sem sudo** (assim aparece o script novo de e-mail):
-   `git -C /opt/logicup/Logicup pull --ff-only`
+   Em seguida, a migração 11 (`11_migracao_remover_recompensa.sql`), depois de conferir que as duas tabelas estão vazias.
 4. Grave o login e a chave SMTP da Brevo (a chave não aparece enquanto você cola):
    `sudo bash configurar_email.sh`
 5. Atualize: `sudo bash atualizar.sh`.

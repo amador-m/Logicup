@@ -33,8 +33,17 @@ chmod 600 "$temporario"
 # Conferências: o gzip está íntegro e o mysqldump chegou ao fim (ele escreve "Dump completed")
 gzip -t "$temporario" || falha "o arquivo de backup está corrompido"
 zcat "$temporario" | tail -n 1 | grep -q "Dump completed" || falha "o mysqldump não terminou (backup incompleto)"
-tabelas="$(zcat "$temporario" | grep -c '^CREATE TABLE' || true)"
-(( tabelas >= 15 )) || falha "o backup tem só $tabelas tabelas (esperado: 15 ou mais)"
+# a lista das tabelas é lida UMA vez (grep lê o arquivo inteiro; um "grep -q" direto no zcat pararia no meio e,
+# com o pipefail ligado, o zcat interrompido faria a conferência falhar mesmo com o backup certo)
+lista="$(zcat "$temporario" | grep '^CREATE TABLE' || true)"
+tabelas="$(grep -c . <<< "$lista" || true)"
+# Sprint 10: antes era "15 ou mais", um número fixo que quebrou quando a migração 11 apagou 2 tabelas sem uso.
+# Agora a conferência não depende do número exato: exige as tabelas que guardam os dados dos alunos
+# (se elas faltarem, o backup não serve) e um mínimo folgado contra um dump vazio pela metade.
+(( tabelas >= 10 )) || falha "o backup tem só $tabelas tabelas (esperado: 10 ou mais)"
+for essencial in usuario aluno progresso_exercicio exercicio aceite_documento; do
+    grep -q "^CREATE TABLE \`$essencial\`" <<< "$lista" || falha "o backup não tem a tabela $essencial"
+done
 
 mv "$temporario" "$arquivo"
 ok "backup pronto: $(du -h "$arquivo" | cut -f1), $tabelas tabelas"

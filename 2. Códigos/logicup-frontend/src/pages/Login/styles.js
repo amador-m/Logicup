@@ -11,7 +11,7 @@ export const Container = styled.main`
 
 export const Logo = styled.img`
   width: 230px;
-  margin-bottom: 36px;
+  margin-bottom: 28px;
 `;
 
 export const Box = styled.div`
@@ -23,6 +23,8 @@ export const Box = styled.div`
   overflow: hidden;
   display: grid;
   grid-template-columns: 1fr 1fr;
+  /* Sprint 10: o cartão nunca passa da altura da tela (com 16 px de folga em cima e embaixo) */
+  max-height: calc(100dvh - 32px);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
 
   /* Sprint 7 (modal): em telas estreitas, só o formulário */
@@ -40,10 +42,10 @@ export const LeftSide = styled.div`
     var(--yellow)
   );
   color: var(--cream);
-  padding: 60px 50px;
+  padding: 48px 50px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: center;   /* logo + texto no MEIO da parte visível (antes, do cartão inteiro, que era alto) */
 
   h1 {
     font-size: 42px;
@@ -71,7 +73,7 @@ export const LeftSide = styled.div`
 `;
 
 export const RightSide = styled.div`
-  padding: 60px 50px;
+  padding: 32px 50px 24px;
 
   @media (max-width: 600px) {
     padding: 56px 22px 28px;
@@ -79,30 +81,48 @@ export const RightSide = styled.div`
 
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /* sem "justify-content: center": quando o conteúdo é maior que a coluna, ele cortaria o TOPO
+     (e a rolagem não alcança). Quem centraliza são as margens automáticas no fim deste bloco. */
+
+  /* Sprint 10: só esta coluna rola quando o formulário é maior que a tela (o cadastro, em notebooks) */
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  overscroll-behavior: contain;     /* rolar até o fim não "passa" a rolagem para a página de trás */
+
+  /* barra de rolagem fina, nas cores do LogiCup, sem o trilho branco */
+  scrollbar-width: thin;                                  /* Firefox e Chrome/Edge 121+ */
+  scrollbar-color: rgba(118, 73, 53, 0.45) transparent;
+  &::-webkit-scrollbar { width: 8px; }                    /* Safari e navegadores mais antigos */
+  &::-webkit-scrollbar-track { background: transparent; margin: 24px 0; }
+  &::-webkit-scrollbar-thumb { background: rgba(118, 73, 53, 0.45); border-radius: 8px; }
+
+  /* com justify-content: center, um conteúdo mais alto que a coluna ficaria cortado EM CIMA;
+     o "margin-block: auto" nos filhos centraliza quando cabe e começa do topo quando não cabe */
+  & > :first-child { margin-top: auto; }
+  & > :last-child { margin-bottom: auto; }
 
   h2 {
     font-size: 36px;
     color: var(--dark);
-    margin-bottom: 8px;
+    margin-bottom: 4px;
   }
 
   p {
     color: var(--brown-dark);
-    margin-bottom: 34px;
+    margin-bottom: 20px;
   }
 `;
 
 export const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
 `;
 
 export const InputGroup = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 
   label {
     font-weight: 600;
@@ -112,7 +132,7 @@ export const InputGroup = styled.div`
   input {
     border: 2px solid transparent;
     background-color: var(--white);
-    padding: 15px 18px;
+    padding: 12px 16px;
     border-radius: 14px;
     font-size: 15px;
     outline: none;
@@ -133,7 +153,7 @@ export const InputGroup = styled.div`
 export const Select = styled.select`
   border: 2px solid transparent;
   background-color: var(--white);
-  padding: 15px 18px;
+  padding: 12px 16px;
   border-radius: 14px;
   font-size: 15px;
   outline: none;
@@ -147,7 +167,7 @@ export const Button = styled.button`
   background-color: var(--green);
   color: var(--white);
   border: none;
-  padding: 16px;
+  padding: 14px;
   border-radius: 16px;
   font-size: 16px;
   font-weight: 700;
@@ -234,5 +254,63 @@ export const LinkButton = styled.button`
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+  }
+`;
+
+/* Sprint 10: botão "Entrar com Google" (um link: o login acontece no backend) e o "ou" que separa do formulário */
+/*
+ * Botão "Entrar com Google" no tema CLARO das regras de marca do Google:
+ * fundo #FFFFFF, borda de 1px #747775, texto #1F1F1F, G colorido oficial à esquerda.
+ * As cores do botão NÃO mudam no hover (as regras não permitem trocar a borda/fundo por outra cor);
+ * o retorno visual é um fundo levemente acinzentado e uma sombra. O contorno verde do teclado (focus-visible)
+ * fica FORA do botão (outline + offset), por acessibilidade.
+ */
+export const BotaoGoogle = styled.a`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  border: 1px solid #747775;
+  background: #ffffff;
+  color: #1f1f1f;
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+
+  svg {
+    flex-shrink: 0;
+  }
+
+  &:hover {
+    background: #f8f9fa;
+    box-shadow: 0 1px 3px rgba(60, 64, 67, 0.3);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--green);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+`;
+
+export const Separador = styled.p`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--brown-dark);
+  font-size: 13px;
+
+  &::before,
+  &::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: rgba(118, 73, 53, 0.3);
   }
 `;

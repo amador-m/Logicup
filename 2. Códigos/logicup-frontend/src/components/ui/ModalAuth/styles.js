@@ -11,9 +11,11 @@ export const Dialogo = styled.dialog`
   padding: 0;
   background: transparent;
   width: min(1000px, calc(100% - 32px));
-  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
   margin: auto;
-  overflow: auto;
+  /* Sprint 10: o modal inteiro NÃO rola mais (a barra nativa ficava feia e cortava o canto arredondado).
+     Quem rola é só a coluna do formulário (RightSide), e o lado colorido fica parado, sempre à vista. */
+  overflow: hidden;
   border-radius: 32px;
   animation: ${aparecer} 0.25s ease-out;
 

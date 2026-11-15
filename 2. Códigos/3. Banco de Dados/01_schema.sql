@@ -171,7 +171,7 @@ CREATE TABLE `tarefa` (
 CREATE TABLE `token_usuario` (
   `id_token` int NOT NULL AUTO_INCREMENT,
   `id_usuario` int NOT NULL,
-  `finalidade` enum('CONFIRMAR_EMAIL','REDEFINIR_SENHA') NOT NULL,
+  `finalidade` enum('CONFIRMAR_EMAIL','REDEFINIR_SENHA','EXCLUIR_CONTA') NOT NULL,
   `hash_token` char(64) NOT NULL COMMENT 'SHA-256 (hex) do código enviado por e-mail; o código em si nunca é gravado',
   `criado_em` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `expira_em` datetime NOT NULL,

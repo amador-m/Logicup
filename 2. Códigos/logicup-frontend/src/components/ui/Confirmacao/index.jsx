@@ -8,9 +8,11 @@ import { Dialogo, Botoes, BotaoConfirmar, BotaoCancelar, Erro } from "./styles";
  *
  *  exigirTexto: quando informado, o botão só habilita depois que a pessoa digitar exatamente esse texto
  *               (usado para excluir a turma: digitar o nome dela — R14).
+ *  pedirSenha:  Sprint 10: mostra um campo de senha; o botão só habilita com ele preenchido e a senha
+ *               é entregue para aoConfirmar(senha) (usado para excluir a própria conta).
  *  aoConfirmar: função async; se der erro, a mensagem aparece aqui e a janela continua aberta.
  */
-const Confirmacao = ({ titulo, mensagem, textoConfirmar, exigirTexto, aoConfirmar, aoCancelar }) => {
+const Confirmacao = ({ titulo, mensagem, textoConfirmar, exigirTexto, pedirSenha, aoConfirmar, aoCancelar }) => {
     const dialogoRef = useRef(null);
     const idTitulo = useId();
     const idCampo = useId();
@@ -26,7 +28,9 @@ const Confirmacao = ({ titulo, mensagem, textoConfirmar, exigirTexto, aoConfirma
         };
     }, []);
 
-    const liberado = !exigirTexto || digitado.trim() === exigirTexto.trim();
+    const liberado = pedirSenha
+        ? digitado.length > 0
+        : !exigirTexto || digitado.trim() === exigirTexto.trim();
 
     const confirmar = async (evento) => {
         evento.preventDefault();
@@ -34,7 +38,7 @@ const Confirmacao = ({ titulo, mensagem, textoConfirmar, exigirTexto, aoConfirma
         setErro("");
         setEnviando(true);
         try {
-            await aoConfirmar();
+            await aoConfirmar(pedirSenha ? digitado : undefined);
         } catch (e) {
             setErro(e.message);
             setEnviando(false);
@@ -56,6 +60,14 @@ const Confirmacao = ({ titulo, mensagem, textoConfirmar, exigirTexto, aoConfirma
                         Para confirmar, digite <strong>{exigirTexto}</strong>
                         <input id={idCampo} value={digitado} onChange={(e) => setDigitado(e.target.value)}
                                autoComplete="off" disabled={enviando} />
+                    </label>
+                )}
+
+                {pedirSenha && (
+                    <label htmlFor={idCampo}>
+                        Digite a sua senha para confirmar
+                        <input id={idCampo} type="password" value={digitado} autoComplete="current-password"
+                               onChange={(e) => setDigitado(e.target.value)} disabled={enviando} required />
                     </label>
                 )}
 

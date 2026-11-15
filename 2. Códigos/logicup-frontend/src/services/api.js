@@ -147,6 +147,8 @@ export const authApi = {
     googlePendente: () => requisicao("/auth/google/pendente"),
     completarCadastroGoogle: (dados) =>
         requisicao("/auth/google/completar-cadastro", { method: "POST", body: dados }),
+    // Sprint 10: abre o link de exclusão de conta (o código vai no corpo, como nos outros links). 204 = excluída.
+    excluirContaPorLink: (token) => requisicao("/auth/excluir-conta", { method: "POST", body: { token } }),
 };
 
 /*
@@ -244,6 +246,10 @@ export const perfilApi = {
     alterarSenha: (dados) => requisicao("/perfil/senha", { method: "PUT", body: dados }),
     /** Sprint 9: troca o avatar EM USO -> devolve o usuário atualizado. 403 se a pessoa não tem esse avatar. */
     trocarAvatar: (codigo) => requisicao("/perfil/avatar", { method: "PUT", body: { codigo } }),
+    /* Sprint 10: exclusão da própria conta. 204 + cookie de login apagado. Senha errada = 400 em campos.senhaAtual. */
+    excluirConta: (senhaAtual) => requisicao("/perfil/exclusao", { method: "POST", body: { senhaAtual } }),
+    /* Sprint 10: conta só do Google (sem senha) -> o backend manda o link de exclusão para o e-mail (202). */
+    pedirLinkDeExclusao: () => requisicao("/perfil/exclusao/link", { method: "POST" }),
 };
 
 /*

@@ -75,6 +75,12 @@ export function AuthProvider({ children }) {
     const atualizarUsuario = useCallback((dados) => setUsuario(dados), []);
 
     /*
+     * Sprint 10: a conta foi excluída. O backend já apagou o cookie na mesma resposta, então aqui só
+     * esquecemos a pessoa (sem chamar o /logout, que não teria mais o que fazer).
+     */
+    const esquecerUsuario = useCallback(() => setUsuario(null), []);
+
+    /*
      * Sprint 8: aceite de quem já tem conta. O backend devolve o usuário com aceitePendente = false
      * e um cookie novo; trocar o usuário aqui fecha a janela de aceite e libera as páginas.
      */
@@ -86,9 +92,9 @@ export function AuthProvider({ children }) {
 
     const valor = useMemo(
         () => ({ usuario, carregando, login, cadastrar, confirmarEmail, completarCadastroGoogle, logout,
-            atualizarUsuario, aceitarDocumentos }),
+            atualizarUsuario, aceitarDocumentos, esquecerUsuario }),
         [usuario, carregando, login, cadastrar, confirmarEmail, completarCadastroGoogle, logout,
-            atualizarUsuario, aceitarDocumentos]
+            atualizarUsuario, aceitarDocumentos, esquecerUsuario]
     );
 
     return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>;

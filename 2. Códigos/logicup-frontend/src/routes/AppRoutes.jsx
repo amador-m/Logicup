@@ -25,6 +25,7 @@ import ConfirmarEmail from "../pages/ConfirmarEmail";
 import EsqueciSenha from "../pages/EsqueciSenha";
 import RedefinirSenha from "../pages/RedefinirSenha";
 import CompletarCadastro from "../pages/CompletarCadastro";
+import ExcluirConta from "../pages/ExcluirConta";
 
 const AppRoutes = () => {
     return (
@@ -75,6 +76,13 @@ const AppRoutes = () => {
                     <>
                         <Home />
                         <ModalAuth tituloId="titulo-redefinir"><RedefinirSenha /></ModalAuth>
+                    </>
+                } />
+                {/* Sprint 10: link de exclusão de conta (e a confirmação depois de excluir pelo Perfil) */}
+                <Route path="/excluir-conta" element={
+                    <>
+                        <Home />
+                        <ModalAuth tituloId="titulo-excluir-conta"><ExcluirConta /></ModalAuth>
                     </>
                 } />
                 {/* Sprint 10: 1ª vez de quem entrou com o Google (o backend manda para cá) */}

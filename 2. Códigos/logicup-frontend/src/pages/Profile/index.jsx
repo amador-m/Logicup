@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "../../components/layout/Header";
 import Footer from "../../components/layout/Footer";
 import { useAuth } from "../../context/useAuth";
@@ -8,12 +9,13 @@ import { iconeFase } from "../../assets/fases";
 import { abrirTutorial } from "../../components/ui/Onboarding/controle";
 import AvatarUsuario from "../../components/ui/AvatarUsuario";
 import LojaAvatares from "../../components/ui/LojaAvatares";
+import Confirmacao from "../../components/ui/Confirmacao";
 import { useSaldoGemas } from "../../components/ui/Gemas/useSaldoGemas";
 import { podeVerConquistas } from "../../util/papeis";
 import { InputGroup, Button, ErrorMessage, FieldError } from "../Login/styles";
 import {
     Page, Hero, Cartao, MolduraAvatar, Stats, StatCard, Paineis, Painel, Form, Sucesso,
-    SecaoFases, ListaFases, LinhaFase, Barra, BotaoTutorial, BotaoTrocarAvatar,
+    SecaoFases, ListaFases, LinhaFase, Barra, BotaoTutorial, BotaoTrocarAvatar, ZonaPerigo, BotaoExcluir,
 } from "./styles";
 
 const SENHAS_VAZIAS = { senhaAtual: "", novaSenha: "", confirmacao: "" };
@@ -269,6 +271,99 @@ const AlterarSenha = () => {
 };
 
 /*
+ * Sprint 10 (LGPD): excluir a própria conta.
+ *  - quem tem senha: janela de confirmação pedindo a senha -> exclui na hora;
+ *  - quem entra só pelo Google (temSenha = false): manda um link para o e-mail (vale 30 minutos);
+ *  - administrador: não exclui por aqui (decisão da equipe). Professor com turmas: o backend recusa e
+ *    explica (a regra mora no backend; aqui só mostramos a mensagem).
+ */
+const ExcluirConta = ({ usuario }) => {
+    const navigate = useNavigate();
+    const [confirmando, setConfirmando] = useState(false);
+    const [enviando, setEnviando] = useState(false);
+    const [erro, setErro] = useState("");
+    const [linkEnviado, setLinkEnviado] = useState(false);
+
+    if (usuario.role === "ADMIN") {
+        return (
+            <ZonaPerigo aria-labelledby="titulo-excluir">
+                <h2 id="titulo-excluir">Excluir conta</h2>
+                <p>Contas de administrador não podem ser excluídas pelo perfil.</p>
+            </ZonaPerigo>
+        );
+    }
+
+    const excluirComSenha = async (senha) => {
+        try {
+            await perfilApi.excluirConta(senha);
+        } catch (error) {
+            // senha errada vem em campos.senhaAtual; o resto (ex.: professor com turmas) vem em message
+            throw new Error(error.campos?.senhaAtual ?? error.message, { cause: error });
+        }
+        /*
+         * Quem "esquece" a pessoa no AuthContext é a página /excluir-conta, DEPOIS de aparecer.
+         * Se fosse aqui, o PrivateRoute do /perfil veria "ninguém logado" antes da troca de página
+         * (o React Router faz a navegação como uma atualização de prioridade mais baixa) e mandaria
+         * para o /login. Encontrado no teste de ponta a ponta.
+         */
+        navigate("/excluir-conta", { replace: true, state: { excluida: true } });
+    };
+
+    const pedirLink = async () => {
+        setErro("");
+        setEnviando(true);
+        try {
+            await perfilApi.pedirLinkDeExclusao();
+            setLinkEnviado(true);
+        } catch (error) {
+            setErro(error.message);
+        } finally {
+            setEnviando(false);
+        }
+    };
+
+    return (
+        <ZonaPerigo aria-labelledby="titulo-excluir">
+            <h2 id="titulo-excluir">Excluir conta</h2>
+            <p>
+                Ao excluir a sua conta, apagamos <strong>tudo</strong>: dados, progresso, XP, gemas, conquistas,
+                avatares e participação em turmas. Isso não pode ser desfeito.
+            </p>
+            {usuario.role === "PROFESSOR" && (
+                <p>Se você tem turmas, exclua as turmas antes, para nenhum aluno ficar sem professor.</p>
+            )}
+
+            {usuario.temSenha ? (
+                <BotaoExcluir type="button" onClick={() => setConfirmando(true)}>Excluir minha conta</BotaoExcluir>
+            ) : linkEnviado ? (
+                <Sucesso role="status">
+                    ✓ Enviamos um link para {usuario.email}. Abra o e-mail e confirme em até 30 minutos.
+                </Sucesso>
+            ) : (
+                <>
+                    <p>Como você entra pelo Google, a confirmação é feita por um link enviado ao seu e-mail.</p>
+                    <BotaoExcluir type="button" onClick={pedirLink} disabled={enviando}>
+                        {enviando ? "Enviando..." : "Enviar link de exclusão"}
+                    </BotaoExcluir>
+                </>
+            )}
+            {erro && <ErrorMessage role="alert">{erro}</ErrorMessage>}
+
+            {confirmando && (
+                <Confirmacao
+                    titulo="Excluir sua conta?"
+                    mensagem="Todo o seu progresso será apagado para sempre. Não dá para desfazer."
+                    textoConfirmar="Excluir para sempre"
+                    pedirSenha
+                    aoConfirmar={excluirComSenha}
+                    aoCancelar={() => setConfirmando(false)}
+                />
+            )}
+        </ZonaPerigo>
+    );
+};
+
+/*
  * Sprint 7: perfil de quem está logado.
  * Mostra os dados (de /auth/me, já guardados no AuthContext) e o resumo do aluno; permite editar
  * nome, username e senha. Sprint 9: o avatar escolhido e a loja de avatares (decisão F3).
@@ -323,6 +418,8 @@ const Profile = () => {
                     <DadosConta key={usuario.id} usuario={usuario} aoSalvar={atualizarUsuario} />
                     <AlterarSenha />
                 </Paineis>
+
+                <ExcluirConta usuario={usuario} />
             </Page>
             <Footer />
 

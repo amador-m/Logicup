@@ -299,3 +299,76 @@ export const BotaoTutorial = styled.button`
     outline-offset: 2px;
   }
 `;
+
+/* ---------- Sprint 10: excluir a própria conta ---------- */
+
+/*
+ * Mesmo card dos painéis, mas com borda laranja: a cor de "atenção" do LogiCup. Fica no FIM da página,
+ * separado do resto, para ninguém clicar sem querer (padrão "zona de perigo" de GitHub e afins).
+ */
+export const ZonaPerigo = styled.section`
+  max-width: 1000px;
+  margin: 24px auto 0;
+  background: var(--cream);
+  border: 5px solid var(--orange);
+  border-radius: 32px;
+  padding: 30px;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
+  color: var(--dark);
+
+  h2 {
+    font-size: 26px;
+    margin-bottom: 12px;
+  }
+
+  p {
+    line-height: 1.6;
+    color: var(--brown-dark);
+    max-width: 720px;
+  }
+
+  p + p {
+    margin-top: 8px;
+  }
+
+  @media (max-width: 1048px) {
+    margin: 24px 24px 0;
+  }
+
+  @media (max-width: 600px) {
+    margin: 24px 16px 0;
+    padding: 22px 18px;
+  }
+`;
+
+export const BotaoExcluir = styled.button`
+  margin-top: 20px;
+  padding: 13px 22px;
+  border-radius: 14px;
+  border: 2px solid var(--orange);
+  background: transparent;
+  color: var(--orange);
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--orange);
+    color: var(--white);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--yellow);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+`;

@@ -2,15 +2,21 @@ package br.com.logicup.backend.controller;
 
 import br.com.logicup.backend.dto.AlterarSenhaRequest;
 import br.com.logicup.backend.dto.AtualizarPerfilRequest;
+import br.com.logicup.backend.dto.ExcluirContaRequest;
 import br.com.logicup.backend.dto.UsuarioResponse;
+import br.com.logicup.backend.security.EncerramentoDeSessao;
 import br.com.logicup.backend.security.UsuarioLogado;
 import br.com.logicup.backend.dto.TrocarAvatarRequest;
 import br.com.logicup.backend.service.AvatarService;
+import br.com.logicup.backend.service.ExclusaoContaService;
 import br.com.logicup.backend.service.PerfilService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,10 +35,15 @@ public class PerfilController {
 
     private final PerfilService perfilService;
     private final AvatarService avatarService;
+    private final ExclusaoContaService exclusaoConta;        // Sprint 10
+    private final EncerramentoDeSessao encerramentoDeSessao; // Sprint 10
 
-    public PerfilController(PerfilService perfilService, AvatarService avatarService) {
+    public PerfilController(PerfilService perfilService, AvatarService avatarService,
+                            ExclusaoContaService exclusaoConta, EncerramentoDeSessao encerramentoDeSessao) {
         this.perfilService = perfilService;
         this.avatarService = avatarService;
+        this.exclusaoConta = exclusaoConta;
+        this.encerramentoDeSessao = encerramentoDeSessao;
     }
 
     /** Atualiza nome e username. Devolve o usuário atualizado (o frontend troca o "Olá, ..." na hora). */
@@ -55,5 +66,26 @@ public class PerfilController {
                                              @Valid @RequestBody AlterarSenhaRequest dados) {
         perfilService.alterarSenha(UsuarioLogado.de(jwt).id(), dados);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Sprint 10: exclui a PRÓPRIA conta, confirmando com a senha. 204 = excluída; a resposta já apaga o
+     * cookie de login. POST (e não DELETE) porque leva um corpo (a senha), e DELETE com corpo não tem
+     * significado definido no HTTP (alguns proxies e bibliotecas descartam o corpo).
+     */
+    @PostMapping("/exclusao")
+    public ResponseEntity<Void> excluirConta(@AuthenticationPrincipal Jwt jwt,
+                                             @Valid @RequestBody ExcluirContaRequest dados,
+                                             HttpServletRequest request, HttpServletResponse response) {
+        exclusaoConta.excluirComSenha(UsuarioLogado.de(jwt).id(), dados.senhaAtual());
+        encerramentoDeSessao.encerrar(request, response);
+        return ResponseEntity.noContent().build();
+    }
+
+    /** Sprint 10: conta só do Google (sem senha) -> manda o link de exclusão para o e-mail. 202 = pedido aceito. */
+    @PostMapping("/exclusao/link")
+    public ResponseEntity<Void> pedirLinkDeExclusao(@AuthenticationPrincipal Jwt jwt, HttpServletRequest request) {
+        exclusaoConta.pedirLinkDeExclusao(UsuarioLogado.de(jwt).id(), request.getRemoteAddr());
+        return ResponseEntity.accepted().build();
     }
 }

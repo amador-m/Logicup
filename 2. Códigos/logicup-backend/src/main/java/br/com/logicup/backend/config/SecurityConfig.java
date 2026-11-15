@@ -93,7 +93,9 @@ public class SecurityConfig {
                                 "/api/auth/cadastro", "/api/auth/login", "/api/auth/logout",
                                 // Sprint 10: links dos e-mails (quem usa ainda não está logado)
                                 "/api/auth/confirmar-email", "/api/auth/reenviar-confirmacao",
-                                "/api/auth/esqueci-senha", "/api/auth/redefinir-senha").permitAll()
+                                "/api/auth/esqueci-senha", "/api/auth/redefinir-senha",
+                                // Sprint 10: link de exclusão de conta (o código do e-mail já identifica a pessoa)
+                                "/api/auth/excluir-conta").permitAll()
                         .requestMatchers("/error").permitAll()
                         // PE1: só ALUNO responde exercícios (professor/admin apenas visualizam)
                         .requestMatchers(HttpMethod.POST, "/api/rodadas/*/respostas").hasRole("ALUNO")

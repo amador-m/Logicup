@@ -16,8 +16,10 @@ import br.com.logicup.backend.dto.RedefinirSenhaRequest;
 import br.com.logicup.backend.dto.UsuarioResponse;
 import br.com.logicup.backend.legal.VersoesLegais;
 import br.com.logicup.backend.security.CookiesLegados;
+import br.com.logicup.backend.security.EncerramentoDeSessao;
 import br.com.logicup.backend.security.TokenService;
 import br.com.logicup.backend.service.AuthService;
+import br.com.logicup.backend.service.ExclusaoContaService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -52,10 +54,15 @@ public class AuthController {
     private final GoogleLoginService googleLogin;          // Sprint 10
     private final GoogleCadastroPendente googlePendente;   // Sprint 10
     private final boolean googleLigado;                    // Sprint 10: há chave do Google configurada?
+    private final ExclusaoContaService exclusaoConta;        // Sprint 10
+    private final EncerramentoDeSessao encerramentoDeSessao; // Sprint 10
 
     public AuthController(AuthService authService, TokenService tokenService, CsrfTokenRepository csrfTokenRepository,
                           GoogleLoginService googleLogin, GoogleCadastroPendente googlePendente,
-                          @Value("${logicup.google.client-id:}") String googleClientId) {
+                          @Value("${logicup.google.client-id:}") String googleClientId,
+                          ExclusaoContaService exclusaoConta, EncerramentoDeSessao encerramentoDeSessao) {
+        this.exclusaoConta = exclusaoConta;
+        this.encerramentoDeSessao = encerramentoDeSessao;
         this.authService = authService;
         this.tokenService = tokenService;
         this.csrfTokenRepository = csrfTokenRepository;
@@ -159,6 +166,19 @@ public class AuthController {
         AutenticacaoResultado resultado = authService.login(dados, request.getRemoteAddr()); // senha errada -> 401
         trocarTokenCsrf(request, response);
         return comCookieDeLogin(HttpStatus.OK, resultado, response);
+    }
+
+    /**
+     * Sprint 10: abre o link de exclusão de conta (quem entra só pelo Google). 204 = conta excluída.
+     * Se este navegador estava logado nela, a resposta já apaga o cookie de login.
+     * O código vai no CORPO (como nos outros links), reaproveitando o ConfirmarEmailRequest ({ "token": ... }).
+     */
+    @PostMapping("/excluir-conta")
+    public ResponseEntity<Void> excluirContaPorLink(@Valid @RequestBody ConfirmarEmailRequest dados,
+                                                    HttpServletRequest request, HttpServletResponse response) {
+        exclusaoConta.excluirPorLink(dados.token());
+        encerramentoDeSessao.encerrar(request, response);
+        return ResponseEntity.noContent().build();
     }
 
     /**

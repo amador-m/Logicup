@@ -12,7 +12,9 @@ import java.time.Duration;
  */
 public enum FinalidadeToken {
     CONFIRMAR_EMAIL(Duration.ofHours(24)),
-    REDEFINIR_SENHA(Duration.ofMinutes(30));
+    REDEFINIR_SENHA(Duration.ofMinutes(30)),
+    /** Sprint 10 (exclusão de conta): só para quem entra pelo Google e não tem senha. Alto risco: 30 minutos. */
+    EXCLUIR_CONTA(Duration.ofMinutes(30));
 
     private final Duration validade;
 

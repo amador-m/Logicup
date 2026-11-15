@@ -24,4 +24,7 @@ public interface TurmaRepository extends JpaRepository<Turma, Integer> {
     Optional<Turma> findByCodigoConvite(String codigoConvite);
 
     boolean existsByCodigoConvite(String codigoConvite);
+
+    /** Sprint 10: professor com turmas não pode excluir a conta (as turmas ficariam sem dono). */
+    long countByProfessorId(Integer professorId);
 }

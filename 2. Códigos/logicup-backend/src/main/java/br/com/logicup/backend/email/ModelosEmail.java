@@ -37,6 +37,8 @@ public class ModelosEmail {
             case CONFIRMAR_EMAIL -> confirmacao(pedido.para(), pedido.nome(), urlPublica + "/confirmar-email#" + pedido.codigo());
             case REDEFINIR_SENHA -> redefinicao(pedido.para(), pedido.nome(), urlPublica + "/redefinir-senha#" + pedido.codigo());
             case BOAS_VINDAS -> boasVindas(pedido.para(), pedido.nome(), urlPublica + "/trilha");
+            case EXCLUIR_CONTA -> pedidoDeExclusao(pedido.para(), pedido.nome(), urlPublica + "/excluir-conta#" + pedido.codigo());
+            case CONTA_EXCLUIDA -> contaExcluida(pedido.para(), pedido.nome());
         };
     }
 
@@ -106,6 +108,54 @@ public class ModelosEmail {
                         + "exercícios com correção na hora. Acertando, você ganha XP, sobe de nível e desbloqueia conquistas.")
                         + botao("Começar minha trilha", link)
                         + paragrafo("Bons estudos!<br>Equipe LogiCup"));
+        return new MensagemEmail(para, assunto, html, texto);
+    }
+
+    private MensagemEmail pedidoDeExclusao(String para, String nome, String link) {
+        String assunto = "Confirme a exclusão da sua conta no LogiCup";
+        String texto = """
+                Olá, %s!
+
+                Recebemos um pedido para EXCLUIR a sua conta do LogiCup. Se você confirmar, apagamos a conta e todo
+                o seu progresso (XP, conquistas, avatares e turmas). Isso não pode ser desfeito.
+
+                Para confirmar, abra o link abaixo:
+
+                %s
+
+                O link vale por 30 minutos e só pode ser usado uma vez.
+                Se não foi você, ignore este e-mail: a sua conta continua como está.
+                """.formatted(primeiroNome(nome), link);
+        String html = moldura(assunto,
+                paragrafo("Olá, <strong>" + escapar(primeiroNome(nome)) + "</strong>!")
+                        + paragrafo("Recebemos um pedido para <strong>excluir</strong> a sua conta do LogiCup. Se você "
+                        + "confirmar, apagamos a conta e todo o seu progresso (XP, conquistas, avatares e turmas). "
+                        + "Isso não pode ser desfeito.")
+                        + botao("Ver e confirmar a exclusão", link)
+                        + miudo("O link vale por 30 minutos e só pode ser usado uma vez.")
+                        + miudo("Se não foi você, ignore este e-mail: a sua conta continua como está.")
+                        + linkReserva(link));
+        return new MensagemEmail(para, assunto, html, texto);
+    }
+
+    private MensagemEmail contaExcluida(String para, String nome) {
+        String assunto = "Sua conta no LogiCup foi excluída";
+        String texto = """
+                Olá, %s!
+
+                A sua conta do LogiCup foi excluída, junto com todo o progresso dela. Sentiremos sua falta!
+                Se quiser voltar, é só criar uma conta nova quando quiser.
+
+                Se você NÃO pediu a exclusão, responda este e-mail ou escreva para contato@logicup.dev.br.
+
+                Equipe LogiCup
+                """.formatted(primeiroNome(nome));
+        String html = moldura(assunto,
+                paragrafo("Olá, <strong>" + escapar(primeiroNome(nome)) + "</strong>!")
+                        + paragrafo("A sua conta do LogiCup foi excluída, junto com todo o progresso dela. "
+                        + "Sentiremos sua falta! Se quiser voltar, é só criar uma conta nova quando quiser.")
+                        + miudo("Se você NÃO pediu a exclusão, responda este e-mail ou escreva para contato@logicup.dev.br.")
+                        + paragrafo("Equipe LogiCup"));
         return new MensagemEmail(para, assunto, html, texto);
     }
 

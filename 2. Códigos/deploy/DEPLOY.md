@@ -216,6 +216,26 @@ Por isso a ordem importa. Tudo na VM `logicup-app`, na pasta `deploy/app`:
 5. Atualize: `sudo bash atualizar.sh`.
 6. Teste: crie uma conta com um e-mail seu (linhas "Cadastro e login" e "Esqueci a senha" da conferência).
 
+### Entrar com Google (Sprint 10) — ligar só depois da Política v0.5
+
+O código já vai no ar com o resto. **Sem a chave, o botão do Google simplesmente não aparece.**
+Para ligar (na VM, pasta `deploy/app`):
+
+1. `sudo bash configurar_google.sh`. Ele pede o Client ID e a chave secreta, que não aparece enquanto você cola.
+   Os dois ficam no Google Cloud → Google Auth Platform → Clientes → LogiCup Web.
+2. `sudo docker compose up -d backend`.
+3. **Confira:**
+   - o log tem que mostrar `Entrar com Google: LIGADO` (`sudo docker compose logs backend | grep Google`);
+   - o botão aparece no login.
+
+No Google Cloud, o cliente precisa ter exatamente estes URIs de redirecionamento:
+- `https://logicup.dev.br/login/oauth2/code/google` (produção)
+- `http://localhost:5173/login/oauth2/code/google` (seu PC)
+
+E o app precisa estar **Em produção** (Google Auth Platform → Público-alvo).
+
+**Para desligar:** apague as linhas `GOOGLE_CLIENT_*` do `.env` (`sudo nano .env`) e rode `sudo docker compose up -d backend`.
+
 ### Alertas (Sprint 10) — fazer UMA vez, no navegador
 
 **1. Site fora do ar → e-mail.** No console do Google Cloud, projeto `logicup`:

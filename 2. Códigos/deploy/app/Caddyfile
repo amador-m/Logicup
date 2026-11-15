@@ -56,6 +56,13 @@ www.{$DOMINIO} {
 		reverse_proxy {$BACKEND:backend:8080}
 	}
 
+	# --- Sprint 10: Entrar com Google: a ida (/oauth2/...) e a volta (/login/oauth2/...) são do backend ---
+	# (é o Spring Security que fala com o Google; o React só tem o link do botão)
+	@loginGoogle path /oauth2/* /login/oauth2/*
+	handle @loginGoogle {
+		reverse_proxy {$BACKEND:backend:8080}
+	}
+
 	# --- Site (React): arquivos estáticos ---
 	handle {
 		root * {$SITE:/srv}

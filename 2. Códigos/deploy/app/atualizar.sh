@@ -36,6 +36,11 @@ compose build --pull
 
 info "4/5 Trocando os contêineres"
 compose up -d
+# Sprint 10: o Caddyfile entra por VOLUME. Se só ele mudou (e a imagem do site não), o "up -d" não recria o
+# contêiner do Caddy e a configuração nova não valeria. O reload aplica sem derrubar nada e, se o arquivo
+# tiver erro, o Caddy recusa e continua com a configuração antiga.
+compose exec -T caddy caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile \
+    || aviso "o Caddy recusou o Caddyfile novo e continua com o anterior (veja: sudo docker compose logs caddy)"
 
 info "5/5 Conferindo"
 espera_saudavel backend 240 || falha "o backend não ficou saudável (veja: sudo docker compose logs backend). Para voltar à versão anterior: git reset --hard $antes (sem sudo) e depois sudo docker compose up -d --build"

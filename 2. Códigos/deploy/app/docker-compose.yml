@@ -65,6 +65,9 @@ services:
       URL_PUBLICA: https://${DOMINIO}
       SMTP_USUARIO: ${SMTP_USUARIO:-}
       SMTP_CHAVE: ${SMTP_CHAVE:-}
+      # Sprint 10: Entrar com Google. Sem as duas, o site funciona e o botão do Google não aparece.
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
     networks:
       - web
       - dados

@@ -53,6 +53,13 @@ export function AuthProvider({ children }) {
         return dados;
     }, []);
 
+    /* Sprint 10: quem veio do Google pela 1ª vez escolhe username e perfil; o backend cria a conta e já loga. */
+    const completarCadastroGoogle = useCallback(async (dadosCadastro) => {
+        const dados = await authApi.completarCadastroGoogle(dadosCadastro);
+        setUsuario(dados);
+        return dados;
+    }, []);
+
     const logout = useCallback(async () => {
         try {
             await authApi.logout(); // só o backend consegue apagar o cookie httpOnly
@@ -78,8 +85,10 @@ export function AuthProvider({ children }) {
     }, []);
 
     const valor = useMemo(
-        () => ({ usuario, carregando, login, cadastrar, confirmarEmail, logout, atualizarUsuario, aceitarDocumentos }),
-        [usuario, carregando, login, cadastrar, confirmarEmail, logout, atualizarUsuario, aceitarDocumentos]
+        () => ({ usuario, carregando, login, cadastrar, confirmarEmail, completarCadastroGoogle, logout,
+            atualizarUsuario, aceitarDocumentos }),
+        [usuario, carregando, login, cadastrar, confirmarEmail, completarCadastroGoogle, logout,
+            atualizarUsuario, aceitarDocumentos]
     );
 
     return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>;

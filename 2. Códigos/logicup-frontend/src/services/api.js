@@ -141,6 +141,12 @@ export const authApi = {
     esqueciSenha: (email) => requisicao("/auth/esqueci-senha", { method: "POST", body: { email } }),
     redefinirSenha: (token, novaSenha) =>
         requisicao("/auth/redefinir-senha", { method: "POST", body: { token, novaSenha } }),
+    // Sprint 10: login com Google. O login em si é uma NAVEGAÇÃO (link para /oauth2/authorization/google),
+    // não um fetch: quem fala com o Google é o backend. Aqui ficam só as chamadas de apoio.
+    provedores: () => requisicao("/auth/provedores"),
+    googlePendente: () => requisicao("/auth/google/pendente"),
+    completarCadastroGoogle: (dados) =>
+        requisicao("/auth/google/completar-cadastro", { method: "POST", body: dados }),
 };
 
 /*

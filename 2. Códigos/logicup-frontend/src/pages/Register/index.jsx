@@ -18,6 +18,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../context/useAuth";
 import CaixaAceite from "../../components/ui/CaixaAceite";
 import ReenviarConfirmacao from "../../components/ui/ReenviarConfirmacao";
+import EntrarComGoogle from "../../components/ui/EntrarComGoogle";
 import { VERSAO_TERMOS, VERSAO_PRIVACIDADE } from "../../data/legal/versoes";
 
 // Sprint 8: aceiteTermos começa FALSO (a caixa nunca vem marcada)
@@ -100,6 +101,9 @@ const Register = () => {
                     <>
                     <h2 id="titulo-cadastro">Criar conta</h2>
                     <p>Preencha seus dados para começar a aprender no LogiCup</p>
+
+                    {/* Sprint 10: com o Google, não precisa de senha nem de confirmar o e-mail */}
+                    <EntrarComGoogle />
 
                     <Form onSubmit={handleRegister}>
                         <InputGroup>

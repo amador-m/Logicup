@@ -12,13 +12,23 @@ import {
     SuccessMessage,
 } from "./styles";
 import LogoImg from "../../assets/images/LogoLight.png";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../context/useAuth";
 import { CODIGO_EMAIL_NAO_CONFIRMADO } from "../../services/api";
 import ReenviarConfirmacao from "../../components/ui/ReenviarConfirmacao";
+import EntrarComGoogle from "../../components/ui/EntrarComGoogle";
+
+// Sprint 10: a volta do Google com problema chega como /login?erro=...
+const ERROS_GOOGLE = {
+    google: "Não foi possível entrar com o Google. Tente de novo ou entre com e-mail e senha.",
+    google_email_nao_verificado: "O Google não confirmou o e-mail desta conta. Use outra conta Google ou o cadastro com e-mail.",
+    google_conta_google_diferente: "Este e-mail já tem conta no LogiCup ligada a outra conta Google. Entre com e-mail e senha.",
+};
 
 const Login = () => {
     const { login } = useAuth();
+    const [parametros] = useSearchParams();
+    const erroGoogle = ERROS_GOOGLE[parametros.get("erro")] ?? "";
 
     // "componentes controlados": o React guarda o que é digitado em cada campo
     const [identificacao, setIdentificacao] = useState(""); // e-mail OU nome de usuário
@@ -80,6 +90,9 @@ const Login = () => {
                             </LinkText>
                         </>
                     ) : (
+                    <>
+                    {erroGoogle && <ErrorMessage role="alert">{erroGoogle}</ErrorMessage>}
+                    <EntrarComGoogle />
                     <Form onSubmit={handleLogin}>
                         <InputGroup>
                             <label htmlFor="login-identificacao">E-mail ou nome de usuário</label>
@@ -125,6 +138,7 @@ const Login = () => {
                             Ainda não tem conta? <Link to="/cadastro">Cadastre-se</Link>
                         </LinkText>
                     </Form>
+                    </>
                     )}
                 </RightSide>
         </Box>

@@ -24,6 +24,7 @@ import NovaConquista from "../components/ui/NovaConquista";
 import ConfirmarEmail from "../pages/ConfirmarEmail";
 import EsqueciSenha from "../pages/EsqueciSenha";
 import RedefinirSenha from "../pages/RedefinirSenha";
+import CompletarCadastro from "../pages/CompletarCadastro";
 
 const AppRoutes = () => {
     return (
@@ -74,6 +75,15 @@ const AppRoutes = () => {
                     <>
                         <Home />
                         <ModalAuth tituloId="titulo-redefinir"><RedefinirSenha /></ModalAuth>
+                    </>
+                } />
+                {/* Sprint 10: 1ª vez de quem entrou com o Google (o backend manda para cá) */}
+                <Route path="/completar-cadastro" element={
+                    <>
+                        <Home />
+                        <PublicOnlyRoute>
+                            <ModalAuth tituloId="titulo-completar"><CompletarCadastro /></ModalAuth>
+                        </PublicOnlyRoute>
                     </>
                 } />
                 <Route path="/trilha" element={<PrivateRoute><LearningPath /></PrivateRoute>} />

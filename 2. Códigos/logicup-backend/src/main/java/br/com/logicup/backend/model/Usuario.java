@@ -109,6 +109,26 @@ public class Usuario {
 
     public String getGoogleId() { return googleId; }
 
+    /** Sprint 10 (login com Google): liga esta conta a uma conta Google ("sub" do OpenID Connect). */
+    public void ligarAoGoogle(String sub) {
+        if (sub == null || sub.isBlank()) {
+            throw new IllegalArgumentException("O identificador do Google é obrigatório");
+        }
+        if (googleId != null && !googleId.equals(sub)) {
+            throw new IllegalStateException("Esta conta já está ligada a outra conta Google");
+        }
+        this.googleId = sub;
+    }
+
+    /**
+     * Sprint 10 (decisão D4): apaga a senha de uma conta que NUNCA confirmou o e-mail, quando o dono
+     * verdadeiro do e-mail entra pelo Google. Quem cadastrou aquela senha não provou que é dono do e-mail
+     * (pode ter sido outra pessoa), então ela não pode continuar abrindo a conta.
+     */
+    public void descartarSenha() {
+        this.senha = null;
+    }
+
     public void trocarAvatar(Avatar novo) {
         this.avatar = java.util.Objects.requireNonNull(novo, "O avatar é obrigatório").name();
     }

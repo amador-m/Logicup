@@ -86,6 +86,9 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/api/auth/csrf").permitAll()
+                        // Sprint 10: login com Google (a tela de completar cadastro ainda não está logada)
+                        .requestMatchers(HttpMethod.GET, "/api/auth/provedores", "/api/auth/google/pendente").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/google/completar-cadastro").permitAll()
                         .requestMatchers(HttpMethod.POST,
                                 "/api/auth/cadastro", "/api/auth/login", "/api/auth/logout",
                                 // Sprint 10: links dos e-mails (quem usa ainda não está logado)

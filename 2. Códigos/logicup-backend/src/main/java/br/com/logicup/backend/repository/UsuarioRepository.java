@@ -13,6 +13,9 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> { // 
     // login: busca o usuário pelo e-mail (Optional = pode não existir)
     Optional<Usuario> findByEmail(String email);
 
+    /** Sprint 10: conta já ligada a esta conta Google ("sub"). */
+    Optional<Usuario> findByGoogleId(String googleId);
+
     // Sprint 7: username único (cadastro) e login por username
     boolean existsByUsername(String username);
 

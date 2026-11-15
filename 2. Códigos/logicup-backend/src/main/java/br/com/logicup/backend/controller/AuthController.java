@@ -3,8 +3,14 @@ package br.com.logicup.backend.controller;
 import br.com.logicup.backend.dto.AutenticacaoResultado;
 import br.com.logicup.backend.dto.CadastroPendenteResponse;
 import br.com.logicup.backend.dto.CadastroRequest;
+import br.com.logicup.backend.dto.CompletarCadastroGoogleRequest;
 import br.com.logicup.backend.dto.ConfirmarEmailRequest;
 import br.com.logicup.backend.dto.EmailRequest;
+import br.com.logicup.backend.dto.GooglePendenteResponse;
+import br.com.logicup.backend.exception.SessaoInvalidaException;
+import br.com.logicup.backend.google.GoogleCadastroPendente;
+import br.com.logicup.backend.google.GoogleLoginService;
+import br.com.logicup.backend.google.IdentidadeGoogle;
 import br.com.logicup.backend.dto.LoginRequest;
 import br.com.logicup.backend.dto.RedefinirSenhaRequest;
 import br.com.logicup.backend.dto.UsuarioResponse;
@@ -15,6 +21,7 @@ import br.com.logicup.backend.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,11 +29,14 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 /**
  * Endpoints de autenticação. O Controller cuida só do "HTTP":
@@ -39,11 +49,49 @@ public class AuthController {
     private final AuthService authService;
     private final TokenService tokenService;
     private final CsrfTokenRepository csrfTokenRepository;
+    private final GoogleLoginService googleLogin;          // Sprint 10
+    private final GoogleCadastroPendente googlePendente;   // Sprint 10
+    private final boolean googleLigado;                    // Sprint 10: há chave do Google configurada?
 
-    public AuthController(AuthService authService, TokenService tokenService, CsrfTokenRepository csrfTokenRepository) {
+    public AuthController(AuthService authService, TokenService tokenService, CsrfTokenRepository csrfTokenRepository,
+                          GoogleLoginService googleLogin, GoogleCadastroPendente googlePendente,
+                          @Value("${logicup.google.client-id:}") String googleClientId) {
         this.authService = authService;
         this.tokenService = tokenService;
         this.csrfTokenRepository = csrfTokenRepository;
+        this.googleLogin = googleLogin;
+        this.googlePendente = googlePendente;
+        this.googleLigado = !googleClientId.isBlank();
+    }
+
+    /** Sprint 10: quais formas de entrar estão ligadas (o React só mostra o botão do Google se estiver). */
+    @GetMapping("/provedores")
+    public Map<String, Boolean> provedores() {
+        return Map.of("google", googleLigado);
+    }
+
+    /**
+     * Sprint 10 (D3): a tela "Complete seu cadastro" pergunta quem o Google disse que é a pessoa.
+     * Sem o cookie (ou vencido, 10 min) -> 401: a tela oferece "entrar com Google de novo".
+     */
+    @GetMapping("/google/pendente")
+    public GooglePendenteResponse googlePendente(
+            @CookieValue(name = GoogleCadastroPendente.NOME_COOKIE, required = false) String cookie) {
+        IdentidadeGoogle google = googlePendente.ler(cookie).orElseThrow(SessaoInvalidaException::new);
+        return new GooglePendenteResponse(google.nome(), google.email());
+    }
+
+    /** Sprint 10 (D3): cria a conta de quem veio do Google pela 1ª vez e já deixa logado (201). */
+    @PostMapping("/google/completar-cadastro")
+    public ResponseEntity<UsuarioResponse> completarCadastroGoogle(
+            @CookieValue(name = GoogleCadastroPendente.NOME_COOKIE, required = false) String cookie,
+            @Valid @RequestBody CompletarCadastroGoogleRequest dados,
+            HttpServletRequest request, HttpServletResponse response) {
+        IdentidadeGoogle google = googlePendente.ler(cookie).orElseThrow(SessaoInvalidaException::new);
+        AutenticacaoResultado resultado = googleLogin.completarCadastro(google, dados, request.getRemoteAddr());
+        trocarTokenCsrf(request, response);
+        adicionarCookies(response, googlePendente.cookieExpirado().toString()); // já usado
+        return comCookieDeLogin(HttpStatus.CREATED, resultado, response);
     }
 
     /**

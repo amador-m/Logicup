@@ -244,6 +244,18 @@ public class AuthService {
                 .orElseThrow(SessaoInvalidaException::new);
     }
 
+    /**
+     * Sprint 10: "esta pessoa acabou de provar quem é" (hoje: pelo Google). Faz o mesmo que o fim do
+     * login por senha: avalia as conquistas do aluno e gera o token com a situação do aceite.
+     */
+    @Transactional
+    public AutenticacaoResultado entrarNaConta(Usuario usuario) {
+        if (usuario instanceof Aluno aluno) {
+            conquistaService.avaliar(aluno);
+        }
+        return autenticado(usuario, aceiteService.aceitouVersoesVigentes(usuario.getId()));
+    }
+
     private AutenticacaoResultado autenticado(Usuario usuario, boolean aceitouVersoesVigentes) {
         return new AutenticacaoResultado(UsuarioResponse.de(usuario, !aceitouVersoesVigentes),
                 tokenService.gerarToken(usuario, aceitouVersoesVigentes));

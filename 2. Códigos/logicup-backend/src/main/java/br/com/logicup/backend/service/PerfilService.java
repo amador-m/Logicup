@@ -4,6 +4,7 @@ import br.com.logicup.backend.dto.AlterarSenhaRequest;
 import br.com.logicup.backend.dto.AtualizarPerfilRequest;
 import br.com.logicup.backend.dto.UsuarioResponse;
 import br.com.logicup.backend.exception.NovaSenhaIgualException;
+import br.com.logicup.backend.exception.RequisicaoInvalidaException;
 import br.com.logicup.backend.exception.SenhaAtualIncorretaException;
 import br.com.logicup.backend.exception.SessaoInvalidaException;
 import br.com.logicup.backend.exception.UsernameEmUsoException;
@@ -54,6 +55,11 @@ public class PerfilService {
     public void alterarSenha(Integer idUsuario, AlterarSenhaRequest dados) {
         Usuario usuario = buscar(idUsuario);
 
+        // Sprint 10: conta criada pelo Google não tem senha (não há "senha atual" para conferir)
+        if (!usuario.temSenha()) {
+            throw new RequisicaoInvalidaException("Sua conta entra pelo Google e ainda não tem senha. Para criar uma, "
+                    + "saia e use \"Esqueci minha senha\" na tela de login, com o seu e-mail.");
+        }
         if (!passwordEncoder.matches(dados.senhaAtual(), usuario.getSenha())) {
             throw new SenhaAtualIncorretaException();
         }

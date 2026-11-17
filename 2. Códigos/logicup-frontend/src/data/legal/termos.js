@@ -7,6 +7,7 @@ import { VERSAO_TERMOS, ATUALIZADO_EM } from "./versoes";
  *
  * v0.3 (Sprint 9): conquistas, gemas (moeda virtual, sem valor em dinheiro) e loja de avatares.
  * v0.4 (Sprint 10): confirmação de e-mail obrigatória, recuperação de senha e canal de contato.
+ * v0.5 (Sprint 10): entrar com o Google e exclusão da conta pelo próprio perfil (também pela janela de aceite).
  *
  * Formato de cada bloco: texto = parágrafo; { lista: [...] } = lista; { tabela: {...} } = tabela.
  */
@@ -37,8 +38,8 @@ export const termos = {
                 "Para criar uma conta, você precisa ler estes Termos e aceitá-los marcando a caixa de aceite no " +
                 "formulário de cadastro. A caixa nunca vem marcada: o aceite depende de uma ação sua.",
                 "Se você não concordar com os Termos, não conclua o cadastro. Quem já tem conta e ainda não aceitou " +
-                "a versão vigente verá um pedido de aceite ao entrar; até aceitar, só consegue sair da conta ou ler " +
-                "os documentos.",
+                "a versão vigente verá um pedido de aceite ao entrar; até aceitar, só consegue ler os documentos, sair " +
+                "da conta ou excluí-la.",
                 "Estes Termos devem ser lidos junto com a Política de Privacidade. Aceitar os Termos não significa " +
                 "consentir com usos opcionais de dados pessoais: se algum dia houver um uso opcional, ele será " +
                 "pedido separadamente.",
@@ -52,7 +53,8 @@ export const termos = {
                 {
                     lista: [
                         "cadastro com confirmação do e-mail, entrada e saída da conta e criação de uma senha nova por e-mail (\"esqueci minha senha\");",
-                        "perfil, com edição de nome, nome de usuário e senha;",
+                        "entrada com a sua conta Google, se você preferir;",
+                        "perfil, com edição de nome, nome de usuário e senha, e a exclusão da conta;",
                         "uma trilha de fases e rodadas, com teoria, exemplos e exercícios;",
                         "exercícios de diferentes formatos (por exemplo, múltipla escolha, ordenação e associação), com feedback sobre cada resposta;",
                         "pontos de experiência (XP), nível e sequência de dias de estudo;",
@@ -85,8 +87,11 @@ export const termos = {
                     ],
                 },
                 "A conta é de uso individual.",
-                "Nesta versão, ainda não é possível excluir a conta pela própria plataforma. Esse pedido é atendido " +
-                "pelo canal de contato (contato@logicup.dev.br).",
+                "Se você entrar com o Google, o Google confirma quem você é. Nesse caso, a segurança da sua conta no " +
+                "LogiCup depende também da segurança da sua conta Google. Se a sua conta Google tiver o mesmo e-mail de " +
+                "uma conta que já existe no LogiCup, as duas são ligadas e você passa a poder entrar das duas formas.",
+                "Você pode excluir a sua conta a qualquer momento, pelo Perfil (veja \"Suspensão, encerramento e " +
+                "exclusão de conta\").",
             ],
         },
         {
@@ -126,6 +131,8 @@ export const termos = {
                 "A equipe pode corrigir erros de cálculo, registros inconsistentes ou falhas técnicas, procurando " +
                 "preservar os resultados legítimos. Fases, questões e critérios de pontuação podem mudar durante a " +
                 "evolução do projeto; mudanças relevantes serão comunicadas.",
+                "Ao excluir a conta, o XP, as gemas, as conquistas e os avatares são apagados junto com ela e não podem " +
+                "ser recuperados.",
                 "Por ser um projeto em desenvolvimento, não garantimos que o progresso seja preservado indefinidamente, " +
                 "especialmente em migrações ou versões experimentais. Isso não afasta responsabilidades legais aplicáveis.",
             ],
@@ -165,12 +172,16 @@ export const termos = {
         {
             titulo: "Suspensão, encerramento e exclusão de conta",
             blocos: [
-                "Você pode pedir o encerramento da sua conta pelo canal de contato (contato@logicup.dev.br).",
+                "Você pode excluir a sua conta a qualquer momento, no Perfil, na área \"Excluir conta\". A confirmação é " +
+                "feita com a sua senha ou, se você entra só com o Google, por um link enviado ao seu e-mail. A exclusão " +
+                "acontece na hora e não pode ser desfeita.",
+                "Professores precisam excluir as suas turmas antes de excluir a conta. Contas de administrador, e " +
+                "qualquer pessoa que prefira, podem pedir a exclusão pelo canal de contato (contato@logicup.dev.br).",
                 "A equipe pode suspender ou encerrar contas em casos de abuso, fraude, risco à segurança ou violação " +
                 "destes Termos, de forma proporcional e respeitando os seus direitos.",
-                "Excluir a conta não significa, necessariamente, apagar no mesmo instante todos os registros ligados a " +
-                "ela: alguns podem precisar ser guardados quando houver fundamento legal, como a comprovação do aceite " +
-                "destes Termos. Os procedimentos e prazos serão definidos na versão definitiva.",
+                "Ao excluir a conta, apagamos os dados ligados a ela. Cópias de segurança e registros técnicos ainda " +
+                "podem conter esses dados por um tempo limitado, até serem substituídos; os prazos estão na Política de " +
+                "Privacidade.",
             ],
         },
         {

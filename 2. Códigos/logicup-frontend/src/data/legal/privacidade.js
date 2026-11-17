@@ -9,6 +9,9 @@ import { VERSAO_PRIVACIDADE, ATUALIZADO_EM } from "./versoes";
  * v0.3 (Sprint 9): conquistas, gemas e avatares (tabelas aluno_conquista e aluno_avatar; usuario.avatar; aluno.gemas).
  * v0.4 (Sprint 10): confirmação de e-mail (usuario.email_confirmado_em), códigos dos links (token_usuario, só o hash),
  *   fornecedores efetivamente usados (Google Cloud, Brevo, ImprovMX) e canal de contato.
+ * v0.5 (Sprint 10): entrar com o Google (usuario.google_id), exclusão da conta pelo Perfil (o banco apaga tudo
+ *   em cascata), prazos das cópias de segurança (backup.sh: 14 cópias diárias; snapshot do disco: 7 dias),
+ *   rotação dos registros técnicos e o código enviado para execução (não é guardado).
  */
 export const privacidade = {
     slug: "privacidade",
@@ -55,15 +58,25 @@ export const privacidade = {
                         "tipo de perfil (aluno ou professor).",
                     ],
                 },
+                "Se você escolher entrar com o Google:",
+                {
+                    lista: [
+                        "o Google nos envia o seu nome, o seu e-mail, a confirmação de que esse e-mail é seu e um identificador da sua conta Google (um código que não muda). O Google também pode enviar o endereço da sua foto de perfil, que não usamos nem guardamos;",
+                        "guardamos o e-mail e o identificador, para reconhecer você nas próximas entradas. O nome serve só para preencher o formulário de cadastro, e você pode alterá-lo;",
+                        "não recebemos a sua senha do Google nem os seus contatos, arquivos, agenda ou qualquer outro dado da sua conta Google;",
+                        "quem entra só com o Google não tem senha no LogiCup. Se quiser criar uma, use \"Esqueci minha senha\" com o seu e-mail.",
+                    ],
+                },
                 "Dados gerados pelo uso da plataforma:",
                 {
                     lista: [
                         "data de cadastro;",
                         "a data em que você confirmou o seu e-mail;",
-                        "códigos dos links enviados por e-mail (confirmação da conta e criação de senha nova): guardamos só um resumo criptográfico (hash) de cada código, a finalidade, quando foi criado, quando vence e quando foi usado. O código em si não fica guardado, e os registros são apagados 30 dias depois de vencerem;",
+                        "códigos dos links enviados por e-mail (confirmação da conta, criação de senha nova e exclusão da conta): guardamos só um resumo criptográfico (hash) de cada código, a finalidade, quando foi criado, quando vence e quando foi usado. O código em si não fica guardado, e os registros são apagados 30 dias depois de vencerem;",
                         "o avatar escolhido: uma ilustração do catálogo da plataforma (não é uma foto sua);",
                         "para alunos: pontos de experiência (XP), nível, sequência de dias de estudo e data da última atividade;",
                         "para cada exercício respondido: situação (em andamento ou concluído), número de tentativas, pontos ganhos, a última resposta enviada e a data da resposta;",
+                        "o código Java que você executa no editor ou no Laboratório é enviado ao servidor de execução do próprio LogiCup, roda isolado e não é guardado. Nos exercícios de código, só a última resposta enviada fica no progresso, como nos outros exercícios. O programa do Laboratório fica salvo apenas no seu navegador;",
                         "para alunos: as conquistas desbloqueadas (qual conquista, o nível, a data e se o aviso de conquista nova já foi exibido), o saldo de gemas e os avatares comprados com gemas (qual avatar, quantas gemas custou e a data);",
                         "registro de aceite: qual documento (Termos ou Política), qual versão e a data e a hora do aceite;",
                         "se você entrar em uma turma: a turma, a situação da matrícula (ativa, saiu ou removida pelo professor), quando entrou e quando a situação mudou;",
@@ -74,7 +87,7 @@ export const privacidade = {
                 {
                     lista: [
                         "cookies necessários para manter você conectado e proteger os formulários (detalhes na Política de Cookies);",
-                        "registros técnicos de funcionamento do servidor (por exemplo, erros e pedidos bloqueados pela proteção de segurança), que podem conter o endereço da página pedida, informações técnicas do pedido e, em algumas situações de erro, parte dos dados enviados (por exemplo, um e-mail ou nome de usuário que já estava cadastrado). A aplicação não registra o seu endereço IP nesses registros.",
+                        "registros técnicos de funcionamento do servidor (por exemplo, erros e pedidos bloqueados pela proteção de segurança), que podem conter o endereço da página pedida, informações técnicas do pedido e, em algumas situações de erro, parte dos dados enviados (por exemplo, um e-mail ou nome de usuário que já estava cadastrado). Quando aparece um e-mail no registro de envio de e-mails, ele fica parcialmente escondido. A aplicação não registra o seu endereço IP nesses registros.",
                     ],
                 },
                 "Não pedimos data de nascimento, documentos, telefone, endereço ou foto, e não usamos ferramentas de " +
@@ -88,8 +101,9 @@ export const privacidade = {
                     lista: [
                         "criar e administrar a sua conta;",
                         "confirmar que o e-mail informado no cadastro pertence a você;",
-                        "enviar e-mails da própria conta: confirmação do cadastro, boas-vindas e o link de \"esqueci minha senha\". Não enviamos e-mails de propaganda;",
-                        "confirmar a sua identidade ao entrar e manter a sessão aberta;",
+                        "enviar e-mails da própria conta: confirmação do cadastro, boas-vindas, o link de \"esqueci minha senha\", o link e o aviso de exclusão da conta. Não enviamos e-mails de propaganda;",
+                        "confirmar a sua identidade ao entrar, inclusive pelo Google, se você escolher essa opção, e manter a sessão aberta;",
+                        "excluir a sua conta quando você pedir;",
                         "mostrar exercícios, corrigir respostas e dar feedback;",
                         "registrar XP, nível, sequência de estudo e progresso na trilha;",
                         "montar o ranking geral e o ranking da turma;",
@@ -140,18 +154,20 @@ export const privacidade = {
                         colunas: ["Dados", "Para quê", "Por quanto tempo"],
                         linhas: [
                             ["Cadastro (nome, nome de usuário, e-mail, hash da senha, perfil)", "Criar e administrar a conta", "Enquanto a conta existir"],
+                            ["Identificador da conta Google (só se você entrar com o Google)", "Reconhecer você nas próximas entradas pelo Google", "Enquanto a conta existir"],
                             ["Data de confirmação do e-mail", "Liberar a entrada na conta", "Enquanto a conta existir"],
-                            ["Códigos dos links enviados por e-mail (só o hash)", "Confirmar o e-mail e criar uma senha nova", "Até 30 dias depois de vencerem (o link em si vale 24 horas ou 30 minutos)"],
+                            ["Códigos dos links enviados por e-mail (só o hash)", "Confirmar o e-mail, criar uma senha nova e confirmar a exclusão da conta", "Até 30 dias depois de vencerem (o link em si vale 24 horas ou 30 minutos), ou até a conta ser excluída"],
                             ["Sessão (cookie de login)", "Manter você conectado", "Até 8 horas ou até você sair"],
                             ["Progresso (XP, nível, respostas, tentativas)", "Oferecer os exercícios e acompanhar a aprendizagem", "Enquanto a conta existir"],
                             ["Conquistas, gemas e avatares", "Gamificação: medalhas, saldo de gemas e loja de avatares", "Enquanto a conta existir"],
                             ["Turma (matrícula e tarefas)", "Acompanhamento pelo professor e ranking da turma", "Enquanto a turma existir; excluir a turma apaga as matrículas e as tarefas, mas não o seu progresso"],
-                            ["Registros de aceite", "Comprovar a versão aceita e a data", "Enquanto a conta existir; a guarda após a exclusão será definida na versão definitiva"],
-                            ["Registros técnicos do servidor", "Diagnosticar falhas e proteger a aplicação", "Prazo a ser definido na versão definitiva"],
+                            ["Registros de aceite", "Comprovar a versão aceita e a data", "Enquanto a conta existir"],
+                            ["Registros técnicos do servidor", "Diagnosticar falhas e proteger a aplicação", "Substituídos automaticamente pelos mais novos (o servidor guarda um volume limitado de registros)"],
+                            ["Cópias de segurança do banco de dados", "Recuperar a plataforma em caso de falha", "As cópias diárias dos últimos 14 dias"],
                         ],
                     },
                 },
-                "Prazos de guarda depois da exclusão de uma conta ainda não foram definidos.",
+                "\"Enquanto a conta existir\" quer dizer: até você excluir a conta (veja \"Retenção e exclusão\").",
             ],
         },
         {
@@ -164,6 +180,7 @@ export const privacidade = {
                 {
                     lista: [
                         "Google Cloud (hospedagem): os servidores e o banco de dados ficam na região de São Paulo, no Brasil.",
+                        "Google (entrar com o Google, só se você escolher essa opção): a entrada acontece na página do próprio Google, que confirma quem você é e nos envia os dados descritos acima. O Google fica sabendo que você entrou no LogiCup e trata os dados da sua conta Google conforme a política de privacidade dele. O Google é uma empresa dos Estados Unidos; por isso, esses dados podem ser tratados fora do Brasil.",
                         "Brevo (envio de e-mails): recebe o seu e-mail, o seu primeiro nome e o conteúdo da mensagem para entregá-la. A Brevo é uma empresa europeia e informa que guarda os dados em servidores na União Europeia; por isso, esses dados podem ser tratados fora do Brasil.",
                         "ImprovMX (encaminhamento de e-mails): as mensagens que você enviar para endereços @logicup.dev.br, como contato@logicup.dev.br, passam por esse serviço, de uma empresa dos Estados Unidos, antes de chegar à caixa da equipe.",
                     ],
@@ -180,6 +197,8 @@ export const privacidade = {
                         "o e-mail precisa ser confirmado antes do primeiro acesso;",
                         "os links enviados por e-mail valem uma única vez e por pouco tempo (24 horas para confirmar a conta, 30 minutos para criar uma senha nova);",
                         "limite de pedidos de e-mail, para impedir que alguém encha a caixa de entrada de outra pessoa;",
+                        "na entrada com o Google, só aceitamos e-mails que o próprio Google confirma pertencerem a você;",
+                        "a exclusão da conta exige a sua senha ou um link de uso único enviado ao seu e-mail (válido por 30 minutos);",
                         "cookie de login inacessível a scripts da página e enviado apenas ao próprio site;",
                         "proteção contra pedidos forjados por outros sites (CSRF e verificação de origem);",
                         "acesso a cada recurso conforme o tipo de perfil.",
@@ -192,12 +211,26 @@ export const privacidade = {
         {
             titulo: "Retenção e exclusão",
             blocos: [
-                "Os dados são mantidos enquanto forem necessários para as finalidades descritas.",
-                "Nesta versão, ainda não é possível excluir a conta pela própria plataforma. Pedidos de exclusão " +
-                "são atendidos pelo canal de contato (contato@logicup.dev.br).",
-                "Excluir a conta não significa, necessariamente, apagar no mesmo instante todos os registros: alguns " +
-                "podem precisar ser guardados quando houver fundamento legal. Procedimentos e prazos serão definidos " +
-                "na versão definitiva.",
+                "Os dados são mantidos enquanto a conta existir e forem necessários para as finalidades descritas.",
+                "Você pode excluir a sua conta a qualquer momento, no Perfil, na área \"Excluir conta\". Quem tem senha " +
+                "confirma digitando a senha. Quem entra só com o Google recebe um link no e-mail, válido por 30 minutos, " +
+                "e confirma por ele. Também é possível excluir a conta pela janela que pede o aceite de uma versão nova " +
+                "destes documentos, se você não concordar com ela.",
+                "Ao excluir, apagamos na hora a conta e tudo o que está ligado a ela: dados de cadastro, identificador " +
+                "do Google, progresso e respostas, XP, conquistas, gemas, avatares, matrículas em turmas, registros de " +
+                "aceite e códigos de e-mail. Em seguida, enviamos um e-mail avisando que a conta foi excluída. A exclusão " +
+                "não pode ser desfeita.",
+                "Algumas cópias continuam existindo por um tempo limitado:",
+                {
+                    lista: [
+                        "cópias de segurança: o banco de dados é copiado todos os dias, e guardamos as cópias dos últimos 14 dias; o disco do servidor também tem uma cópia diária guardada por 7 dias. Os dados de uma conta excluída podem continuar nessas cópias por até cerca de 14 dias, até elas serem substituídas. As cópias só são usadas para recuperar a plataforma em caso de falha;",
+                        "registros técnicos do servidor: são substituídos automaticamente pelos mais novos;",
+                        "Brevo: guarda registros dos e-mails que enviou (por exemplo, destinatário, assunto e data) pelo prazo definido por ela.",
+                    ],
+                },
+                "Professores precisam excluir as suas turmas antes de excluir a conta, para nenhum aluno ficar em uma " +
+                "turma sem professor. Contas de administrador são excluídas pelo canal de contato " +
+                "(contato@logicup.dev.br), que também atende qualquer pedido de exclusão.",
             ],
         },
         {
@@ -209,7 +242,7 @@ export const privacidade = {
                         "confirmação de que tratamos seus dados;",
                         "acesso aos seus dados;",
                         "correção de dados incompletos, inexatos ou desatualizados (nome, nome de usuário e senha você mesmo pode alterar no perfil);",
-                        "anonimização, bloqueio ou eliminação de dados desnecessários, excessivos ou tratados em desconformidade com a lei;",
+                        "anonimização, bloqueio ou eliminação de dados desnecessários, excessivos ou tratados em desconformidade com a lei (a exclusão da conta inteira você mesmo pode fazer no perfil);",
                         "portabilidade, conforme a regulamentação;",
                         "informação sobre com quem seus dados foram compartilhados;",
                         "informação sobre a possibilidade de não consentir e suas consequências, e revogação do consentimento, quando o tratamento se basear nele;",

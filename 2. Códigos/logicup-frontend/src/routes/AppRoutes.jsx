@@ -26,6 +26,7 @@ import EsqueciSenha from "../pages/EsqueciSenha";
 import RedefinirSenha from "../pages/RedefinirSenha";
 import CompletarCadastro from "../pages/CompletarCadastro";
 import ExcluirConta from "../pages/ExcluirConta";
+import Nivelamento from "../pages/Nivelamento";
 
 const AppRoutes = () => {
     return (
@@ -95,6 +96,8 @@ const AppRoutes = () => {
                     </>
                 } />
                 <Route path="/trilha" element={<PrivateRoute><LearningPath /></PrivateRoute>} />
+                {/* Sprint 11: quiz de nivelamento (primeiro acesso do aluno) */}
+                <Route path="/nivelamento" element={<PrivateRoute><Nivelamento /></PrivateRoute>} />
                 <Route path="/missao/:faseId" element={<PrivateRoute><Mission /></PrivateRoute>} />
                 <Route path="/ranking" element={<PrivateRoute><Ranking /></PrivateRoute>} />
                 <Route path="/perfil" element={<PrivateRoute><Profile /></PrivateRoute>} />

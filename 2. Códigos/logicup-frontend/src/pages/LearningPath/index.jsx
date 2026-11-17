@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "../../components/layout/Header";
 import Footer from "../../components/layout/Footer/index.jsx";
 import { useAuth } from "../../context/useAuth";
-import { trilhaApi } from "../../services/api";
+import { nivelamentoApi, trilhaApi } from "../../services/api";
 import { STATUS_FASE, coresDoIcone, montarMapa } from "../../util/trilha";
 import AvatarUsuario from "../../components/ui/AvatarUsuario";
 import { iconeFase } from "../../assets/fases";
@@ -25,6 +25,7 @@ import {
     MascoteAtual,
     ActionButton,
     StatusMessage,
+    ConviteNivelamento,
 } from "./styles";
 
 /** Só fases que existem e não estão bloqueadas podem ser abertas. */
@@ -91,6 +92,30 @@ const LearningPath = () => {
     const [erro, setErro] = useState(null);        // mensagem de erro para a tela
     const [carregando, setCarregando] = useState(true);
     const [tentativa, setTentativa] = useState(0); // muda -> o efeito busca de novo
+    // Sprint 11: situação do nivelamento (só aluno). null = ainda não sabemos (ou não se aplica)
+    const [nivelamento, setNivelamento] = useState(null);
+    const [recusando, setRecusando] = useState(false);
+    const ehAluno = usuario?.role === "ALUNO";
+
+    useEffect(() => {
+        if (!ehAluno) return undefined;
+        let ativo = true;
+        // se falhar, a trilha funciona do mesmo jeito: só não mostramos o convite
+        nivelamentoApi.situacao().then((dados) => ativo && setNivelamento(dados)).catch(() => {});
+        return () => {
+            ativo = false;
+        };
+    }, [ehAluno]);
+
+    const comecarDoZero = async () => {
+        setRecusando(true);
+        try {
+            await nivelamentoApi.recusar();
+            setNivelamento({ situacao: "NAO_QUIS", fasesLiberadas: 0 });
+        } catch {
+            setRecusando(false);
+        }
+    };
 
     useEffect(() => {
         let ativo = true; // se o usuário sair da tela antes da resposta, não atualiza nada
@@ -119,7 +144,12 @@ const LearningPath = () => {
      * Fase "atual" = a primeira disponível que ainda não foi concluída (é onde o mascote fica).
      * Se o aluno concluiu tudo o que existe, a atual é a última concluída. Professor/admin não têm fase atual.
      */
-    const indiceDisponivel = fases.findIndex((fase) => fase.status === STATUS_FASE.DISPONIVEL);
+    // Sprint 11: as fases liberadas pelo nivelamento ficam "disponíveis", mas o aluno começa DEPOIS delas
+    const fasesNiveladas = nivelamento?.fasesLiberadas ?? 0;
+    const indicePrimeiraDisponivel = fases.findIndex((fase) => fase.status === STATUS_FASE.DISPONIVEL);
+    const indiceDepoisDoNivelamento = fases.findIndex(
+        (fase) => fase.status === STATUS_FASE.DISPONIVEL && fase.ordem > fasesNiveladas);
+    const indiceDisponivel = indiceDepoisDoNivelamento >= 0 ? indiceDepoisDoNivelamento : indicePrimeiraDisponivel;
     const indiceUltimaConcluida = fases.map((fase) => fase.status).lastIndexOf(STATUS_FASE.CONCLUIDA);
     const indiceAtual = somenteLeitura ? -1 : (indiceDisponivel >= 0 ? indiceDisponivel : indiceUltimaConcluida);
     const alturaTrilha = TOPO + fases.length * PASSO;
@@ -176,6 +206,28 @@ const LearningPath = () => {
                         )}
                     </UserInfo>
                 </Hero>
+
+                {/* Sprint 11: convite do nivelamento, só no primeiro acesso (antes de responder qualquer coisa) */}
+                {nivelamento?.situacao === "PENDENTE" && (
+                    <ConviteNivelamento aria-labelledby="titulo-convite-nivelamento">
+                        <img src={MascoteImg} alt="" />
+                        <div>
+                            <h2 id="titulo-convite-nivelamento">Já sabe um pouco de Java?</h2>
+                            <p>
+                                Faça o nivelamento: são 10 questões rápidas. As fases que você já dominar ficam
+                                liberadas, e você começa mais adiante. Ele só aparece agora, no primeiro acesso.
+                            </p>
+                            <div className="botoes">
+                                <ActionButton type="button" onClick={() => navigate("/nivelamento")}>
+                                    Fazer o nivelamento
+                                </ActionButton>
+                                <button type="button" className="texto" onClick={comecarDoZero} disabled={recusando}>
+                                    Prefiro começar do zero
+                                </button>
+                            </div>
+                        </div>
+                    </ConviteNivelamento>
+                )}
 
                 <Mapa aria-label="Mapa de fases da trilha">
                     {carregando && <StatusMessage role="status">Carregando sua trilha...</StatusMessage>}
@@ -252,6 +304,9 @@ const LearningPath = () => {
                                                 </span>
                                             )}
                                             {fase.status === STATUS_FASE.BLOQUEADA && <span className="selo">🔒 Bloqueada</span>}
+                                            {fase.status === STATUS_FASE.DISPONIVEL && fase.ordem <= fasesNiveladas && (
+                                                <span className="selo nivelada">✓ Liberada pelo nivelamento</span>
+                                            )}
                                             {fase.status === STATUS_FASE.EM_BREVE && <span className="selo">Em breve</span>}
                                         </Rotulo>
                                     </No>

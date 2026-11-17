@@ -411,6 +411,12 @@ export const Rotulo = styled.div`
     color: var(--brown-dark);
   }
 
+  /* Sprint 11: fase liberada pelo nivelamento (verde: "pode pular", mas continua aberta) */
+  .selo.nivelada {
+    background: rgba(40, 128, 120, 0.16);
+    color: var(--green);
+  }
+
   &.locked h2,
   &.soon h2 {
     color: var(--brown-light);
@@ -480,6 +486,82 @@ export const MascoteAtual = styled.div`
   @media (prefers-reduced-motion: reduce) {
     img {
       animation: none;
+    }
+  }
+`;
+
+/* ---------- Sprint 11: convite do nivelamento (primeiro acesso) ---------- */
+export const ConviteNivelamento = styled.section`
+  margin: 0 120px 30px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  background: var(--cream);
+  color: var(--dark);
+  border: 4px solid var(--yellow);
+  border-radius: 28px;
+  padding: 22px 28px;
+  box-shadow: 0 18px 45px rgba(4, 4, 35, 0.28);
+
+  img {
+    width: 96px;
+    flex-shrink: 0;
+  }
+
+  h2 {
+    font-size: 24px;
+    margin-bottom: 6px;
+  }
+
+  p {
+    line-height: 1.6;
+    color: var(--brown-dark);
+  }
+
+  .botoes {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+
+  .botoes button:first-child {
+    width: auto;
+    padding: 13px 24px;
+  }
+
+  .texto {
+    background: none;
+    border: none;
+    color: var(--brown-dark);
+    font-weight: 800;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 6px;
+  }
+
+  .texto:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .texto:focus-visible {
+    outline: 3px solid var(--yellow);
+    outline-offset: 2px;
+  }
+
+  /* mesmas margens laterais da faixa de título (Hero) logo acima */
+  @media (max-width: 900px) {
+    margin: 0 20px 24px;
+  }
+
+  @media (max-width: 700px) {
+    flex-direction: column;
+    text-align: center;
+
+    .botoes {
+      justify-content: center;
     }
   }
 `;

@@ -156,6 +156,16 @@ export const authApi = {
  * o que está liberado, se a resposta está certa, quanto XP o aluno ganhou.
  * O frontend só exibe o resultado — por isso o gabarito nunca chega aqui.
  */
+/* Sprint 11: quiz de nivelamento (só aluno). */
+export const nivelamentoApi = {
+    /** { situacao: PENDENTE | FEITO | NAO_QUIS | NAO_DISPONIVEL, questoes (se PENDENTE), fasesLiberadas (se FEITO) } */
+    situacao: () => requisicao("/nivelamento"),
+    /** respostas = [{ questaoId, alternativa }] -> { acertos, total, fasesLiberadas, nivelAtual, correcoes } */
+    responder: (respostas) => requisicao("/nivelamento/respostas", { method: "POST", body: { respostas } }),
+    /** "Prefiro começar do zero" (204). */
+    recusar: () => requisicao("/nivelamento/recusa", { method: "POST" }),
+};
+
 export const trilhaApi = {
     /** Fases -> rodadas com status, e o resumo do aluno (xp, nível, streak; null para professor/admin). */
     trilha: () => requisicao("/trilha"),

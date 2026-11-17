@@ -233,6 +233,7 @@ CREATE TABLE `usuario` (
   `data_cadastro` datetime DEFAULT CURRENT_TIMESTAMP,
   `email_confirmado_em` datetime DEFAULT NULL COMMENT 'NULL = e-mail ainda não confirmado (não entra)',
   `google_id` varchar(255) DEFAULT NULL COMMENT 'sub do Google (OpenID Connect); NULL = não usa o Google',
+  `bloqueado_em` datetime DEFAULT NULL COMMENT 'Sprint 11 (migração 14): bloqueada pelo admin; NULL = ativa',
   PRIMARY KEY (`id_usuario`),
   UNIQUE KEY `e_mail` (`e_mail`),
   UNIQUE KEY `uk_usuario_username` (`username`),

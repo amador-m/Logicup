@@ -531,24 +531,36 @@ export const ConviteNivelamento = styled.section`
     padding: 13px 24px;
   }
 
-  .texto {
-    background: none;
-    border: none;
+  /* "Prefiro começar do zero": botão de contorno, mesma altura do principal (2px de borda + 11px = 13px) */
+  .secundario {
+    background: transparent;
+    border: 2px solid var(--brown-dark);
     color: var(--brown-dark);
+    padding: 11px 22px;
+    border-radius: 16px;
     font-weight: 800;
-    text-decoration: underline;
     cursor: pointer;
-    padding: 6px;
+    transition: background-color 0.2s ease;
   }
 
-  .texto:disabled {
+  .secundario:hover:not(:disabled) {
+    background: rgba(118, 73, 53, 0.1);
+  }
+
+  .secundario:disabled {
     opacity: 0.55;
     cursor: not-allowed;
   }
 
-  .texto:focus-visible {
+  .secundario:focus-visible {
     outline: 3px solid var(--yellow);
     outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .secundario {
+      transition: none;
+    }
   }
 
   /* mesmas margens laterais da faixa de título (Hero) logo acima */

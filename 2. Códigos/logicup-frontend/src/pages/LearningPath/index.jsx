@@ -221,7 +221,7 @@ const LearningPath = () => {
                                 <ActionButton type="button" onClick={() => navigate("/nivelamento")}>
                                     Fazer o nivelamento
                                 </ActionButton>
-                                <button type="button" className="texto" onClick={comecarDoZero} disabled={recusando}>
+                                <button type="button" className="secundario" onClick={comecarDoZero} disabled={recusando}>
                                     Prefiro começar do zero
                                 </button>
                             </div>

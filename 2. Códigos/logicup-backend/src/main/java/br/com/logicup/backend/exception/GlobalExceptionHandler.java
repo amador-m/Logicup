@@ -72,7 +72,8 @@ public class GlobalExceptionHandler {
     }
 
     // Sprint 9: turmas
-    @ExceptionHandler({AlunoJaTemTurmaException.class, TarefaJaAtribuidaException.class})
+    @ExceptionHandler({AlunoJaTemTurmaException.class, TarefaJaAtribuidaException.class,
+            NivelamentoJaRealizadoException.class}) // Sprint 11
     public ResponseEntity<ErroResponse> conflitoTurma(RuntimeException ex) {
         return resposta(HttpStatus.CONFLICT, new ErroResponse(409, "Conflito", ex.getMessage()));
     }

@@ -7,12 +7,14 @@ import br.com.logicup.backend.dto.TrilhaResponse;
 import br.com.logicup.backend.exception.SessaoInvalidaException;
 import br.com.logicup.backend.model.Exercicio;
 import br.com.logicup.backend.model.Modulo;
+import br.com.logicup.backend.model.Nivelamento;
 import br.com.logicup.backend.model.ProgressoExercicio;
 import br.com.logicup.backend.model.Rodada;
 import br.com.logicup.backend.model.StatusRodada;
 import br.com.logicup.backend.model.TipoExercicio;
 import br.com.logicup.backend.repository.AlunoRepository;
 import br.com.logicup.backend.repository.ExercicioRepository;
+import br.com.logicup.backend.repository.NivelamentoRepository;
 import br.com.logicup.backend.repository.ProgressoExercicioRepository;
 import br.com.logicup.backend.repository.RodadaRepository;
 import br.com.logicup.backend.security.UsuarioLogado;
@@ -40,11 +42,13 @@ public class TrilhaService {
     private final ExercicioRepository exercicioRepository;
     private final ProgressoExercicioRepository progressoRepository;
     private final AlunoRepository alunoRepository;
+    private final NivelamentoRepository nivelamentoRepository; // Sprint 11
     private final Clock clock;
 
     public TrilhaService(RodadaRepository rodadaRepository, ExercicioRepository exercicioRepository,
                          ProgressoExercicioRepository progressoRepository, AlunoRepository alunoRepository,
-                         Clock clock) {
+                         NivelamentoRepository nivelamentoRepository, Clock clock) {
+        this.nivelamentoRepository = nivelamentoRepository;
         this.rodadaRepository = rodadaRepository;
         this.exercicioRepository = exercicioRepository;
         this.progressoRepository = progressoRepository;
@@ -90,7 +94,14 @@ public class TrilhaService {
                     .map(rodada -> RegrasTrilha.rodadaAprovada(
                             paraRegras(porRodada.getOrDefault(rodada.getId(), List.of())), concluidos))
                     .toList();
-            status = RegrasTrilha.calcularStatus(aprovadas);
+            // Sprint 11: rodadas das fases liberadas pelo nivelamento (1 consulta; 0 se não fez)
+            int fasesNiveladas = nivelamentoRepository.findById(usuario.id())
+                    .map(Nivelamento::getFasesLiberadas).orElse(0);
+            List<Boolean> niveladas = rodadas.stream()
+                    .map(rodada -> RegrasTrilha.faseLiberadaPeloNivelamento(rodada.getModulo().getOrdenacao(),
+                            fasesNiveladas))
+                    .toList();
+            status = RegrasTrilha.calcularStatus(aprovadas, niveladas);
         } else {
             status = rodadas.stream().map(rodada -> StatusRodada.LIBERADA).toList(); // T3: professor/admin
         }

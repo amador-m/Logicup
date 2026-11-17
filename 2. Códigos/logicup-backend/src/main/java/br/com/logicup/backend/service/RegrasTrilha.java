@@ -4,6 +4,7 @@ import br.com.logicup.backend.model.StatusRodada;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -41,17 +42,59 @@ public final class RegrasTrilha {
      * @param aprovadasEmOrdem para cada rodada, na ordem da trilha, se ela está aprovada
      */
     public static List<StatusRodada> calcularStatus(List<Boolean> aprovadasEmOrdem) {
+        return calcularStatus(aprovadasEmOrdem, aprovadasEmOrdem.stream().map(aprovada -> false).toList());
+    }
+
+    /**
+     * Sprint 11 (nivelamento): igual ao de cima, mas algumas rodadas podem ter sido "liberadas pelo
+     * nivelamento". Para DESBLOQUEAR a seguinte, essas contam como cumpridas; elas mesmas ficam LIBERADAS
+     * (e não APROVADAS), porque o aluno ainda não as fez: XP, gemas e conquistas só vêm fazendo.
+     *
+     * @param liberadasPeloNivelamento para cada rodada, na mesma ordem, se o nivelamento a liberou
+     */
+    public static List<StatusRodada> calcularStatus(List<Boolean> aprovadasEmOrdem,
+                                                    List<Boolean> liberadasPeloNivelamento) {
+        if (aprovadasEmOrdem.size() != liberadasPeloNivelamento.size()) {
+            throw new IllegalArgumentException("As duas listas precisam ter uma posição por rodada");
+        }
         List<StatusRodada> status = new ArrayList<>();
-        boolean anteriorAprovada = true; // "antes" da primeira rodada não há nada a cumprir
-        for (boolean aprovada : aprovadasEmOrdem) {
+        boolean anteriorCumprida = true; // "antes" da primeira rodada não há nada a cumprir
+        for (int i = 0; i < aprovadasEmOrdem.size(); i++) {
+            boolean aprovada = aprovadasEmOrdem.get(i);
+            boolean nivelada = liberadasPeloNivelamento.get(i);
             if (aprovada) {
                 status.add(StatusRodada.APROVADA);
             } else {
-                status.add(anteriorAprovada ? StatusRodada.LIBERADA : StatusRodada.BLOQUEADA);
+                status.add(anteriorCumprida || nivelada ? StatusRodada.LIBERADA : StatusRodada.BLOQUEADA);
             }
-            anteriorAprovada = aprovada;
+            anteriorCumprida = aprovada || nivelada;
         }
         return status;
+    }
+
+    /** Sprint 11: a fase (ordenação 1, 2, 3...) está entre as liberadas pelo nivelamento? */
+    public static boolean faseLiberadaPeloNivelamento(int ordenacaoDaFase, int fasesLiberadas) {
+        return ordenacaoDaFase >= 1 && ordenacaoDaFase <= fasesLiberadas;
+    }
+
+    /**
+     * Sprint 11 (nivelamento): quantas fases o aluno DOMINOU EM SEQUÊNCIA, a partir da Fase 1.
+     * Uma fase é dominada quando o aluno acertou TODAS as questões dela. Na primeira fase não dominada,
+     * a contagem para: quem erra a Fase 2 começa na Fase 2, mesmo que acerte a Fase 3 (o conteúdo é
+     * cumulativo, e um "buraco" no começo atrapalharia o resto).
+     *
+     * @param acertouPorFase fase (1, 2, 3...) -> se acertou cada questão daquela fase
+     */
+    public static int fasesDominadasEmSequencia(Map<Integer, List<Boolean>> acertouPorFase) {
+        int fases = 0;
+        for (int fase = 1; acertouPorFase.containsKey(fase); fase++) {
+            List<Boolean> acertos = acertouPorFase.get(fase);
+            if (acertos.isEmpty() || acertos.contains(false)) {
+                break;
+            }
+            fases = fase;
+        }
+        return fases;
     }
 
     /**

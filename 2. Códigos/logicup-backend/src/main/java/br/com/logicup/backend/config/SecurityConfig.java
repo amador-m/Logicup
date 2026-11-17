@@ -107,6 +107,7 @@ public class SecurityConfig {
                         // Sprint 9: conquistas e compra de avatar são do ALUNO (só ele tem progresso e gemas).
                         // O catálogo (GET /api/avatares) e a troca do avatar (PUT /api/perfil/avatar) valem para todos.
                         .requestMatchers("/api/conquistas", "/api/conquistas/**").hasRole("ALUNO")
+                        .requestMatchers("/api/nivelamento", "/api/nivelamento/**").hasRole("ALUNO") // Sprint 11
                         .requestMatchers(HttpMethod.POST, "/api/avatares/*/compra").hasRole("ALUNO")
                         .anyRequest().authenticated()) // todo o resto exige login (AU5)
 

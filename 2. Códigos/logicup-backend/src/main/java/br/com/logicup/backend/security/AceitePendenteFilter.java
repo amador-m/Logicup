@@ -16,6 +16,8 @@ import java.util.List;
 /**
  * Sprint 8: quem está logado mas NÃO aceitou a versão vigente dos Termos/Privacidade só pode
  * ver quem é (/api/auth/me), sair e aceitar (/api/legal/**). O resto da API responde 403 ACEITE_PENDENTE.
+ * Sprint 10: também pode EXCLUIR a conta (/api/perfil/exclusao e /api/perfil/exclusao/link). Quem não concorda
+ * com a versão nova dos documentos precisa ter a opção de ir embora levando os dados junto (LGPD).
  *
  * O aceite está DENTRO do token (claim "aceite", assinada pelo servidor): este filtro não consulta o banco.
  * Roda DEPOIS da autenticação JWT (precisa saber quem é). Sem login, não faz nada: a autorização
@@ -28,7 +30,7 @@ public class AceitePendenteFilter extends OncePerRequestFilter {
     static final String MENSAGEM = "Para continuar, aceite os Termos de Uso e confirme a leitura da Política de Privacidade.";
 
     /** Rotas liberadas mesmo com aceite pendente. */
-    private static final List<String> LIBERADAS = List.of("/api/auth/", "/api/legal/", "/error");
+    private static final List<String> LIBERADAS = List.of("/api/auth/", "/api/legal/", "/api/perfil/exclusao", "/error");
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,

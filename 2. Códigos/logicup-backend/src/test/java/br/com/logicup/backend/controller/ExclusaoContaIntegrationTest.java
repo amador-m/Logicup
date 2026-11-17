@@ -189,6 +189,23 @@ class ExclusaoContaIntegrationTest {
         assertTrue(existe(aluno.getId()));
     }
 
+    @Test
+    void quemNaoAceitouAVersaoNovaDosTermosPodeExcluirAConta() throws Exception {
+        // token com o aceite de uma versão ANTIGA: o resto da API responde 403 ACEITE_PENDENTE...
+        Aluno aluno = aluno("it.ex.pendente", true);
+        RequestPostProcessor semAceite = jwt().jwt(t -> t.subject(String.valueOf(aluno.getId())).claim("role", "ALUNO")
+                        .claim(TokenService.CLAIM_ACEITE, "T0.1|P0.1"))
+                .authorities(new SimpleGrantedAuthority("ROLE_ALUNO"));
+        mockMvc.perform(get("/api/trilha").with(semAceite))
+                .andExpect(status().isForbidden()).andExpect(jsonPath("$.codigo").value("ACEITE_PENDENTE"));
+
+        // ...mas excluir a conta continua liberado (quem não concorda pode ir embora levando os dados junto)
+        mockMvc.perform(post("/api/perfil/exclusao").with(semAceite).with(csrfValido())
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"senhaAtual\": \"" + SENHA + "\"}"))
+                .andExpect(status().isNoContent());
+        assertFalse(existe(aluno.getId()));
+    }
+
     // ---------------- quem não pode ----------------
 
     @Test

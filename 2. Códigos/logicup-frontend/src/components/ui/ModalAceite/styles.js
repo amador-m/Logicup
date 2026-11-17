@@ -125,3 +125,62 @@ export const BotaoSair = styled.button`
     outline-offset: 2px;
   }
 `;
+
+/* ---------- Sprint 10: "Prefiro excluir minha conta" ---------- */
+
+/* discreto de propósito: é uma saída possível, não a ação principal da janela */
+export const LinkExcluir = styled.button`
+  display: block;
+  margin: 14px auto 0;
+  padding: 4px 8px;
+  border: none;
+  background: none;
+  color: var(--orange);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--yellow);
+    outline-offset: 2px;
+  }
+`;
+
+export const CampoSenha = styled.label`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+  font-size: 14px;
+  font-weight: 600;
+
+  input {
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 2px solid rgba(118, 73, 53, 0.3);
+    font-size: 15px;
+    background: var(--white);
+  }
+
+  input:focus-visible {
+    outline: none;
+    border-color: var(--yellow);
+  }
+`;
+
+export const BotaoExcluir = styled(BotaoAceitar)`
+  background: var(--orange);
+`;
+
+export const Sucesso = styled.p`
+  margin-top: 16px;
+  color: var(--green);
+  font-weight: 700;
+  font-size: 14px;
+`;

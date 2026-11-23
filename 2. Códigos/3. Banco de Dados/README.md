@@ -28,6 +28,8 @@ Esta pasta é a **fonte da verdade do banco de dados**: a estrutura (schema), o 
 | `13_reverter_nivelamento.sql` | Desfaz a 13 (apaga as duas tabelas; quem fez o nivelamento perde as fases liberadas por ele, mas não o progresso real). | Sim (estrutura) |
 | `14_migracao_bloqueio_usuario.sql` | **Sprint 11 (17/11).** Gestão de usuários: `usuario` ganha `bloqueado_em` (NULL = conta ativa). Não altera nenhuma linha. **Aplicar junto com o backend da área do admin.** | Sim (estrutura) |
 | `14_reverter_bloqueio_usuario.sql` | Desfaz a 14 (contas bloqueadas voltam a entrar). | Sim (estrutura) |
+| `15_migracao_blog.sql` | **Sprint 11 (17/11).** Blog: cria `post_blog` com 5 **rascunhos** (não publicados) para a equipe revisar. Não altera nenhuma tabela existente. Rodar de novo não duplica. Também serve para **instalação nova**. **Aplicar junto com o backend do blog.** | Sim (estrutura + 5 rascunhos) |
+| `15_reverter_blog.sql` | Desfaz a 15 (apaga todos os posts, inclusive os publicados). | Sim (estrutura) |
 | `gerador/codigo/` | Programas de teste das 9 questões de código (`questoes_codigo.py`), o gerador/validador (`gerar_questoes_codigo.py`), a conversão usada pelo seed e pela 07b (`aplicar_codigo.py`) e o gerador da 07b. | — |
 | `gerador/ajustes_seed.py` | O que o documento não diz de forma legível por programa: as respostas aceitas das lacunas, os ícones da F1.Q8 e as saídas de várias linhas. | — |
 | `historico/` | As migrações antigas (S6 a S9) e o gerador antigo da Fase 1. Ficam só como registro. | — |
@@ -44,7 +46,7 @@ Esta pasta é a **fonte da verdade do banco de dados**: a estrutura (schema), o 
 4. Execute `01_schema.sql` (o arquivo inteiro).
 5. Execute `02_seed_conteudo.sql`. A primeira consulta precisa mostrar "OK: banco vazio, pode seguir".
 6. Execute `03_conferencia_seed.sql`. As 26 linhas do primeiro resultado precisam estar "OK".
-7. Execute `13_migracao_nivelamento.sql` (as 10 questões do nivelamento). A conferência mostra 2 questões em cada fase de 1 a 5.
+7. Execute `13_migracao_nivelamento.sql` (as 10 questões do nivelamento). A conferência mostra 2 questões em cada fase de 1 a 5. Depois, `15_migracao_blog.sql` (os 5 rascunhos do blog).
 8. Suba o backend no perfil `dev`. O `DatabaseTestRunner` cria o ADMIN a partir de `ADMIN_EMAIL` e `ADMIN_SENHA`.
 9. Rode os testes: `mvnw test` na pasta do backend.
 

@@ -140,6 +140,23 @@ CREATE TABLE `nivelamento` (
   CONSTRAINT `ck_nivelamento_valores` CHECK (((`acertos` >= 0) and (`total` >= `acertos`) and (`fases_liberadas` >= 0)))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- Sprint 11 (migração 15): blog (os 5 rascunhos entram pela 15_migracao_blog.sql)
+CREATE TABLE `post_blog` (
+  `id_post` int NOT NULL AUTO_INCREMENT,
+  `slug` varchar(120) NOT NULL,
+  `titulo` varchar(150) NOT NULL,
+  `resumo` varchar(300) NOT NULL,
+  `tag` varchar(40) NOT NULL,
+  `conteudo` mediumtext NOT NULL,
+  `referencias` text NOT NULL COMMENT 'uma referência (ABNT) por linha; obrigatória',
+  `publicado_em` datetime DEFAULT NULL COMMENT 'NULL = rascunho',
+  `criado_em` datetime NOT NULL,
+  `atualizado_em` datetime NOT NULL,
+  PRIMARY KEY (`id_post`),
+  UNIQUE KEY `uk_post_blog_slug` (`slug`),
+  KEY `idx_post_blog_publicado` (`publicado_em`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 CREATE TABLE `progresso_exercicio` (
   `id_progresso` int NOT NULL AUTO_INCREMENT,
   `id_usuario` int NOT NULL,

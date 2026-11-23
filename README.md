@@ -25,8 +25,8 @@ O **LogiCup** é um projeto de TCC que torna o aprendizado de Java mais acessív
 
 ## Gamificação
 
-- ⭐ XP, nível e ofensiva (*streak*)
-- 🏅 Conquistas em bronze, prata e ouro
+- ⭐ XP, fase atual e ofensiva (*streak*)
+- - 🏅 Conquistas em bronze, prata e ouro
 - 💎 Gemas e loja de avatares
 - 🏆 Ranking geral e ranking da turma
 
@@ -35,8 +35,12 @@ O **LogiCup** é um projeto de TCC que torna o aprendizado de Java mais acessív
 - 🧪 **Laboratório de blocos**: espaço livre para montar programas com blocos
 - 👩‍🏫 **Área do professor**: turmas com código de convite, acompanhamento dos alunos, tarefas atribuídas e **ementa** com a habilidade desenvolvida por cada questão
 - 🔐 Cadastro com confirmação de e-mail, recuperação de senha, **entrar com Google** e exclusão de conta
-- 📜 Termos de Uso e Política de Privacidade com registro de aceite (LGPD)
-- 🐱 Onboarding com o mascote no primeiro acesso
+- 📜 Termos de Uso, Política de Privacidade e Política de Cookies com registro de aceite (LGPD); trocar a senha encerra as sessões abertas em outros aparelhos
+- - 🐱 Onboarding com o mascote no primeiro acesso
+- 🎯 **Teste de nivelamento** opcional no primeiro acesso, que libera as fases que o aluno já domina
+- 👥 O aluno pode participar de **várias turmas**, cada uma com suas tarefas e seu ranking
+- 📊 **Relatório da turma** em CSV para o professor
+- 🛠️ **Área do administrador**: busca e bloqueio de contas e edição dos textos das rodadas e dos exercícios
 
 ---
 

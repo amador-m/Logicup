@@ -79,7 +79,7 @@ const Legal = ({ documento }) => {
                     <AvisoPreliminar role="note">
                         <strong>Versão preliminar.</strong> Este documento descreve o funcionamento atual do LogiCup,
                         um projeto acadêmico em desenvolvimento. Alguns pontos, como a identificação formal do
-                        responsável e o canal de contato, serão definidos na versão definitiva.
+                        controlador dos dados e do encarregado, serão definidos na versão definitiva.
                     </AvisoPreliminar>
 
                     <Sumario aria-label="Nesta página">

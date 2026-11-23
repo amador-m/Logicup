@@ -861,7 +861,9 @@ export const VisuallyHidden = styled.span`
 /* ASSOCIACAO */
 export const MatchRow = styled.div`
   display: grid;
-  grid-template-columns: 1fr minmax(180px, 240px);
+  /* Sprint 11: minmax(0, ...) deixa a coluna encolher; com "1fr" puro o Safari do iOS alarga a linha até caber
+     a opção mais longa do <select> */
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 240px);
   gap: 12px;
   align-items: center;
   background: var(--cream);
@@ -877,6 +879,9 @@ export const MatchRow = styled.div`
 
   select {
     width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    text-overflow: ellipsis;
     padding: 10px;
     border-radius: 12px;
     border: 2px solid rgba(40, 128, 120, 0.45);
@@ -892,7 +897,7 @@ export const MatchRow = styled.div`
   }
 
   @media (max-width: 600px) {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 `;
 
@@ -1095,6 +1100,14 @@ export const BarraRodada = styled.div`
     font-size: 13px;
     font-weight: 700;
     color: var(--yellow);
+  }
+
+  /* Sprint 11: código da questão (ex.: F1.Q2), discreto ao lado do "Questão 1 de 5" */
+  .codigo-questao {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(241, 240, 226, 0.75);
+    white-space: nowrap;
   }
 
   ol {

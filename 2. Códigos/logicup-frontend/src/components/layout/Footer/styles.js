@@ -42,6 +42,26 @@ export const Item = styled.div`
   a:hover {
     color: var(--yellow);
   }
+
+  /* Sprint 11: "Sair" é um botão (faz uma ação), mas com a mesma cara dos links ao lado */
+  li button {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  li button:hover {
+    color: var(--yellow);
+  }
+
+  li button:focus-visible {
+    outline: 3px solid var(--yellow);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
 `;
 
 /* Deploy (04/11): Instagram e e-mail de contato, embaixo de "Sobre o projeto" */

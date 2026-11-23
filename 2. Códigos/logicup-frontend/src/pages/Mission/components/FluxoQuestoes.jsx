@@ -81,6 +81,12 @@ const FluxoQuestoes = ({
                         {passagem.tipo === "refazer" && "Refazendo as que errou • "}
                         {passagem.tipo === "revisar" && "Revisão • "}
                         Questão {passagem.indice + 1} de {passagem.fila.length}
+                        {/* Sprint 11 (revisão): o mesmo código da ementa do professor, para os dois falarem da mesma questão */}
+                        {exercicio.codigo && (
+                            <small className="codigo-questao" title="Código desta questão na ementa do professor">
+                                {" "}· {exercicio.codigo}
+                            </small>
+                        )}
                     </strong>
                     {!somenteLeitura && rodadaResumo && (
                         <span>{rodadaResumo.xpGanho} / {rodadaResumo.xpTotal} XP na rodada</span>

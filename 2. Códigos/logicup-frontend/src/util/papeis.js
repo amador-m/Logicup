@@ -23,3 +23,8 @@ export function podeEntrarEmTurma(usuario) {
 export function podeVerConquistas(usuario) {
     return usuario?.role === "ALUNO";
 }
+
+/** Sprint 11: área do administrador (gestão de usuários e de conteúdos). */
+export function ehAdmin(usuario) {
+    return usuario?.role === "ADMIN";
+}

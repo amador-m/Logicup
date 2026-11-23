@@ -40,7 +40,7 @@ export const PASSOS_ALUNO = [
     {
         imagens: [IconeTurma, IconePerfil],
         titulo: "Sua turma e seu perfil",
-        texto: "Se o seu professor passar um código, entre em \"Minha turma\": lá ficam as tarefas e o ranking da turma. " +
+        texto: "Se o seu professor passar um código, entre em \"Minhas turmas\": lá ficam as tarefas e o ranking da turma. " +
             "No seu perfil você acompanha o progresso e pode rever este tutorial.",
     },
 ];
@@ -55,7 +55,7 @@ export const PASSOS_PROFESSOR = [
         imagens: [IconeTurma],
         titulo: "Turmas e código de convite",
         texto: "Em \"Turmas\", crie uma turma e compartilhe o código de 8 caracteres. Os alunos entram com ele em " +
-            "\"Minha turma\". Se o código vazar, você gera outro.",
+            "\"Minhas turmas\". Se o código vazar, você gera outro.",
     },
     {
         imagens: [IconeRanking],

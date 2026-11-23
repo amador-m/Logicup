@@ -27,6 +27,8 @@ import RedefinirSenha from "../pages/RedefinirSenha";
 import CompletarCadastro from "../pages/CompletarCadastro";
 import ExcluirConta from "../pages/ExcluirConta";
 import Nivelamento from "../pages/Nivelamento";
+import Admin from "../pages/Admin";
+import NaoEncontrada from "../pages/NaoEncontrada";
 
 const AppRoutes = () => {
     return (
@@ -98,6 +100,8 @@ const AppRoutes = () => {
                 <Route path="/trilha" element={<PrivateRoute><LearningPath /></PrivateRoute>} />
                 {/* Sprint 11: quiz de nivelamento (primeiro acesso do aluno) */}
                 <Route path="/nivelamento" element={<PrivateRoute><Nivelamento /></PrivateRoute>} />
+                {/* Sprint 11: área do administrador */}
+                <Route path="/admin" element={<PrivateRoute><Admin /></PrivateRoute>} />
                 <Route path="/missao/:faseId" element={<PrivateRoute><Mission /></PrivateRoute>} />
                 <Route path="/ranking" element={<PrivateRoute><Ranking /></PrivateRoute>} />
                 <Route path="/perfil" element={<PrivateRoute><Profile /></PrivateRoute>} />
@@ -115,6 +119,9 @@ const AppRoutes = () => {
                 <Route path="/termos" element={<Legal documento="termos" />} />
                 <Route path="/privacidade" element={<Legal documento="privacidade" />} />
                 <Route path="/cookies" element={<Legal documento="cookies" />} />
+                {/* Sprint 11: qualquer outro endereço -> "Página não encontrada". O React Router escolhe a rota mais
+                    específica, então "*" só vale quando nenhuma outra combina. */}
+                <Route path="*" element={<NaoEncontrada />} />
             </Routes>
             {/* Sprint 8: fora das <Routes> para aparecer em qualquer página (e dentro do Router, por causa do <Link>) */}
             <AvisoCookies />

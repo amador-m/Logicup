@@ -119,7 +119,7 @@ const Laboratorio = () => {
     const escolherExemplo = (evento) => {
         const exemplo = EXEMPLOS.find((item) => item.id === evento.target.value);
         evento.target.value = "";
-        if (exemplo) setTrocarPor({ nome: `o exemplo "${exemplo.nome}"`, estado: exemplo.estado });
+        if (exemplo) setTrocarPor({ nome: `pelo exemplo "${exemplo.nome}"`, estado: exemplo.estado });
     };
 
     const rodou = execucao?.situacao === "SUCESSO";
@@ -153,7 +153,7 @@ const Laboratorio = () => {
                             </select>
                         </Seletor>
                         <BotaoSecundario type="button"
-                                         onClick={() => setTrocarPor({ nome: "um programa vazio", estado: null })}>
+                                         onClick={() => setTrocarPor({ nome: "por um programa vazio", estado: null })}>
                             ↺ Recomeçar
                         </BotaoSecundario>
                         <Salvo aria-live="polite">{salvo ? "✓ Salvo neste navegador" : "Não salvo (o navegador bloqueou)"}</Salvo>
@@ -230,7 +230,7 @@ const Laboratorio = () => {
             {trocarPor && (
                 <Confirmacao
                     titulo="Trocar o programa?"
-                    mensagem={`Os blocos que estão na área agora serão substituídos por ${trocarPor.nome}.`}
+                    mensagem={`Os blocos que estão na área agora serão substituídos ${trocarPor.nome}.`}
                     textoConfirmar="Trocar"
                     aoConfirmar={confirmarTroca}
                     aoCancelar={() => setTrocarPor(null)}

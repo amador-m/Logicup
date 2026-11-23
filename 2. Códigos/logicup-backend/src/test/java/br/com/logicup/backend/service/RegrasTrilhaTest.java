@@ -5,6 +5,7 @@ import br.com.logicup.backend.service.RegrasTrilha.ExercicioDaRodada;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static br.com.logicup.backend.model.StatusRodada.*;
@@ -75,5 +76,68 @@ class RegrasTrilhaTest {
     @Test
     void nivelNuncaFicaAbaixoDeUm() {
         assertEquals(1, RegrasTrilha.faseMaisAltaLiberada(List.of(-5), List.of(LIBERADA)));
+    }
+
+    // ---------- Sprint 11: nivelamento ----------
+
+    @Test
+    void rodadasDoNivelamentoFicamLiberadasEDesbloqueiamASeguinte() {
+        // 5 rodadas; o nivelamento liberou as 3 primeiras; nada aprovado ainda
+        List<StatusRodada> status = RegrasTrilha.calcularStatus(
+                List.of(false, false, false, false, false),
+                List.of(true, true, true, false, false));
+        // as liberadas pelo nivelamento NÃO viram APROVADA (o aluno não as fez); a 4ª libera; a 5ª espera
+        assertEquals(List.of(LIBERADA, LIBERADA, LIBERADA, LIBERADA, BLOQUEADA), status);
+    }
+
+    @Test
+    void rodadaNiveladaQueOAlunoFezContinuaAprovada() {
+        List<StatusRodada> status = RegrasTrilha.calcularStatus(
+                List.of(true, false, false), List.of(true, true, false));
+        assertEquals(List.of(APROVADA, LIBERADA, LIBERADA), status);
+    }
+
+    @Test
+    void semNivelamentoTudoContinuaComoAntes() {
+        List<Boolean> aprovadas = List.of(true, false, false);
+        assertEquals(RegrasTrilha.calcularStatus(aprovadas),
+                RegrasTrilha.calcularStatus(aprovadas, List.of(false, false, false)));
+        assertEquals(List.of(APROVADA, LIBERADA, BLOQUEADA), RegrasTrilha.calcularStatus(aprovadas));
+    }
+
+    @Test
+    void listasDeTamanhosDiferentesSaoRecusadas() {
+        assertThrows(IllegalArgumentException.class,
+                () -> RegrasTrilha.calcularStatus(List.of(true), List.of(true, false)));
+    }
+
+    @Test
+    void fasesDominadasContamEmSequenciaEParamNaPrimeiraFalha() {
+        // acertou tudo nas Fases 1 e 2, errou uma na 3 e acertou tudo na 4 -> só 1 e 2 contam
+        Map<Integer, List<Boolean>> acertos = Map.of(
+                1, List.of(true, true), 2, List.of(true, true),
+                3, List.of(true, false), 4, List.of(true, true), 5, List.of(false, false));
+        assertEquals(2, RegrasTrilha.fasesDominadasEmSequencia(acertos));
+    }
+
+    @Test
+    void errarAPrimeiraFaseNaoLiberaNada() {
+        assertEquals(0, RegrasTrilha.fasesDominadasEmSequencia(
+                Map.of(1, List.of(false, true), 2, List.of(true, true))));
+    }
+
+    @Test
+    void acertarTudoLiberaTodasAsFasesDoTeste() {
+        assertEquals(5, RegrasTrilha.fasesDominadasEmSequencia(Map.of(
+                1, List.of(true, true), 2, List.of(true, true), 3, List.of(true, true),
+                4, List.of(true, true), 5, List.of(true, true))));
+    }
+
+    @Test
+    void sohFasesDeVerdadeSaoLiberadasPeloNivelamento() {
+        assertTrue(RegrasTrilha.faseLiberadaPeloNivelamento(3, 3));
+        assertFalse(RegrasTrilha.faseLiberadaPeloNivelamento(4, 3));
+        assertFalse(RegrasTrilha.faseLiberadaPeloNivelamento(-300, 3)); // fases de teste (ordenação negativa)
+        assertFalse(RegrasTrilha.faseLiberadaPeloNivelamento(1, 0));    // não fez o nivelamento
     }
 }

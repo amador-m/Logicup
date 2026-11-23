@@ -5,7 +5,7 @@ import br.com.logicup.backend.dto.MinhaTurmaResponse;
 import br.com.logicup.backend.dto.RankingTurmaResponse;
 import br.com.logicup.backend.dto.StatusTarefa;
 import br.com.logicup.backend.dto.TarefaDoAlunoResponse;
-import br.com.logicup.backend.exception.AlunoJaTemTurmaException;
+import br.com.logicup.backend.exception.AlunoJaEstaNaTurmaException;
 import br.com.logicup.backend.exception.AlunoRemovidoDaTurmaException;
 import br.com.logicup.backend.exception.RecursoNaoEncontradoException;
 import br.com.logicup.backend.exception.SessaoInvalidaException;
@@ -30,8 +30,10 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Sprint 9: regras das turmas do lado do ALUNO ("Minha turma").
- * O aluno nunca informa QUAL turma é a dele: a matrícula ATIVA é descoberta pelo id do token.
+ * Sprint 9: regras das turmas do lado do ALUNO ("Minhas turmas").
+ * Sprint 11: o aluno pode estar em VÁRIAS turmas ao mesmo tempo (o banco já permitia: a chave de aluno_turma é
+ * aluno + turma). Quando a URL traz o id de uma turma, a regra confere se o aluno do TOKEN tem matrícula ATIVA
+ * nela: o id na URL só escolhe entre as turmas DELE, nunca dá acesso à turma de outra pessoa.
  */
 @Service
 public class MinhaTurmaService {
@@ -62,10 +64,10 @@ public class MinhaTurmaService {
     /**
      * Entrar com o código (já normalizado no EntrarTurmaRequest — R4). A ordem das checagens importa:
      *  0) passou do limite de códigos errados?  sim -> 429 (Sprint 9, D2)
- *  1) código existe?                        não -> 404 (e conta 1 erro no limite)
-     *  2) o aluno já tem uma turma ATIVA?       sim -> 409 (R5)
-     *  3) já passou por ESTA turma antes?       REMOVIDO -> 403 (R7); SAIU -> a mesma linha volta a ATIVO (R6)
-     *  4) senão, matrícula nova.
+     *  1) código existe?                        não -> 404 (e conta 1 erro no limite)
+     *  2) já passou por ESTA turma antes?       ATIVO -> 409 (Sprint 11: já está nela);
+     *                                           REMOVIDO -> 403 (R7); SAIU -> a mesma linha volta a ATIVO (R6)
+     *  3) senão, matrícula nova. Sprint 11: estar em OUTRA turma não impede mais (antes era 409, R5).
      */
     @Transactional
     public MinhaTurmaResponse entrar(Integer alunoId, EntrarTurmaRequest dados) {
@@ -79,17 +81,14 @@ public class MinhaTurmaService {
         Turma turma = encontrada.get();
         Aluno aluno = alunoRepository.findById(alunoId).orElseThrow(SessaoInvalidaException::new);
 
-        if (matriculaAtiva(alunoId).isPresent()) {
-            throw new AlunoJaTemTurmaException();
-        }
-
         Optional<AlunoTurma> anterior = alunoTurmaRepository.findById(new AlunoTurmaId(alunoId, turma.getId()));
         if (anterior.isPresent()) {
             AlunoTurma matricula = anterior.get();
-            if (matricula.getStatus() == StatusMatricula.REMOVIDO) {
-                throw new AlunoRemovidoDaTurmaException();
+            switch (matricula.getStatus()) {
+                case ATIVO -> throw new AlunoJaEstaNaTurmaException();
+                case REMOVIDO -> throw new AlunoRemovidoDaTurmaException();
+                case SAIU -> matricula.reativar(LocalDateTime.now(clock));
             }
-            matricula.reativar(LocalDateTime.now(clock));
         } else {
             alunoTurmaRepository.save(new AlunoTurma(aluno, turma));
         }
@@ -97,35 +96,39 @@ public class MinhaTurmaService {
         return montar(turma, aluno);
     }
 
-    /** Vazio = o aluno não está em nenhuma turma (o controller responde 204). */
+    /** Sprint 11: todas as turmas ATIVAS do aluno (lista vazia = nenhuma; a tela mostra o campo do código). */
     @Transactional(readOnly = true)
-    public Optional<MinhaTurmaResponse> buscar(Integer alunoId) {
-        return matriculaAtiva(alunoId).map(matricula -> montar(matricula.getTurma(), matricula.getAluno()));
+    public List<MinhaTurmaResponse> listar(Integer alunoId) {
+        return alunoTurmaRepository.findByAlunoIdAndStatusOrderByEntrouEmAscTurmaIdAsc(alunoId, StatusMatricula.ATIVO)
+                .stream()
+                .map(matricula -> montar(matricula.getTurma(), matricula.getAluno()))
+                .toList();
     }
 
     @Transactional(readOnly = true)
-    public RankingTurmaResponse ranking(Integer alunoId) {
-        Turma turma = matriculaObrigatoria(alunoId).getTurma();
+    public RankingTurmaResponse ranking(Integer alunoId, Integer turmaId) {
+        Turma turma = matriculaAtiva(alunoId, turmaId).getTurma();
         List<Aluno> membros = alunoTurmaRepository.findByTurmaIdAndStatus(turma.getId(), StatusMatricula.ATIVO)
                 .stream().map(AlunoTurma::getAluno).toList();
         return ProgressoNaTurma.ranking(membros, alunoId);
     }
 
-    /** R6: sair muda para SAIU (a linha fica; se voltar com o código, ela é reaproveitada). */
+    /** R6: sair muda para SAIU (a linha fica; se voltar com o código, ela é reaproveitada). As outras turmas não mudam. */
     @Transactional
-    public void sair(Integer alunoId) {
-        matriculaObrigatoria(alunoId).sair(LocalDateTime.now(clock));
+    public void sair(Integer alunoId, Integer turmaId) {
+        matriculaAtiva(alunoId, turmaId).sair(LocalDateTime.now(clock));
     }
 
     // ---------------------------------------------------------------- apoio
 
-    private Optional<AlunoTurma> matriculaAtiva(Integer alunoId) {
-        return alunoTurmaRepository.findFirstByAlunoIdAndStatus(alunoId, StatusMatricula.ATIVO);
-    }
-
-    private AlunoTurma matriculaObrigatoria(Integer alunoId) {
-        return matriculaAtiva(alunoId)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Você não está em nenhuma turma."));
+    /**
+     * A matrícula ATIVA deste aluno NESTA turma. Não estar na turma (ou a turma nem existir) dá o mesmo 404:
+     * assim a resposta não revela se existe uma turma com aquele id.
+     */
+    private AlunoTurma matriculaAtiva(Integer alunoId, Integer turmaId) {
+        return alunoTurmaRepository.findById(new AlunoTurmaId(alunoId, turmaId))
+                .filter(AlunoTurma::isAtiva)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Você não está nesta turma."));
     }
 
     private MinhaTurmaResponse montar(Turma turma, Aluno aluno) {

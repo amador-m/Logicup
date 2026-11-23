@@ -8,6 +8,8 @@ import { VERSAO_TERMOS, ATUALIZADO_EM } from "./versoes";
  * v0.3 (Sprint 9): conquistas, gemas (moeda virtual, sem valor em dinheiro) e loja de avatares.
  * v0.4 (Sprint 10): confirmação de e-mail obrigatória, recuperação de senha e canal de contato.
  * v0.5 (Sprint 10): entrar com o Google e exclusão da conta pelo próprio perfil (também pela janela de aceite).
+ * v0.6 (Sprint 11): teste de nivelamento, bloqueio de conta pelo administrador, "fase atual" no lugar de
+ *   "nível" (é o nome que as telas usam) e o aviso de que o perfil de professor não é verificado.
  *
  * Formato de cada bloco: texto = parágrafo; { lista: [...] } = lista; { tabela: {...} } = tabela.
  */
@@ -57,7 +59,8 @@ export const termos = {
                         "perfil, com edição de nome, nome de usuário e senha, e a exclusão da conta;",
                         "uma trilha de fases e rodadas, com teoria, exemplos e exercícios;",
                         "exercícios de diferentes formatos (por exemplo, múltipla escolha, ordenação e associação), com feedback sobre cada resposta;",
-                        "pontos de experiência (XP), nível e sequência de dias de estudo;",
+                        "um teste de nivelamento opcional no primeiro acesso do aluno, que pode liberar as primeiras fases para quem já domina o conteúdo delas (sem dar XP);",
+                        "pontos de experiência (XP), a indicação da fase atual e a sequência de dias de estudo;",
                         "ranking com as pessoas que mais pontuaram;",
                         "conquistas (medalhas) que rendem gemas, e uma loja onde as gemas são trocadas por avatares;",
                         "turmas: o professor cria uma turma e compartilha um código; o aluno entra com o código e vê as tarefas e o ranking da turma;",
@@ -87,6 +90,9 @@ export const termos = {
                     ],
                 },
                 "A conta é de uso individual.",
+                "Qualquer pessoa pode escolher o perfil de professor no cadastro. Nesta versão, a plataforma não verifica " +
+                "se a pessoa é de fato professora. Por isso, entre em uma turma só com o código de um professor que você " +
+                "conhece: o professor da turma vê alguns dados seus, listados na Política de Privacidade.",
                 "Se você entrar com o Google, o Google confirma quem você é. Nesse caso, a segurança da sua conta no " +
                 "LogiCup depende também da segurança da sua conta Google. Se a sua conta Google tiver o mesmo e-mail de " +
                 "uma conta que já existe no LogiCup, as duas são ligadas e você passa a poder entrar das duas formas.",
@@ -126,7 +132,7 @@ export const termos = {
                 "A equipe pode ajustar os valores das conquistas e os preços dos avatares durante a evolução do projeto, " +
                 "preservando os avatares que você já tiver obtido. O avatar que você escolher aparece para outras " +
                 "pessoas junto com o seu nome de usuário (por exemplo, no ranking).",
-                "Seu nome de usuário, seu XP e seu nível aparecem no ranking para outras pessoas com conta na plataforma " +
+                "Seu nome de usuário, seu XP e a sua fase atual aparecem no ranking para outras pessoas com conta na plataforma " +
                 "quando você estiver entre as que mais pontuaram.",
                 "A equipe pode corrigir erros de cálculo, registros inconsistentes ou falhas técnicas, procurando " +
                 "preservar os resultados legítimos. Fases, questões e critérios de pontuação podem mudar durante a " +
@@ -178,7 +184,9 @@ export const termos = {
                 "Professores precisam excluir as suas turmas antes de excluir a conta. Contas de administrador, e " +
                 "qualquer pessoa que prefira, podem pedir a exclusão pelo canal de contato (contato@logicup.dev.br).",
                 "A equipe pode suspender ou encerrar contas em casos de abuso, fraude, risco à segurança ou violação " +
-                "destes Termos, de forma proporcional e respeitando os seus direitos.",
+                "destes Termos, de forma proporcional e respeitando os seus direitos. A suspensão é feita pelo bloqueio " +
+                "da conta: enquanto ela estiver bloqueada, não é possível entrar, mas nenhum dado é apagado, e o " +
+                "desbloqueio devolve a conta como estava.",
                 "Ao excluir a conta, apagamos os dados ligados a ela. Cópias de segurança e registros técnicos ainda " +
                 "podem conter esses dados por um tempo limitado, até serem substituídos; os prazos estão na Política de " +
                 "Privacidade.",

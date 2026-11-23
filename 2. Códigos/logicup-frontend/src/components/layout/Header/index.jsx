@@ -22,7 +22,7 @@ import LogoImg from "../../../assets/images/LogoLight.png";
 import { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/useAuth";
-import { podeVerEmenta, podeGerenciarTurmas, podeEntrarEmTurma, podeVerConquistas } from "../../../util/papeis";
+import { podeVerEmenta, podeGerenciarTurmas, podeEntrarEmTurma, podeVerConquistas, ehAdmin } from "../../../util/papeis";
 import AvatarUsuario from "../../ui/AvatarUsuario";
 import ContadorGemas from "../../ui/Gemas/ContadorGemas";
 import { useSaldoGemas } from "../../ui/Gemas/useSaldoGemas";
@@ -109,9 +109,11 @@ const Header = () => {
                 {mostrarEmenta && <MenuItem><NavLink to="/ementa"><IconeMenu $icone={iconeEmenta} />Ementa</NavLink></MenuItem>}
                 {/* Sprint 9: turmas — o professor gerencia as dele; o aluno vê a sua */}
                 {podeGerenciarTurmas(usuario) && <MenuItem><NavLink to="/professor/turmas"><IconeMenu $icone={iconeTurma} />Turmas</NavLink></MenuItem>}
-                {podeEntrarEmTurma(usuario) && <MenuItem><NavLink to="/turma"><IconeMenu $icone={iconeTurma} />Minha turma</NavLink></MenuItem>}
+                {podeEntrarEmTurma(usuario) && <MenuItem><NavLink to="/turma"><IconeMenu $icone={iconeTurma} />Minhas turmas</NavLink></MenuItem>}
                 {/* Sprint 9: o antigo "Recompensas em breve" virou a tela de conquistas (só aluno) */}
                 {aluno && <MenuItem><NavLink to="/conquistas"><IconeMenu $icone={iconeConquistas} />Conquistas</NavLink></MenuItem>}
+                {/* Sprint 11: área do administrador (usuários e conteúdos) */}
+                {ehAdmin(usuario) && <MenuItem><NavLink to="/admin"><IconeMenu $icone={iconeTurma} />Admin</NavLink></MenuItem>}
             </Menu>
 
             <Actions>

@@ -10,9 +10,11 @@ import { podeGerenciarTurmas } from "../../util/papeis";
 import AvatarUsuario from "../../components/ui/AvatarUsuario";
 import EstadoVazio from "../../components/ui/EstadoVazio";
 import { copiar, formatarData, hojeIso, plural } from "./formatos";
+import { baixarArquivo, montarCsv, nomeDeArquivo } from "../../util/csv";
 import {
     Page, Hero, Quadro, Aviso, BotaoAcao, Lista, Secao, Formulario, ErroCampo, CodigoConvite, BotaoPequeno,
     Abas, TabelaRolavel, ListaTarefas, ItemTarefa, Selo,
+    LinhaAcoes,
 } from "./styles";
 
 const ABAS = [
@@ -24,15 +26,31 @@ const ABAS = [
 
 // ---------------------------------------------------------------- abas
 
+/** Sprint 11: relatório simples de desempenho da turma (RF23), em CSV para abrir no Excel/Planilhas. */
+function baixarRelatorio(turma) {
+    const cabecalho = ["Aluno", "Usuário", "E-mail", "XP", "Fase atual", "Rodadas aprovadas", "Última atividade"];
+    const linhas = turma.alunos.map((aluno) => [
+        aluno.nome, aluno.username, aluno.email, aluno.xp, aluno.nivel, aluno.rodadasAprovadas,
+        formatarData(aluno.ultimaAtividade) ?? "Ainda não estudou",
+    ]);
+    baixarArquivo(`relatorio-${nomeDeArquivo(turma.nome)}-${hojeIso()}.csv`, montarCsv(cabecalho, linhas));
+}
+
 const AbaAlunos = ({ turma, aoRemover }) => {
     if (turma.alunos.length === 0) {
         return (
             <EstadoVazio titulo="Nenhum aluno na turma ainda.">
-                Compartilhe o código <strong>{turma.codigo}</strong>: o aluno entra em "Minha turma" e digita o código.
+                Compartilhe o código <strong>{turma.codigo}</strong>: o aluno entra em "Minhas turmas" e digita o código.
             </EstadoVazio>
         );
     }
     return (
+        <>
+        <LinhaAcoes style={{ marginBottom: 12, marginTop: 0 }}>
+            <BotaoPequeno type="button" className="claro" onClick={() => baixarRelatorio(turma)}>
+                Baixar relatório (CSV)
+            </BotaoPequeno>
+        </LinhaAcoes>
         <TabelaRolavel tabIndex={0} role="region" aria-label="Alunos da turma (role para os lados no celular)">
             <table>
                 <thead>
@@ -72,6 +90,7 @@ const AbaAlunos = ({ turma, aoRemover }) => {
                 </tbody>
             </table>
         </TabelaRolavel>
+        </>
     );
 };
 

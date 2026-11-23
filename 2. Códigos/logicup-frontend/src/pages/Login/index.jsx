@@ -22,6 +22,7 @@ import EntrarComGoogle from "../../components/ui/EntrarComGoogle";
 const ERROS_GOOGLE = {
     google: "Não foi possível entrar com o Google. Tente de novo ou entre com e-mail e senha.",
     google_email_nao_verificado: "O Google não confirmou o e-mail desta conta. Use outra conta Google ou o cadastro com e-mail.",
+    conta_bloqueada: "Esta conta está bloqueada. Se achar que é um engano, escreva para contato@logicup.dev.br.", // Sprint 11
     google_conta_google_diferente: "Este e-mail já tem conta no LogiCup ligada a outra conta Google. Entre com e-mail e senha.",
 };
 

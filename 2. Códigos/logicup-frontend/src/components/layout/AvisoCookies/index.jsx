@@ -37,8 +37,12 @@ const AvisoCookies = () => {
     return (
         <Faixa role="region" aria-label="Aviso de cookies">
             <p>
-                O LogiCup usa apenas cookies necessários para você entrar na conta com segurança.
-                Não usamos cookies de publicidade nem de rastreamento.{" "}
+                {/* Sprint 11: no celular aparece a versão curta (mesma informação; o detalhe está em "Saiba mais") */}
+                <span className="longo">
+                    O LogiCup usa apenas cookies necessários para você entrar na conta com segurança.
+                    Não usamos cookies de publicidade nem de rastreamento.
+                </span>
+                <span className="curto">Só usamos cookies necessários, sem publicidade nem rastreamento.</span>{" "}
                 <Link to="/cookies">Saiba mais</Link>
             </p>
             <BotaoEntendi type="button" onClick={entendi}>Entendi</BotaoEntendi>

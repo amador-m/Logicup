@@ -18,4 +18,7 @@ public interface ProgressoExercicioRepository extends JpaRepository<ProgressoExe
 
     // todo o progresso do aluno (no máximo ~110 linhas) -> calcular o desbloqueio da trilha inteira
     List<ProgressoExercicio> findByAlunoId(Integer alunoId);
+
+    /** Sprint 11: o nivelamento só é oferecido a quem ainda não respondeu nada na trilha. */
+    boolean existsByAlunoId(Integer alunoId);
 }

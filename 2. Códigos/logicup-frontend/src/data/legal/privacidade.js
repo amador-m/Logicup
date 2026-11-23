@@ -12,6 +12,8 @@ import { VERSAO_PRIVACIDADE, ATUALIZADO_EM } from "./versoes";
  * v0.5 (Sprint 10): entrar com o Google (usuario.google_id), exclusão da conta pelo Perfil (o banco apaga tudo
  *   em cascata), prazos das cópias de segurança (backup.sh: 14 cópias diárias; snapshot do disco: 7 dias),
  *   rotação dos registros técnicos e o código enviado para execução (não é guardado).
+ * v0.6 (Sprint 11): resultado do nivelamento (tabela nivelamento), bloqueio da conta (usuario.bloqueado_em),
+ *   o que os administradores veem na área de administração e "fase atual" no lugar de "nível".
  */
 export const privacidade = {
     slug: "privacidade",
@@ -74,10 +76,12 @@ export const privacidade = {
                         "a data em que você confirmou o seu e-mail;",
                         "códigos dos links enviados por e-mail (confirmação da conta, criação de senha nova e exclusão da conta): guardamos só um resumo criptográfico (hash) de cada código, a finalidade, quando foi criado, quando vence e quando foi usado. O código em si não fica guardado, e os registros são apagados 30 dias depois de vencerem;",
                         "o avatar escolhido: uma ilustração do catálogo da plataforma (não é uma foto sua);",
-                        "para alunos: pontos de experiência (XP), nível, sequência de dias de estudo e data da última atividade;",
+                        "para alunos: pontos de experiência (XP), fase atual, sequência de dias de estudo e data da última atividade;",
+                        "para alunos que fizerem o teste de nivelamento: quantas questões acertou, quantas fases foram liberadas e a data. As respostas de cada questão não são guardadas. Para quem preferir começar do zero, fica registrada só essa escolha e a data;",
                         "para cada exercício respondido: situação (em andamento ou concluído), número de tentativas, pontos ganhos, a última resposta enviada e a data da resposta;",
                         "o código Java que você executa no editor ou no Laboratório é enviado ao servidor de execução do próprio LogiCup, roda isolado e não é guardado. Nos exercícios de código, só a última resposta enviada fica no progresso, como nos outros exercícios. O programa do Laboratório fica salvo apenas no seu navegador;",
                         "para alunos: as conquistas desbloqueadas (qual conquista, o nível, a data e se o aviso de conquista nova já foi exibido), o saldo de gemas e os avatares comprados com gemas (qual avatar, quantas gemas custou e a data);",
+                        "se a conta for bloqueada pela equipe: a data do bloqueio;",
                         "registro de aceite: qual documento (Termos ou Política), qual versão e a data e a hora do aceite;",
                         "se você entrar em uma turma: a turma, a situação da matrícula (ativa, saiu ou removida pelo professor), quando entrou e quando a situação mudou;",
                         "para professores: as turmas criadas (nome, código de convite e data de criação) e as tarefas atribuídas (rodada e prazo).",
@@ -105,11 +109,13 @@ export const privacidade = {
                         "confirmar a sua identidade ao entrar, inclusive pelo Google, se você escolher essa opção, e manter a sessão aberta;",
                         "excluir a sua conta quando você pedir;",
                         "mostrar exercícios, corrigir respostas e dar feedback;",
-                        "registrar XP, nível, sequência de estudo e progresso na trilha;",
+                        "registrar XP, fase atual, sequência de estudo e progresso na trilha;",
+                        "liberar as primeiras fases para quem mostrar, no teste de nivelamento, que já domina o conteúdo delas;",
                         "montar o ranking geral e o ranking da turma;",
                         "registrar conquistas e gemas e permitir a troca de gemas por avatares;",
                         "permitir que o professor acompanhe o progresso dos alunos da turma dele e atribua tarefas;",
                         "comprovar qual versão dos Termos e desta Política foi aceita;",
+                        "permitir que a equipe administre as contas (por exemplo, bloquear uma conta em caso de abuso) e os conteúdos da plataforma;",
                         "diagnosticar erros e proteger a plataforma contra acessos não autorizados e abusos.",
                     ],
                 },
@@ -121,18 +127,22 @@ export const privacidade = {
             titulo: "Quem pode ver os seus dados",
             blocos: [
                 "Outras pessoas com conta na plataforma podem ver, no ranking, o seu nome de usuário, o seu avatar, o seu " +
-                "XP, o seu nível e a sua posição, quando você estiver entre as pessoas que mais pontuaram. Seu nome e seu " +
+                "XP, a sua fase atual e a sua posição, quando você estiver entre as pessoas que mais pontuaram. Seu nome e seu " +
                 "e-mail não aparecem no ranking.",
                 "Suas conquistas e o seu saldo de gemas aparecem só para você. Nem os colegas nem o professor da turma veem " +
                 "esses dados.",
                 "Se você entrar em uma turma (sempre por um código que o professor compartilha com você), o professor " +
-                "dessa turma vê o seu nome, nome de usuário, avatar, e-mail, XP, nível, quantas rodadas você aprovou, a data da " +
+                "dessa turma vê o seu nome, nome de usuário, avatar, e-mail, XP, fase atual, quantas rodadas você aprovou, a data da " +
                 "sua última atividade. Nas tarefas, ele vê quantos alunos da turma já concluíram cada uma. Ele não vê a sua " +
                 "senha nem as respostas que você enviou.",
-                "Os colegas da mesma turma veem, no ranking da turma, o seu nome de usuário, avatar, XP e nível. Você vê só o " +
+                "Os colegas da mesma turma veem, no ranking da turma, o seu nome de usuário, avatar, XP e fase atual. Você vê só o " +
                 "nome do professor.",
                 "Quando você sai da turma, ou o professor remove você, ou a turma é excluída, o professor deixa de ver os " +
                 "seus dados. A ementa da trilha, também disponível aos professores, não contém dados de alunos.",
+                "Os administradores da plataforma (membros da equipe) veem, na área de administração, o seu nome, nome de " +
+                "usuário, e-mail, perfil, data de cadastro e a situação da conta (se o e-mail foi confirmado, se você entra " +
+                "com o Google, se tem senha e se a conta está bloqueada). Eles não veem a sua senha. Bloqueios, " +
+                "desbloqueios e edições de conteúdo ficam nos registros técnicos, com a identificação de quem fez.",
                 "O acesso ao banco de dados é restrito à equipe responsável pela manutenção da plataforma.",
             ],
         },
@@ -158,7 +168,9 @@ export const privacidade = {
                             ["Data de confirmação do e-mail", "Liberar a entrada na conta", "Enquanto a conta existir"],
                             ["Códigos dos links enviados por e-mail (só o hash)", "Confirmar o e-mail, criar uma senha nova e confirmar a exclusão da conta", "Até 30 dias depois de vencerem (o link em si vale 24 horas ou 30 minutos), ou até a conta ser excluída"],
                             ["Sessão (cookie de login)", "Manter você conectado", "Até 8 horas ou até você sair"],
-                            ["Progresso (XP, nível, respostas, tentativas)", "Oferecer os exercícios e acompanhar a aprendizagem", "Enquanto a conta existir"],
+                            ["Progresso (XP, fase atual, respostas, tentativas)", "Oferecer os exercícios e acompanhar a aprendizagem", "Enquanto a conta existir"],
+                            ["Resultado do nivelamento (acertos e fases liberadas, sem as respostas)", "Liberar as fases que você já domina", "Enquanto a conta existir"],
+                            ["Bloqueio da conta (data)", "Impedir a entrada em caso de abuso, fraude ou risco à segurança", "Até o desbloqueio ou a exclusão da conta"],
                             ["Conquistas, gemas e avatares", "Gamificação: medalhas, saldo de gemas e loja de avatares", "Enquanto a conta existir"],
                             ["Turma (matrícula e tarefas)", "Acompanhamento pelo professor e ranking da turma", "Enquanto a turma existir; excluir a turma apaga as matrículas e as tarefas, mas não o seu progresso"],
                             ["Registros de aceite", "Comprovar a versão aceita e a data", "Enquanto a conta existir"],
@@ -217,7 +229,7 @@ export const privacidade = {
                 "e confirma por ele. Também é possível excluir a conta pela janela que pede o aceite de uma versão nova " +
                 "destes documentos, se você não concordar com ela.",
                 "Ao excluir, apagamos na hora a conta e tudo o que está ligado a ela: dados de cadastro, identificador " +
-                "do Google, progresso e respostas, XP, conquistas, gemas, avatares, matrículas em turmas, registros de " +
+                "do Google, progresso e respostas, resultado do nivelamento, XP, conquistas, gemas, avatares, matrículas em turmas, registros de " +
                 "aceite e códigos de e-mail. Em seguida, enviamos um e-mail avisando que a conta foi excluída. A exclusão " +
                 "não pode ser desfeita.",
                 "Algumas cópias continuam existindo por um tempo limitado:",

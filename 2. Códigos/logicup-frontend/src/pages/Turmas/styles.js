@@ -26,6 +26,13 @@ export const Secao = styled.section`
     line-height: 1.6;
     margin: -4px 0 14px;
   }
+
+  /* Sprint 11: "Entrar em outra turma" fica separado do conteúdo da turma aberta */
+  &.separada {
+    margin-top: 28px;
+    padding-top: 22px;
+    border-top: 2px solid rgba(236, 172, 12, 0.3);
+  }
 `;
 
 /* campo + botão na mesma linha (empilha no celular) */
@@ -40,6 +47,10 @@ export const Formulario = styled.form`
     flex-direction: column;
     gap: 6px;
     flex: 1 1 220px;
+    /* Sprint 11 (bug no iPhone): sem isto, o item do flex não encolhe abaixo da largura do conteúdo, e o
+       Safari do iOS mede o <select> pela opção mais longa ("Rodada 3: Do código à execução..."), então o campo
+       vazava para fora do cartão e alargava a página inteira. */
+    min-width: 0;
     font-weight: 700;
     font-size: 14px;
     color: var(--dark);
@@ -53,6 +64,13 @@ export const Formulario = styled.form`
     font-size: 15px;
     font-family: inherit;
     min-width: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* o texto da opção escolhida é cortado com "..." em vez de esticar o campo */
+  select {
+    text-overflow: ellipsis;
   }
 
   input:focus-visible, select:focus-visible {

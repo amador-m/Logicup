@@ -127,6 +127,19 @@ CREATE TABLE `modulo` (
   UNIQUE KEY `uk_modulo_ordenacao` (`ordenacao`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- Sprint 11 (migração 13): quiz de nivelamento
+CREATE TABLE `nivelamento` (
+  `id_usuario` int NOT NULL,
+  `fez_teste` tinyint(1) NOT NULL,     -- 0 = escolheu começar do zero
+  `acertos` int NOT NULL DEFAULT '0',
+  `total` int NOT NULL DEFAULT '0',
+  `fases_liberadas` int NOT NULL DEFAULT '0',  -- fases dominadas em sequência desde a Fase 1
+  `realizado_em` datetime NOT NULL,
+  PRIMARY KEY (`id_usuario`),
+  CONSTRAINT `nivelamento_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `aluno` (`id_usuario`) ON DELETE CASCADE,
+  CONSTRAINT `ck_nivelamento_valores` CHECK (((`acertos` >= 0) and (`total` >= `acertos`) and (`fases_liberadas` >= 0)))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 CREATE TABLE `progresso_exercicio` (
   `id_progresso` int NOT NULL AUTO_INCREMENT,
   `id_usuario` int NOT NULL,
@@ -142,6 +155,21 @@ CREATE TABLE `progresso_exercicio` (
   CONSTRAINT `progresso_exercicio_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `aluno` (`id_usuario`) ON DELETE CASCADE,
   CONSTRAINT `progresso_exercicio_ibfk_2` FOREIGN KEY (`id_exercicio`) REFERENCES `exercicio` (`id_exercicio`) ON DELETE CASCADE,
   CONSTRAINT `chk_progresso_valores` CHECK (((`tentativas` >= 0) and (`pontos_ganhos` >= 0)))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Sprint 11 (migração 13): questões do nivelamento (as 10 questões entram pela 13_migracao_nivelamento.sql)
+CREATE TABLE `questao_nivelamento` (
+  `id_questao` int NOT NULL AUTO_INCREMENT,
+  `fase` int NOT NULL,                 -- ordenação da fase (modulo.ordenacao) que a questão avalia
+  `ordenacao` int NOT NULL,            -- ordem dentro da fase (1 ou 2)
+  `enunciado` text NOT NULL,
+  `codigo` text DEFAULT NULL,          -- trecho de código mostrado junto do enunciado (opcional)
+  `alternativas_json` json NOT NULL,   -- [{"id": "a", "texto": "..."}, ...]
+  `correta` varchar(5) NOT NULL,       -- id da alternativa certa (nunca vai para o navegador antes da resposta)
+  `explicacao` text NOT NULL,
+  PRIMARY KEY (`id_questao`),
+  UNIQUE KEY `uk_nivelamento_fase_ordem` (`fase`, `ordenacao`),
+  CONSTRAINT `ck_nivelamento_fase` CHECK ((`fase` >= 1))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `rodada` (
@@ -205,6 +233,7 @@ CREATE TABLE `usuario` (
   `data_cadastro` datetime DEFAULT CURRENT_TIMESTAMP,
   `email_confirmado_em` datetime DEFAULT NULL COMMENT 'NULL = e-mail ainda não confirmado (não entra)',
   `google_id` varchar(255) DEFAULT NULL COMMENT 'sub do Google (OpenID Connect); NULL = não usa o Google',
+  `bloqueado_em` datetime DEFAULT NULL COMMENT 'Sprint 11 (migração 14): bloqueada pelo admin; NULL = ativa',
   PRIMARY KEY (`id_usuario`),
   UNIQUE KEY `e_mail` (`e_mail`),
   UNIQUE KEY `uk_usuario_username` (`username`),

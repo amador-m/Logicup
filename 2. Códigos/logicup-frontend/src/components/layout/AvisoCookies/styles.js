@@ -30,6 +30,10 @@ export const Faixa = styled.div`
     line-height: 1.6;
   }
 
+  .curto {
+    display: none;
+  }
+
   a {
     color: var(--yellow);
     font-weight: 700;
@@ -43,13 +47,30 @@ export const Faixa = styled.div`
     border-radius: 4px;
   }
 
+  /*
+   * Sprint 11 (revisão): no celular a faixa ficava alta (texto em cima, botão largo embaixo) e cobria o
+   * "Começar agora" da Home. Agora o botão fica ao lado do texto, e o texto é a versão curta.
+   */
   @media (max-width: 600px) {
-    flex-direction: column;
-    align-items: stretch;
     gap: 12px;
-    left: 12px;
-    right: 12px;
-    bottom: 12px;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    padding: 10px 12px 10px 16px;
+    border-radius: 16px;
+
+    p {
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .longo {
+      display: none;
+    }
+
+    .curto {
+      display: inline;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -76,5 +97,10 @@ export const BotaoEntendi = styled.button`
   &:focus-visible {
     outline: 3px solid var(--cream);
     outline-offset: 2px;
+  }
+
+  @media (max-width: 600px) {
+    padding: 9px 16px;
+    font-size: 14px;
   }
 `;

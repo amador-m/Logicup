@@ -17,8 +17,9 @@ public final class VersoesLegais {
     // Sprint 9: 0.3 — conquistas, gemas (moeda virtual) e avatares
     // Sprint 10: 0.4 — confirmação de e-mail, recuperação de senha, e-mails pela Brevo, hospedagem e canal de contato
     // Sprint 10: 0.5 — entrar com o Google e exclusão da conta pelo perfil (também pela janela de aceite)
-    public static final String TERMOS = "0.5";
-    public static final String PRIVACIDADE = "0.5";
+    // Sprint 11: 0.6 — nivelamento, bloqueio pelo admin, o que o admin vê e "fase atual" no lugar de "nível"
+    public static final String TERMOS = "0.6";
+    public static final String PRIVACIDADE = "0.6";
 
     /** O que vai DENTRO do token de quem aceitou a versão vigente dos dois documentos. Ex.: "T0.1|P0.1". */
     public static final String IDENTIFICADOR = "T" + TERMOS + "|P" + PRIVACIDADE;

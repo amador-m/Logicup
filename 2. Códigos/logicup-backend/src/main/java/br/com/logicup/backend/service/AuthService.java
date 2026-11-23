@@ -10,6 +10,7 @@ import br.com.logicup.backend.exception.CredenciaisInvalidasException;
 import br.com.logicup.backend.email.EmailDeContaSolicitado;
 import br.com.logicup.backend.email.TipoEmailConta;
 import br.com.logicup.backend.exception.EmailJaCadastradoException;
+import br.com.logicup.backend.exception.ContaBloqueadaException;
 import br.com.logicup.backend.exception.EmailNaoConfirmadoException;
 import br.com.logicup.backend.exception.SessaoInvalidaException;
 import br.com.logicup.backend.exception.UsernameEmUsoException;
@@ -256,7 +257,14 @@ public class AuthService {
         return autenticado(usuario, aceiteService.aceitouVersoesVigentes(usuario.getId()));
     }
 
+    /**
+     * Todo caminho que deixa alguém logado passa por aqui (senha, link de confirmação, Google...).
+     * Sprint 11: por isso a checagem de conta bloqueada fica AQUI, num lugar só.
+     */
     private AutenticacaoResultado autenticado(Usuario usuario, boolean aceitouVersoesVigentes) {
+        if (usuario.isBloqueado()) {
+            throw new ContaBloqueadaException();
+        }
         return new AutenticacaoResultado(UsuarioResponse.de(usuario, !aceitouVersoesVigentes),
                 tokenService.gerarToken(usuario, aceitouVersoesVigentes));
     }

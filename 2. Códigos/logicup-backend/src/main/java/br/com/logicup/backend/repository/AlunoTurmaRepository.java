@@ -7,13 +7,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface AlunoTurmaRepository extends JpaRepository<AlunoTurma, AlunoTurmaId> {
 
-    // Sprint 9 (R5): a matrícula ATIVA do aluno, se houver (no máximo uma)
-    Optional<AlunoTurma> findFirstByAlunoIdAndStatus(Integer alunoId, StatusMatricula status);
+    // Sprint 11: as matrículas ATIVAS do aluno (agora ele pode estar em várias turmas), da mais antiga para a mais nova
+    List<AlunoTurma> findByAlunoIdAndStatusOrderByEntrouEmAscTurmaIdAsc(Integer alunoId, StatusMatricula status);
 
     // Sprint 9 (R9, R10): membros com um status (ex.: ATIVO), para acompanhamento e ranking
     List<AlunoTurma> findByTurmaIdAndStatus(Integer turmaId, StatusMatricula status);

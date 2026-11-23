@@ -1,5 +1,6 @@
 package br.com.logicup.backend.controller;
 
+import br.com.logicup.backend.security.ContaBloqueadaFilter;
 import br.com.logicup.backend.security.TokenService;
 import br.com.logicup.backend.legal.VersoesLegais;
 import br.com.logicup.backend.model.Aluno;
@@ -18,11 +19,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.transaction.annotation.Transactional;
+import jakarta.servlet.http.Cookie;
 
 import static br.com.logicup.backend.controller.CsrfTeste.csrfValido;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -42,6 +45,7 @@ class PerfilIntegrationTest {
     @Autowired private AlunoRepository alunoRepository;
     @Autowired private UsuarioRepository usuarioRepository;
     @Autowired private PasswordEncoder passwordEncoder;
+    @Autowired private TokenService tokenService;
 
     private Aluno eu;
 
@@ -153,5 +157,59 @@ class PerfilIntegrationTest {
         putJson("/api/perfil/senha", "{\"senhaAtual\":\"" + SENHA + "\",\"novaSenha\":\"" + SENHA + "\"}", true)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.campos.novaSenha").exists());
+    }
+
+    // ---------- Sprint 11: trocar a senha encerra as outras sessões ----------
+
+    private static final String COOKIE_LOGIN = "__Host-LOGICUP_TOKEN";
+
+    /** Token de verdade (assinado pelo backend), como o do cookie de login. */
+    private String tokenDe(Usuario usuario) {
+        return tokenService.gerarToken(usuario, true);
+    }
+
+    private ResultActions me(String token) throws Exception {
+        return mockMvc.perform(get("/api/auth/me").cookie(new Cookie(COOKIE_LOGIN, token)));
+    }
+
+    @Test
+    void trocarASenhaDerrubaASessaoAntigaEMantemQuemTrocou() throws Exception {
+        String tokenAntigo = tokenDe(eu);
+        me(tokenAntigo).andExpect(status().isOk());
+        // o "iat" do token só tem segundos: espera virar o segundo para o token antigo ser de ANTES da troca
+        Thread.sleep(1100);
+
+        String setCookie = mockMvc.perform(put("/api/perfil/senha").with(csrfValido())
+                        .cookie(new Cookie(COOKIE_LOGIN, tokenAntigo))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"senhaAtual\":\"" + SENHA + "\",\"novaSenha\":\"novaSenha456\"}"))
+                .andExpect(status().isNoContent())
+                .andReturn().getResponse().getHeaders("Set-Cookie").stream()
+                .filter(c -> c.startsWith(COOKIE_LOGIN + "="))
+                .findFirst().orElse(null);
+        assertTrue(setCookie != null, "a resposta traz um cookie de login novo");
+        String tokenNovo = setCookie.substring((COOKIE_LOGIN + "=").length(), setCookie.indexOf(';'));
+
+        me(tokenAntigo).andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.codigo").value(ContaBloqueadaFilter.CODIGO_SENHA_TROCADA));
+        me(tokenNovo).andExpect(status().isOk());
+    }
+
+    @Test
+    void redefinirASenhaPeloLinkTambemDerrubaAsSessoes() throws Exception {
+        String tokenAntigo = tokenDe(eu);
+        Thread.sleep(1100);
+        // o mesmo método que o "esqueci minha senha" usa (AuthService.redefinirSenha)
+        Usuario usuario = usuarioRepository.findById(eu.getId()).orElseThrow();
+        usuario.trocarSenha(passwordEncoder.encode("outraSenha789"), java.time.LocalDateTime.now(
+                br.com.logicup.backend.config.ClockConfig.FUSO_LOGICUP));
+
+        me(tokenAntigo).andExpect(status().isUnauthorized());
+        me(tokenDe(usuario)).andExpect(status().isOk()); // quem entra de novo, com a senha nova, passa
+    }
+
+    @Test
+    void contaQueNuncaTrocouASenhaContinuaComOTokenValido() throws Exception {
+        me(tokenDe(eu)).andExpect(status().isOk()); // senha_alterada_em = NULL não derruba ninguém
     }
 }

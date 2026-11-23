@@ -5,6 +5,7 @@ import br.com.logicup.backend.dto.AtualizarPerfilRequest;
 import br.com.logicup.backend.dto.ExcluirContaRequest;
 import br.com.logicup.backend.dto.UsuarioResponse;
 import br.com.logicup.backend.security.EncerramentoDeSessao;
+import br.com.logicup.backend.security.TokenService;
 import br.com.logicup.backend.security.UsuarioLogado;
 import br.com.logicup.backend.dto.TrocarAvatarRequest;
 import br.com.logicup.backend.service.AvatarService;
@@ -13,6 +14,7 @@ import br.com.logicup.backend.service.PerfilService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -37,13 +39,16 @@ public class PerfilController {
     private final AvatarService avatarService;
     private final ExclusaoContaService exclusaoConta;        // Sprint 10
     private final EncerramentoDeSessao encerramentoDeSessao; // Sprint 10
+    private final TokenService tokenService;                 // Sprint 11: cookie novo depois de trocar a senha
 
     public PerfilController(PerfilService perfilService, AvatarService avatarService,
-                            ExclusaoContaService exclusaoConta, EncerramentoDeSessao encerramentoDeSessao) {
+                            ExclusaoContaService exclusaoConta, EncerramentoDeSessao encerramentoDeSessao,
+                            TokenService tokenService) {
         this.perfilService = perfilService;
         this.avatarService = avatarService;
         this.exclusaoConta = exclusaoConta;
         this.encerramentoDeSessao = encerramentoDeSessao;
+        this.tokenService = tokenService;
     }
 
     /** Atualiza nome e username. Devolve o usuário atualizado (o frontend troca o "Olá, ..." na hora). */
@@ -60,11 +65,17 @@ public class PerfilController {
         return avatarService.trocar(UsuarioLogado.de(jwt), dados.codigo());
     }
 
-    /** Troca a senha. 204 = deu certo e não há nada para devolver. A sessão atual continua válida. */
+    /**
+     * Troca a senha. 204 = deu certo e não há nada para devolver.
+     * Sprint 11: as OUTRAS sessões (outros aparelhos) são encerradas; esta continua porque a resposta traz um
+     * cookie novo, com um token emitido depois da troca.
+     */
     @PutMapping("/senha")
     public ResponseEntity<Void> alterarSenha(@AuthenticationPrincipal Jwt jwt,
-                                             @Valid @RequestBody AlterarSenhaRequest dados) {
-        perfilService.alterarSenha(UsuarioLogado.de(jwt).id(), dados);
+                                             @Valid @RequestBody AlterarSenhaRequest dados,
+                                             HttpServletResponse response) {
+        String tokenNovo = perfilService.alterarSenha(UsuarioLogado.de(jwt).id(), dados);
+        response.addHeader(HttpHeaders.SET_COOKIE, tokenService.criarCookie(tokenNovo).toString());
         return ResponseEntity.noContent().build();
     }
 

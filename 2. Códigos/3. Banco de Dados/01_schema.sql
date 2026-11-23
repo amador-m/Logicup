@@ -234,6 +234,7 @@ CREATE TABLE `usuario` (
   `email_confirmado_em` datetime DEFAULT NULL COMMENT 'NULL = e-mail ainda não confirmado (não entra)',
   `google_id` varchar(255) DEFAULT NULL COMMENT 'sub do Google (OpenID Connect); NULL = não usa o Google',
   `bloqueado_em` datetime DEFAULT NULL COMMENT 'Sprint 11 (migração 14): bloqueada pelo admin; NULL = ativa',
+  `senha_alterada_em` datetime DEFAULT NULL COMMENT 'Sprint 11 (migração 15): tokens emitidos antes disto são recusados',
   PRIMARY KEY (`id_usuario`),
   UNIQUE KEY `e_mail` (`e_mail`),
   UNIQUE KEY `uk_usuario_username` (`username`),

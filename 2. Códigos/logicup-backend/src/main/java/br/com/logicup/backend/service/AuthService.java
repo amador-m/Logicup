@@ -218,7 +218,8 @@ public class AuthService {
     @Transactional
     public void redefinirSenha(String codigo, String novaSenha) {
         Usuario usuario = tokens.consumir(codigo, FinalidadeToken.REDEFINIR_SENHA);
-        usuario.setSenha(passwordEncoder.encode(novaSenha));
+        // Sprint 11: trocarSenha também encerra as sessões abertas (quem pediu o link pode ter perdido o aparelho)
+        usuario.trocarSenha(passwordEncoder.encode(novaSenha), LocalDateTime.now(clock));
         confirmarSeAindaNaoConfirmado(usuario);
     }
 

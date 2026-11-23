@@ -61,6 +61,10 @@ public class Usuario {
     @Column(name = "bloqueado_em")
     private LocalDateTime bloqueadoEm;
 
+    // Sprint 11 (migração 15): quando a senha mudou pela última vez. Tokens emitidos ANTES disto são recusados.
+    @Column(name = "senha_alterada_em")
+    private LocalDateTime senhaAlteradaEm;
+
     public Usuario() {} // exigência do hibernate ter um construtor sem argumentos pra instanciar internamente
 
     public Usuario(String nome, String username, String email, String senha, TipoUsuario tipoUsuario) {
@@ -144,6 +148,18 @@ public class Usuario {
         if (this.bloqueadoEm == null) {
             this.bloqueadoEm = quando;
         }
+    }
+
+    public LocalDateTime getSenhaAlteradaEm() { return senhaAlteradaEm; }
+
+    /**
+     * Sprint 11: troca a senha E registra quando. É isso que encerra as sessões antigas: o ContaBloqueadaFilter
+     * recusa todo token emitido antes deste instante. Truncado aos SEGUNDOS porque o horário de emissão do
+     * token (claim "iat") também só tem segundos; assim o token novo, emitido logo depois, continua válido.
+     */
+    public void trocarSenha(String hashNovaSenha, LocalDateTime agora) {
+        this.senha = hashNovaSenha;
+        this.senhaAlteradaEm = agora.truncatedTo(java.time.temporal.ChronoUnit.SECONDS);
     }
 
     public void desbloquear() {

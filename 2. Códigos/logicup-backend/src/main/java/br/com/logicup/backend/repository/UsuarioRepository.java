@@ -28,11 +28,14 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> { // 
     Optional<Usuario> findByUsername(String username);
 
     /**
-     * Sprint 11: o filtro de conta bloqueada pergunta isto a cada requisição autenticada.
-     * É uma consulta pela chave primária (rápida) que devolve só sim/não, sem carregar a entidade.
+     * Sprint 11: o que o ContaBloqueadaFilter precisa saber a cada requisição, numa consulta só (pela chave
+     * primária): se a conta está bloqueada e quando a senha mudou. "new ...SituacaoDaConta(...)" é uma
+     * PROJEÇÃO do JPQL: o Hibernate monta o record direto com as duas colunas, sem carregar o Usuario inteiro.
+     * Vazio = a conta não existe mais (excluída).
      */
-    @Query("SELECT COUNT(u) > 0 FROM Usuario u WHERE u.id = :id AND u.bloqueadoEm IS NOT NULL")
-    boolean estaBloqueado(@Param("id") Integer id);
+    @Query("SELECT new br.com.logicup.backend.security.SituacaoDaConta(u.bloqueadoEm, u.senhaAlteradaEm) "
+            + "FROM Usuario u WHERE u.id = :id")
+    java.util.Optional<br.com.logicup.backend.security.SituacaoDaConta> situacaoDaConta(@Param("id") Integer id);
 
     /**
      * Sprint 11 (admin): lista de usuários com busca por nome, nome de usuário ou e-mail (sem diferenciar

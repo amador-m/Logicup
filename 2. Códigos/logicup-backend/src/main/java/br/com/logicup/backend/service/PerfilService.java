@@ -10,9 +10,13 @@ import br.com.logicup.backend.exception.SessaoInvalidaException;
 import br.com.logicup.backend.exception.UsernameEmUsoException;
 import br.com.logicup.backend.model.Usuario;
 import br.com.logicup.backend.repository.UsuarioRepository;
+import br.com.logicup.backend.security.TokenService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Clock;
+import java.time.LocalDateTime;
 
 /**
  * Sprint 7: regras de edição do PRÓPRIO perfil (nome, username e senha). O e-mail não é editável.
@@ -23,10 +27,15 @@ public class PerfilService {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TokenService tokenService; // Sprint 11: token novo depois de trocar a senha
+    private final Clock clock;
 
-    public PerfilService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
+    public PerfilService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder,
+                         TokenService tokenService, Clock clock) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
+        this.tokenService = tokenService;
+        this.clock = clock;
     }
 
     @Transactional
@@ -51,8 +60,14 @@ public class PerfilService {
         return UsuarioResponse.de(usuario, false); // só chega aqui quem já aceitou (AceitePendenteFilter)
     }
 
+    /**
+     * Sprint 11: devolve um TOKEN NOVO. Trocar a senha encerra todas as sessões abertas (inclusive a atual, cujo
+     * token foi emitido antes da troca); o controller põe este token novo no cookie, e assim só QUEM trocou a
+     * senha, neste aparelho, continua logado. Só chega aqui quem já aceitou os Termos (AceitePendenteFilter),
+     * por isso o token já sai com o aceite.
+     */
     @Transactional
-    public void alterarSenha(Integer idUsuario, AlterarSenhaRequest dados) {
+    public String alterarSenha(Integer idUsuario, AlterarSenhaRequest dados) {
         Usuario usuario = buscar(idUsuario);
 
         // Sprint 10: conta criada pelo Google não tem senha (não há "senha atual" para conferir)
@@ -66,7 +81,8 @@ public class PerfilService {
         if (passwordEncoder.matches(dados.novaSenha(), usuario.getSenha())) {
             throw new NovaSenhaIgualException();
         }
-        usuario.setSenha(passwordEncoder.encode(dados.novaSenha())); // grava só o hash
+        usuario.trocarSenha(passwordEncoder.encode(dados.novaSenha()), LocalDateTime.now(clock)); // grava só o hash
+        return tokenService.gerarToken(usuario, true);
     }
 
     private Usuario buscar(Integer idUsuario) {

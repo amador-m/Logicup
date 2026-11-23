@@ -28,6 +28,8 @@ Esta pasta é a **fonte da verdade do banco de dados**: a estrutura (schema), o 
 | `13_reverter_nivelamento.sql` | Desfaz a 13 (apaga as duas tabelas; quem fez o nivelamento perde as fases liberadas por ele, mas não o progresso real). | Sim (estrutura) |
 | `14_migracao_bloqueio_usuario.sql` | **Sprint 11 (17/11).** Gestão de usuários: `usuario` ganha `bloqueado_em` (NULL = conta ativa). Não altera nenhuma linha. **Aplicar junto com o backend da área do admin.** | Sim (estrutura) |
 | `14_reverter_bloqueio_usuario.sql` | Desfaz a 14 (contas bloqueadas voltam a entrar). | Sim (estrutura) |
+| `15_migracao_senha_alterada.sql` | **Sprint 11 (23/11).** Segurança: `usuario` ganha `senha_alterada_em`. Trocar ou redefinir a senha encerra as sessões abertas em outros aparelhos. Não altera nenhuma linha. **Aplicar junto com o backend que revoga as sessões.** | Sim (estrutura) |
+| `15_reverter_senha_alterada.sql` | Desfaz a 15. | Sim (estrutura) |
 | `gerador/codigo/` | Programas de teste das 9 questões de código (`questoes_codigo.py`), o gerador/validador (`gerar_questoes_codigo.py`), a conversão usada pelo seed e pela 07b (`aplicar_codigo.py`) e o gerador da 07b. | — |
 | `gerador/ajustes_seed.py` | O que o documento não diz de forma legível por programa: as respostas aceitas das lacunas, os ícones da F1.Q8 e as saídas de várias linhas. | — |
 | `historico/` | As migrações antigas (S6 a S9) e o gerador antigo da Fase 1. Ficam só como registro. | — |
@@ -44,7 +46,7 @@ Esta pasta é a **fonte da verdade do banco de dados**: a estrutura (schema), o 
 4. Execute `01_schema.sql` (o arquivo inteiro).
 5. Execute `02_seed_conteudo.sql`. A primeira consulta precisa mostrar "OK: banco vazio, pode seguir".
 6. Execute `03_conferencia_seed.sql`. As 26 linhas do primeiro resultado precisam estar "OK".
-7. Execute `13_migracao_nivelamento.sql` (as 10 questões do nivelamento). A conferência mostra 2 questões em cada fase de 1 a 5.
+7. Execute `13_migracao_nivelamento.sql` (as 10 questões do nivelamento). A conferência mostra 2 questões em cada fase de 1 a 5. (As colunas das migrações 14 e 15 já estão no `01_schema.sql`: na instalação nova, não rode essas duas.)
 8. Suba o backend no perfil `dev`. O `DatabaseTestRunner` cria o ADMIN a partir de `ADMIN_EMAIL` e `ADMIN_SENHA`.
 9. Rode os testes: `mvnw test` na pasta do backend.
 

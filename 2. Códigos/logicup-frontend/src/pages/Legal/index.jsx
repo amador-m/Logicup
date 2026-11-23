@@ -77,9 +77,9 @@ const Legal = ({ documento }) => {
                     <Meta>Versão {doc.versao} · Atualizado em {doc.atualizadoEm}</Meta>
 
                     <AvisoPreliminar role="note">
-                        <strong>Versão preliminar.</strong> Este documento descreve o funcionamento atual do LogiCup,
-                        um projeto acadêmico em desenvolvimento. Alguns pontos, como a identificação formal do
-                        controlador dos dados e do encarregado, serão definidos na versão definitiva.
+                        <strong>Projeto acadêmico.</strong> Este documento descreve o funcionamento atual do LogiCup,
+                        um Trabalho de Conclusão de Curso em evolução, e é atualizado sempre que a plataforma muda.
+                        Ele foi escrito pela equipe do projeto e não passou por revisão de um advogado.
                     </AvisoPreliminar>
 
                     <Sumario aria-label="Nesta página">

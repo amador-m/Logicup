@@ -44,6 +44,12 @@ export const Container = styled.section`
     padding: 56px 24px 64px;
     min-height: auto;
   }
+
+  /* Sprint 11 (revisão): em celular, menos respiro no topo para o "Começar agora" aparecer sem rolar,
+     acima do aviso de cookies (que fica preso no rodapé da tela) */
+  @media (max-width: 600px) {
+    padding-top: 28px;
+  }
 `;
 
 export const Texto = styled.div`
@@ -89,6 +95,18 @@ export const Texto = styled.div`
     }
   }
 
+  @media (max-width: 600px) {
+    h1 {
+      font-size: 34px;
+      margin: 14px 0 12px;
+    }
+
+    p {
+      font-size: 16px;
+      line-height: 1.6;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     animation: none;
   }
@@ -99,6 +117,10 @@ export const Botoes = styled.div`
   flex-wrap: wrap;
   gap: 14px;
   margin-top: 32px;
+
+  @media (max-width: 600px) {
+    margin-top: 22px;
+  }
 `;
 
 export const BotaoPrincipal = styled.button`

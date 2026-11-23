@@ -59,7 +59,7 @@ export const Info = styled.p`
   margin-bottom: 10px;
 
   &.erro {
-    color: var(--orange);
+    color: var(--orange-texto);
     font-weight: 700;
   }
 `;
@@ -152,7 +152,7 @@ export const Editor = styled.form`
   }
 
   .acoes .erro {
-    color: var(--orange);
+    color: var(--orange-texto);
     font-weight: 800;
     font-size: 14px;
   }

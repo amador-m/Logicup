@@ -14,6 +14,9 @@ import { VERSAO_PRIVACIDADE, ATUALIZADO_EM } from "./versoes";
  *   rotação dos registros técnicos e o código enviado para execução (não é guardado).
  * v0.6 (Sprint 11): resultado do nivelamento (tabela nivelamento), bloqueio da conta (usuario.bloqueado_em),
  *   o que os administradores veem na área de administração e "fase atual" no lugar de "nível".
+ *   Também na v0.6: controladora identificada (pessoa natural), encarregado dispensado (Resolução CD/ANPD nº 2/2022,
+ *   art. 11) com canal de contato, base legal de cada finalidade e a data da última troca de senha
+ *   (usuario.senha_alterada_em, migração 15).
  */
 export const privacidade = {
     slug: "privacidade",
@@ -30,19 +33,21 @@ export const privacidade = {
                 "O LogiCup é uma plataforma web educacional gamificada voltada ao aprendizado de lógica de " +
                 "programação e Java. Esta Política explica como tratamos dados pessoais no cadastro, na entrada " +
                 "na conta e no uso dos recursos educacionais.",
-                "Esta é uma versão preliminar: ela descreve o funcionamento atual da plataforma e será revisada " +
-                "antes da publicação definitiva.",
+                "Ela descreve o funcionamento atual da plataforma e é atualizada sempre que ele muda.",
             ],
         },
         {
             titulo: "Quem é responsável pelo tratamento",
             blocos: [
-                "O LogiCup é desenvolvido por uma equipe acadêmica, como Trabalho de Conclusão de Curso.",
+                "O LogiCup é desenvolvido por uma equipe acadêmica, como Trabalho de Conclusão de Curso. O projeto não " +
+                "é uma empresa: a responsável pelas decisões sobre os dados é uma pessoa da equipe.",
                 {
                     lista: [
-                        "Responsável: equipe do projeto LogiCup. A identificação formal do controlador dos dados será feita na versão definitiva.",
-                        "Canal de contato para assuntos de privacidade: contato@logicup.dev.br.",
-                        "Encarregado pelo tratamento de dados: não designado nesta versão preliminar.",
+                        "Controladora dos dados pessoais: Maria Eduarda Amador Mota, integrante da equipe do projeto LogiCup.",
+                        "Canal de contato para assuntos de privacidade e para exercer os seus direitos: contato@logicup.dev.br.",
+                        "Encarregado pelo tratamento de dados (DPO): não indicado. A Resolução CD/ANPD nº 2/2022 (art. 11) " +
+                        "dispensa essa indicação para agentes de tratamento de pequeno porte, como este projeto, desde que " +
+                        "exista um canal de comunicação com os titulares, que é o e-mail acima.",
                     ],
                 },
             ],
@@ -82,6 +87,7 @@ export const privacidade = {
                         "o código Java que você executa no editor ou no Laboratório é enviado ao servidor de execução do próprio LogiCup, roda isolado e não é guardado. Nos exercícios de código, só a última resposta enviada fica no progresso, como nos outros exercícios. O programa do Laboratório fica salvo apenas no seu navegador;",
                         "para alunos: as conquistas desbloqueadas (qual conquista, o nível, a data e se o aviso de conquista nova já foi exibido), o saldo de gemas e os avatares comprados com gemas (qual avatar, quantas gemas custou e a data);",
                         "se a conta for bloqueada pela equipe: a data do bloqueio;",
+                        "a data da última troca de senha, usada para encerrar as sessões abertas em outros aparelhos;",
                         "registro de aceite: qual documento (Termos ou Política), qual versão e a data e a hora do aceite;",
                         "se você entrar em uma turma: a turma, a situação da matrícula (ativa, saiu ou removida pelo professor), quando entrou e quando a situação mudou;",
                         "para professores: as turmas criadas (nome, código de convite e data de criação) e as tarefas atribuídas (rodada e prazo).",
@@ -149,11 +155,30 @@ export const privacidade = {
         {
             titulo: "Bases legais",
             blocos: [
-                "A Lei Geral de Proteção de Dados Pessoais prevê diferentes hipóteses legais para o tratamento de " +
-                "dados. A hipótese adequada para cada finalidade está sendo avaliada pela equipe e será indicada na " +
-                "versão definitiva desta Política.",
-                "O consentimento não é usado como base para todas as operações. Se alguma finalidade depender de " +
+                "A Lei Geral de Proteção de Dados Pessoais (art. 7º) só permite tratar dados pessoais com uma base " +
+                "legal. As bases usadas no LogiCup são estas:",
+                {
+                    tabela: {
+                        colunas: ["Finalidade", "Base legal (LGPD)", "Por quê"],
+                        linhas: [
+                            ["Criar e administrar a conta, confirmar o e-mail, entrar (também pelo Google), enviar os e-mails da conta e excluí-la quando você pedir",
+                             "Execução de contrato (art. 7º, V)", "É o necessário para oferecer o serviço descrito nos Termos de Uso, que você aceita ao criar a conta"],
+                            ["Trilha, exercícios, correção, feedback, XP, sequência de estudo, nivelamento, conquistas, gemas, avatares e ranking",
+                             "Execução de contrato (art. 7º, V)", "São as próprias funcionalidades da plataforma"],
+                            ["Turmas: o professor acompanhar os alunos da turma dele e atribuir tarefas",
+                             "Execução de contrato (art. 7º, V)", "Só acontece quando você entra na turma com o código do professor"],
+                            ["Registrar qual versão dos Termos e desta Política você aceitou",
+                             "Exercício regular de direitos (art. 7º, VI)", "Serve para comprovar o aceite, se isso for questionado"],
+                            ["Segurança: limitar tentativas de login, encerrar sessões depois de trocar a senha, bloquear contas em caso de abuso, registros técnicos e cópias de segurança",
+                             "Legítimo interesse (art. 7º, IX)", "Proteger as contas e a plataforma; usamos só o mínimo necessário e não usamos esses dados para outra coisa"],
+                            ["Administrar os conteúdos da plataforma",
+                             "Legítimo interesse (art. 7º, IX)", "Manter o conteúdo correto; os registros guardam só quem fez cada alteração"],
+                        ],
+                    },
+                },
+                "O LogiCup não usa o consentimento como base legal hoje. Se alguma finalidade nova depender de " +
                 "consentimento, ele será pedido de forma livre, informada e específica, e você poderá retirá-lo.",
+                "Nenhum dado pessoal sensível (como saúde, religião ou origem racial) é pedido ou tratado.",
             ],
         },
         {
@@ -171,6 +196,7 @@ export const privacidade = {
                             ["Progresso (XP, fase atual, respostas, tentativas)", "Oferecer os exercícios e acompanhar a aprendizagem", "Enquanto a conta existir"],
                             ["Resultado do nivelamento (acertos e fases liberadas, sem as respostas)", "Liberar as fases que você já domina", "Enquanto a conta existir"],
                             ["Bloqueio da conta (data)", "Impedir a entrada em caso de abuso, fraude ou risco à segurança", "Até o desbloqueio ou a exclusão da conta"],
+                            ["Data da última troca de senha", "Encerrar as sessões abertas em outros aparelhos", "Enquanto a conta existir"],
                             ["Conquistas, gemas e avatares", "Gamificação: medalhas, saldo de gemas e loja de avatares", "Enquanto a conta existir"],
                             ["Turma (matrícula e tarefas)", "Acompanhamento pelo professor e ranking da turma", "Enquanto a turma existir; excluir a turma apaga as matrículas e as tarefas, mas não o seu progresso"],
                             ["Registros de aceite", "Comprovar a versão aceita e a data", "Enquanto a conta existir"],
@@ -268,9 +294,11 @@ export const privacidade = {
         {
             titulo: "Crianças e adolescentes",
             blocos: [
-                "O LogiCup não pede data de nascimento e não verifica a idade de quem se cadastra. A faixa etária " +
-                "pretendida e eventuais medidas adicionais para menores de 18 anos serão definidas pela equipe antes " +
-                "da publicação definitiva.",
+                "O LogiCup é pensado para estudantes universitários que estão começando em programação. A plataforma " +
+                "não pede a data de nascimento e trata apenas os dados descritos nesta Política, sem publicidade, " +
+                "sem venda de dados e sem rastreamento.",
+                "Se você é pai, mãe ou responsável e acredita que uma criança criou uma conta, escreva para " +
+                "contato@logicup.dev.br: a conta e os dados ligados a ela serão excluídos.",
             ],
         },
         {

@@ -119,7 +119,7 @@ export const Linha = styled.li`
 
   .xp {
     font-weight: 900;
-    color: var(--orange);
+    color: var(--orange-texto);
     min-width: 80px;
     text-align: right;
   }
@@ -154,7 +154,7 @@ export const Aviso = styled.div`
   padding: 18px 12px;
 
   &.error {
-    color: var(--orange);
+    color: var(--orange-texto);
     font-weight: 700;
   }
 

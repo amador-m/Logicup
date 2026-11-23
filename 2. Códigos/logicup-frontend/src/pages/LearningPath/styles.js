@@ -101,7 +101,7 @@ export const StatCard = styled.div`
   strong {
     display: block;
     font-size: 24px;
-    color: var(--orange);
+    color: var(--orange-texto);
   }
 
   span {
@@ -146,7 +146,7 @@ export const StatusMessage = styled.div`
   padding: 40px 12px;
 
   &.error p {
-    color: var(--orange);
+    color: var(--orange-texto);
     margin-bottom: 18px;
   }
 
@@ -385,7 +385,7 @@ export const Rotulo = styled.div`
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: var(--orange);
+    color: var(--orange-texto);
   }
 
   h2 {

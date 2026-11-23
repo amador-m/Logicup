@@ -21,7 +21,7 @@ export const Resumo = styled.div`
   strong {
     display: block;
     font-size: 24px;
-    color: var(--orange);
+    color: var(--orange-texto);
   }
 
   span {
@@ -105,7 +105,7 @@ const cabecalhoDaFase = `
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: var(--orange);
+    color: var(--orange-texto);
   }
 
   h3 {
@@ -298,7 +298,7 @@ export const Questao = styled.li`
 
   .codigo {
     font-weight: 900;
-    color: var(--orange);
+    color: var(--orange-texto);
     font-size: 13px;
   }
 

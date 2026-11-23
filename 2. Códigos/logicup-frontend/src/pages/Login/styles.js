@@ -186,14 +186,14 @@ export const Button = styled.button`
 
 /* mensagem de erro geral do formulário (ex.: "E-mail ou senha inválidos.") */
 export const ErrorMessage = styled.p`
-  color: var(--orange);
+  color: var(--orange-texto);
   font-weight: 600;
   font-size: 14px;
 `;
 
 /* mensagem de erro de um campo específico, embaixo do input */
 export const FieldError = styled.span`
-  color: var(--orange);
+  color: var(--orange-texto);
   font-size: 13px;
   font-weight: 500;
 `;

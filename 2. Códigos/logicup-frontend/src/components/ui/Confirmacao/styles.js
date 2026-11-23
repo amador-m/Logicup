@@ -82,8 +82,8 @@ export const BotaoCancelar = styled(Botao)`
 `;
 
 export const BotaoConfirmar = styled(Botao)`
-  background: var(--orange);
-  border: 2px solid var(--orange);
+  background: var(--orange-texto);
+  border: 2px solid var(--orange-texto);
   color: var(--white);
 
   &:hover:not(:disabled) {
@@ -94,7 +94,7 @@ export const BotaoConfirmar = styled(Botao)`
 
 export const Erro = styled.p`
   margin-top: 12px;
-  color: var(--orange);
+  color: var(--orange-texto);
   font-weight: 700;
   font-size: 14px;
 `;

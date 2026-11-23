@@ -15,4 +15,4 @@ export const VERSAO_PRIVACIDADE = "0.6";
 export const VERSAO_COOKIES = "0.2";
 
 /** Data da última atualização dos textos (aparece no topo de cada documento). */
-export const ATUALIZADO_EM = "17 de novembro de 2026";
+export const ATUALIZADO_EM = "23 de novembro de 2026";

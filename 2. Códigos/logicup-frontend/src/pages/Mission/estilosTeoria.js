@@ -35,7 +35,7 @@ export const Cabecalho = styled.div`
     place-items: center;
     background: var(--white);
     border: 2px solid var(--orange);
-    color: var(--orange);
+    color: var(--orange-texto);
     font-weight: 800;
     font-size: 14px;
     transition: 0.2s;
@@ -43,7 +43,7 @@ export const Cabecalho = styled.div`
 
   nav a:hover,
   nav a:focus-visible {
-    background: var(--orange);
+    background: var(--orange-texto);
     color: var(--white);
   }
 `;
@@ -73,7 +73,7 @@ export const Secao = styled.section`
     border-radius: 12px;
     display: grid;
     place-items: center;
-    background: var(--orange);
+    background: var(--orange-texto);
     color: var(--white);
     font-size: 17px;
   }
@@ -183,7 +183,7 @@ export const Balao = styled.aside`
   }
 
   &.alerta strong {
-    color: var(--orange);
+    color: var(--orange-texto);
   }
 
   @media (max-width: 600px) {

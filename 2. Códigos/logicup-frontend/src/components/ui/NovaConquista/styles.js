@@ -68,7 +68,7 @@ export const Faixa = styled.span`
   display: inline-block;
   padding: 6px 16px;
   border-radius: 999px;
-  background: var(--orange);
+  background: var(--orange-texto);
   color: var(--white);
   font-size: 13px;
   font-weight: 900;

@@ -278,7 +278,7 @@ export const RegisterButton = styled.button`
   cursor: pointer;
 
   &:hover {
-    background-color: var(--orange);
+    background-color: var(--orange-texto);
     color: var(--white);
   }
 `;

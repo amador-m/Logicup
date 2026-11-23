@@ -91,7 +91,7 @@ export const Formulario = styled.form`
 
 export const ErroCampo = styled.p`
   margin-top: 8px;
-  color: var(--orange);
+  color: var(--orange-texto);
   font-weight: 700;
   font-size: 14px;
 `;
@@ -211,12 +211,12 @@ export const BotaoPequeno = styled.button`
   }
 
   &.perigo {
-    border-color: var(--orange);
-    color: var(--orange);
+    border-color: var(--orange-texto);
+    color: var(--orange-texto);
   }
 
   &.perigo:hover:not(:disabled) {
-    background: var(--orange);
+    background: var(--orange-texto);
     color: var(--white);
   }
 `;
@@ -372,7 +372,7 @@ export const Selo = styled.span`
   }
 
   &.atrasada {
-    background: var(--orange);
+    background: var(--orange-texto);
     color: var(--white);
   }
 `;

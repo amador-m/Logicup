@@ -51,7 +51,7 @@ export const BotaoLoja = styled.button`
   box-shadow: 0 4px 0 #b07f05;
 
   &:hover {
-    background: var(--orange);
+    background: var(--orange-texto);
     color: var(--white);
     box-shadow: 0 4px 0 #a83a1b;
   }

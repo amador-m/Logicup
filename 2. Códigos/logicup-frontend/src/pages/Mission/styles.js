@@ -25,7 +25,7 @@ export const CardHeader = styled.div`
   margin-bottom: 28px;
 
   span {
-    color: var(--orange);
+    color: var(--orange-texto);
     font-weight: 900;
     text-transform: uppercase;
     font-size: 13px;
@@ -158,8 +158,8 @@ export const FeedbackBox = styled.div`
 
   &.error {
     background: rgba(227, 92, 51, 0.14);
-    color: var(--orange);
-    border: 2px solid var(--orange);
+    color: var(--orange-texto);
+    border: 2px solid var(--orange-texto);
   }
 `;
 
@@ -303,7 +303,7 @@ export const TheoryCard = styled.article`
   }
 
   > span {
-    color: var(--orange);
+    color: var(--orange-texto);
     font-weight: 900;
     text-transform: uppercase;
     font-size: 13px;
@@ -407,7 +407,7 @@ export const ExerciseItem = styled.div`
     }
 
   h3 {
-    color: var(--orange);
+    color: var(--orange-texto);
     margin-bottom: 8px;
   }
 
@@ -780,7 +780,7 @@ export const StatusMessage = styled.div`
   line-height: 1.6;
 
   &.error {
-    color: var(--orange);
+    color: var(--orange-texto);
   }
 `;
 
@@ -959,7 +959,7 @@ export const QuestionFeedback = styled.div`
   }
 
   &.error .verdict {
-    color: var(--orange);
+    color: var(--orange-texto);
   }
 
   .verdict span {
@@ -988,7 +988,7 @@ export const QuestionFeedback = styled.div`
 
   .retry {
     font-weight: 700;
-    color: var(--orange);
+    color: var(--orange-texto);
   }
 
   .note {
@@ -1053,7 +1053,7 @@ export const SummaryStats = styled.div`
   strong {
     display: block;
     font-size: 26px;
-    color: var(--orange);
+    color: var(--orange-texto);
   }
 
   span {
@@ -1137,8 +1137,8 @@ export const PontoQuestao = styled.li`
   }
 
   &.errada {
-    background: var(--orange);
-    border-color: var(--orange);
+    background: var(--orange-texto);
+    border-color: var(--orange-texto);
   }
 
   &.atual {
@@ -1299,7 +1299,7 @@ export const Celebracao = styled.section`
   > span {
     display: block;
     margin-top: 6px;
-    color: var(--orange);
+    color: var(--orange-texto);
     font-weight: 900;
     font-size: 13px;
     text-transform: uppercase;
@@ -1339,7 +1339,7 @@ export const LinkButton = styled.button`
   padding: 6px 2px;
 
   &:hover {
-    color: var(--orange);
+    color: var(--orange-texto);
   }
 `;
 

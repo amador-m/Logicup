@@ -57,7 +57,7 @@ export const Situacao = styled.p`
 
   &.erro {
     background: rgba(227, 92, 51, 0.1);
-    color: var(--orange);
+    color: var(--orange-texto);
   }
 
   small {

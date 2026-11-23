@@ -3,13 +3,14 @@ import { VERSAO_TERMOS, ATUALIZADO_EM } from "./versoes";
 /*
  * Sprint 8: Termos de Uso, versão preliminar 0.1.
  * Base: minuta da Luciana (21/10/2026), com as lacunas preenchidas a partir do que o sistema FAZ hoje.
- * Pontos ainda sem definição (responsável jurídico, canal de contato, prazos) ficam genéricos de propósito.
+ * (Os pontos que ficaram genéricos na v0.1 foram definidos nas versões seguintes.)
  *
  * v0.3 (Sprint 9): conquistas, gemas (moeda virtual, sem valor em dinheiro) e loja de avatares.
  * v0.4 (Sprint 10): confirmação de e-mail obrigatória, recuperação de senha e canal de contato.
  * v0.5 (Sprint 10): entrar com o Google e exclusão da conta pelo próprio perfil (também pela janela de aceite).
  * v0.6 (Sprint 11): teste de nivelamento, bloqueio de conta pelo administrador, "fase atual" no lugar de
- *   "nível" (é o nome que as telas usam) e o aviso de que o perfil de professor não é verificado.
+ *   "nível" (é o nome que as telas usam), o aviso de que o perfil de professor não é verificado, a responsável
+ *   pela disponibilização (controladora, na Política) e o encerramento das outras sessões ao trocar a senha.
  *
  * Formato de cada bloco: texto = parágrafo; { lista: [...] } = lista; { tabela: {...} } = tabela.
  */
@@ -30,8 +31,8 @@ export const termos = {
                 "atividades interativas e recursos de gamificação.",
                 "O projeto é desenvolvido por uma equipe acadêmica. Sua disponibilização não implica, por si só, " +
                 "a constituição de uma empresa ou a existência de uma pessoa jurídica responsável pela operação.",
-                "Responsável pela disponibilização: equipe do projeto LogiCup. Canal oficial de contato: " +
-                "contato@logicup.dev.br.",
+                "Responsável pela disponibilização: Maria Eduarda Amador Mota, integrante da equipe do projeto. " +
+                "Canal oficial de contato: contato@logicup.dev.br.",
             ],
         },
         {
@@ -82,7 +83,7 @@ export const termos = {
                 "Você é responsável por:",
                 {
                     lista: [
-                        "manter sua senha em sigilo;",
+                        "manter sua senha em sigilo (se trocar ou redefinir a senha, as sessões abertas em outros aparelhos são encerradas);",
                         "não compartilhar sua conta de forma que comprometa a segurança dela ou da plataforma;",
                         "avisar a equipe se suspeitar de uso não autorizado da sua conta;",
                         "manter atualizados os dados que você pode editar no perfil;",

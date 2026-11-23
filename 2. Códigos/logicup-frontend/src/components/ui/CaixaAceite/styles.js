@@ -50,7 +50,7 @@ export const Rotulo = styled.label`
 export const Erro = styled.p`
   margin-top: 6px;
   margin-left: 32px;
-  color: var(--orange);
+  color: var(--orange-texto);
   font-size: 13px;
   font-weight: 600;
 `;

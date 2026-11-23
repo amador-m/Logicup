@@ -90,7 +90,7 @@ export const BotaoEntendi = styled.button`
   cursor: pointer;
 
   &:hover {
-    background: var(--orange);
+    background: var(--orange-texto);
     color: var(--cream);
   }
 

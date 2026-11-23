@@ -46,7 +46,7 @@ export const BotaoFechar = styled.button`
   z-index: 5;
 
   &:hover {
-    background: var(--orange);
+    background: var(--orange-texto);
   }
 
   &:focus-visible {

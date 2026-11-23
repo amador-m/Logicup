@@ -64,7 +64,7 @@ export const Mascote = styled.img`
 
 export const Mensagem = styled.p`
   margin-top: 12px;
-  color: var(--orange);
+  color: var(--orange-texto);
   font-size: 14px;
   font-weight: 600;
 `;
@@ -135,7 +135,7 @@ export const LinkExcluir = styled.button`
   padding: 4px 8px;
   border: none;
   background: none;
-  color: var(--orange);
+  color: var(--orange-texto);
   font-size: 14px;
   font-weight: 700;
   text-decoration: underline;
@@ -175,7 +175,7 @@ export const CampoSenha = styled.label`
 `;
 
 export const BotaoExcluir = styled(BotaoAceitar)`
-  background: var(--orange);
+  background: var(--orange-texto);
 `;
 
 export const Sucesso = styled.p`

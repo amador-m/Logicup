@@ -12,6 +12,10 @@ export default createGlobalStyle`
     :root {
         --yellow: #ecac0c;
         --orange: #e35c33;
+        /* Sprint 11 (acessibilidade): o laranja da marca com texto branco tem contraste 3,6:1, abaixo dos 4,5:1
+           da WCAG AA para texto comum. Este tom mais escuro (5,5:1 com branco e 4,8:1 sobre o creme) vai onde há
+           TEXTO: botões, mensagens de erro, números. O --orange continua nas decorações e sobre fundo escuro. */
+        --orange-texto: #b8401c;
         --cream: #f1f0e2;
         --dark: #040423;
         --green: #288078;

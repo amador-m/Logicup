@@ -37,7 +37,7 @@ export const BotaoTrocarAvatar = styled.button`
   box-shadow: 0 4px 0 #b07f05;
 
   &:hover {
-    background: var(--orange);
+    background: var(--orange-texto);
     color: var(--white);
     box-shadow: 0 4px 0 #a83a1b;
   }
@@ -196,7 +196,7 @@ export const LinhaFase = styled.li`
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: var(--orange);
+    color: var(--orange-texto);
   }
 
   h3 {
@@ -345,16 +345,16 @@ export const BotaoExcluir = styled.button`
   margin-top: 20px;
   padding: 13px 22px;
   border-radius: 14px;
-  border: 2px solid var(--orange);
+  border: 2px solid var(--orange-texto);
   background: transparent;
-  color: var(--orange);
+  color: var(--orange-texto);
   font-size: 15px;
   font-weight: 800;
   cursor: pointer;
   transition: background-color 0.15s ease, color 0.15s ease;
 
   &:hover:not(:disabled) {
-    background: var(--orange);
+    background: var(--orange-texto);
     color: var(--white);
   }
 

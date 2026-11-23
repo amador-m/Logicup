@@ -1,6 +1,9 @@
 package br.com.logicup.backend.repository;
 
 import br.com.logicup.backend.model.Usuario;
+import br.com.logicup.backend.model.TipoUsuario;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -23,6 +26,28 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> { // 
     boolean existsByUsername(String username);
 
     Optional<Usuario> findByUsername(String username);
+
+    /**
+     * Sprint 11: o filtro de conta bloqueada pergunta isto a cada requisição autenticada.
+     * É uma consulta pela chave primária (rápida) que devolve só sim/não, sem carregar a entidade.
+     */
+    @Query("SELECT COUNT(u) > 0 FROM Usuario u WHERE u.id = :id AND u.bloqueadoEm IS NOT NULL")
+    boolean estaBloqueado(@Param("id") Integer id);
+
+    /**
+     * Sprint 11 (admin): lista de usuários com busca por nome, nome de usuário ou e-mail (sem diferenciar
+     * maiúsculas) e filtro opcional por perfil. Os parâmetros nulos significam "sem filtro".
+     * Pageable: o banco devolve só uma página (LIMIT/OFFSET), e não a tabela inteira.
+     */
+    @Query("""
+            SELECT u FROM Usuario u
+             WHERE (:tipo IS NULL OR u.tipoUsuario = :tipo)
+               AND (:busca IS NULL
+                    OR LOWER(u.nome) LIKE :busca
+                    OR LOWER(u.username) LIKE :busca
+                    OR LOWER(u.email) LIKE :busca)
+            """)
+    Page<Usuario> buscarParaAdmin(@Param("busca") String busca, @Param("tipo") TipoUsuario tipo, Pageable pagina);
 
     /**
      * Sprint 10 (exclusão de conta): apaga a linha de usuario direto no banco (SQL nativo). O MySQL apaga o

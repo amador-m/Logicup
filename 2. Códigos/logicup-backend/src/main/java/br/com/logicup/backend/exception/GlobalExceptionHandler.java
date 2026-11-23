@@ -12,6 +12,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.LinkedHashMap;
@@ -44,6 +45,13 @@ public class GlobalExceptionHandler {
                 "O corpo da requisição está ausente ou com formato inválido."));
     }
 
+    // Sprint 11: parâmetro da URL com tipo errado (ex.: ?perfil=XYZ ou ?pagina=abc) -> 400, e não 500
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErroResponse> parametroInvalido(MethodArgumentTypeMismatchException ex) {
+        return resposta(HttpStatus.BAD_REQUEST, new ErroResponse(400, "Requisição inválida",
+                "O parâmetro \"" + ex.getName() + "\" tem um valor inválido."));
+    }
+
     // Sprint 7: 409 com o erro NO CAMPO, para o formulário mostrar a mensagem embaixo do username
     @ExceptionHandler(UsernameEmUsoException.class)
     public ResponseEntity<ErroResponse> usernameEmUso(UsernameEmUsoException ex) {
@@ -72,7 +80,7 @@ public class GlobalExceptionHandler {
     }
 
     // Sprint 9: turmas
-    @ExceptionHandler({AlunoJaTemTurmaException.class, TarefaJaAtribuidaException.class,
+    @ExceptionHandler({AlunoJaEstaNaTurmaException.class, TarefaJaAtribuidaException.class,
             NivelamentoJaRealizadoException.class}) // Sprint 11
     public ResponseEntity<ErroResponse> conflitoTurma(RuntimeException ex) {
         return resposta(HttpStatus.CONFLICT, new ErroResponse(409, "Conflito", ex.getMessage()));
@@ -99,6 +107,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErroResponse> emailNaoConfirmado(EmailNaoConfirmadoException ex) {
         return resposta(HttpStatus.FORBIDDEN, ErroResponse.comCodigo(403, "E-mail não confirmado", ex.getMessage(),
                 EmailNaoConfirmadoException.CODIGO));
+    }
+
+    // Sprint 11: conta bloqueada pelo administrador -> 403 com código (o login mostra a mensagem)
+    @ExceptionHandler(ContaBloqueadaException.class)
+    public ResponseEntity<ErroResponse> contaBloqueada(ContaBloqueadaException ex) {
+        return resposta(HttpStatus.FORBIDDEN, ErroResponse.comCodigo(403, "Conta bloqueada", ex.getMessage(),
+                ContaBloqueadaException.CODIGO));
     }
 
     // Sprint 10: link de e-mail inexistente, usado ou vencido -> 400 com código (a tela oferece um link novo)

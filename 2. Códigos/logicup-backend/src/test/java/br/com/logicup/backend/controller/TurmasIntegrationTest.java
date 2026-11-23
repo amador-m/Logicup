@@ -163,7 +163,7 @@ class TurmasIntegrationTest {
     }
 
     private ResultActions entrar(Aluno aluno, String codigo) throws Exception {
-        return enviarJson(post("/api/minha-turma"), como(aluno), "{\"codigo\":\"" + codigo + "\"}");
+        return enviarJson(post("/api/minhas-turmas"), como(aluno), "{\"codigo\":\"" + codigo + "\"}");
     }
 
     private String statusMatricula(Aluno aluno, String turmaId) {
@@ -192,7 +192,7 @@ class TurmasIntegrationTest {
     @Test
     void semLoginRecebe401() throws Exception {
         mockMvc.perform(get("/api/turmas")).andExpect(status().isUnauthorized());
-        mockMvc.perform(get("/api/minha-turma")).andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/api/minhas-turmas")).andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -201,9 +201,9 @@ class TurmasIntegrationTest {
         mockMvc.perform(get("/api/turmas").with(como(ana))).andExpect(status().isForbidden());
 
         String[] turma = criarTurma(comoProfessor(), "Turma R1");
-        enviarJson(post("/api/minha-turma"), comoProfessor(), "{\"codigo\":\"" + turma[1] + "\"}")
+        enviarJson(post("/api/minhas-turmas"), comoProfessor(), "{\"codigo\":\"" + turma[1] + "\"}")
                 .andExpect(status().isForbidden());
-        mockMvc.perform(get("/api/minha-turma").with(comoProfessor())).andExpect(status().isForbidden());
+        mockMvc.perform(get("/api/minhas-turmas").with(comoProfessor())).andExpect(status().isForbidden());
     }
 
     // =====================================================================
@@ -304,10 +304,15 @@ class TurmasIntegrationTest {
     // =====================================================================
 
     @Test
-    void alunoSemTurmaRecebe204() throws Exception {
-        mockMvc.perform(get("/api/minha-turma").with(como(ana))).andExpect(status().isNoContent());
-        mockMvc.perform(get("/api/minha-turma/ranking").with(como(ana))).andExpect(status().isNotFound());
-        semCorpo(delete("/api/minha-turma"), como(ana)).andExpect(status().isNotFound());
+    void alunoSemTurmaRecebeListaVazia() throws Exception {
+        mockMvc.perform(get("/api/minhas-turmas").with(como(ana)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+        // turma em que o aluno não está (ou que nem existe): mesmo 404, sem revelar qual é o caso
+        String[] alheia = criarTurma(comoProfessor(), "Turma alheia");
+        mockMvc.perform(get("/api/minhas-turmas/{id}/ranking", alheia[0]).with(como(ana))).andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/minhas-turmas/{id}/ranking", 999_999).with(como(ana))).andExpect(status().isNotFound());
+        semCorpo(delete("/api/minhas-turmas/{id}", alheia[0]), como(ana)).andExpect(status().isNotFound());
     }
 
     @Test
@@ -319,10 +324,11 @@ class TurmasIntegrationTest {
                 .andExpect(jsonPath("$.professor").value("Professora Turma"));
         assertEquals("ATIVO", statusMatricula(ana, turma[0]));
 
-        mockMvc.perform(get("/api/minha-turma").with(como(ana)))
+        mockMvc.perform(get("/api/minhas-turmas").with(como(ana)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.nome").value("Turma R4"))
-                .andExpect(jsonPath("$.tarefas.length()").value(0))
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].nome").value("Turma R4"))
+                .andExpect(jsonPath("$[0].tarefas.length()").value(0))
                 .andExpect(content().string(not(containsString("prof.turma.it@teste.com")))); // o aluno vê só o NOME do professor
     }
 
@@ -333,27 +339,38 @@ class TurmasIntegrationTest {
     }
 
     @Test
-    void alunoComTurmaAtivaNaoEntraEmOutra() throws Exception {
+    void alunoEntraEmVariasTurmasMasNaoDuasVezesNaMesma() throws Exception {
+        // Sprint 11: antes (R5) a segunda turma dava 409; agora o aluno pode estar em várias
         String[] t1 = criarTurma(comoProfessor(), "Turma 1");
         String[] t2 = criarTurma(comoOutroProfessor(), "Turma 2");
         entrar(ana, t1[1]).andExpect(status().isOk());
+        entrar(ana, t2[1]).andExpect(status().isOk()).andExpect(jsonPath("$.nome").value("Turma 2"));
+        entrar(ana, t1[1]).andExpect(status().isConflict()); // na mesma de novo, não
 
-        entrar(ana, t2[1]).andExpect(status().isConflict());
-        entrar(ana, t1[1]).andExpect(status().isConflict()); // nem na mesma de novo
-        Integer emT2 = banco().queryForObject("SELECT COUNT(*) FROM aluno_turma WHERE id_usuario = ? AND id_turma = ?",
-                Integer.class, ana.getId(), Integer.valueOf(t2[0]));
-        assertEquals(0, emT2);
+        mockMvc.perform(get("/api/minhas-turmas").with(como(ana)))
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].nome").value("Turma 1")) // da mais antiga para a mais nova
+                .andExpect(jsonPath("$[1].nome").value("Turma 2"));
+        mockMvc.perform(get("/api/minhas-turmas/{id}/ranking", t2[0]).with(como(ana))).andExpect(status().isOk());
+
+        // sair de uma não mexe na outra
+        semCorpo(delete("/api/minhas-turmas/{id}", t1[0]), como(ana)).andExpect(status().isNoContent());
+        assertEquals("SAIU", statusMatricula(ana, t1[0]));
+        assertEquals("ATIVO", statusMatricula(ana, t2[0]));
+        mockMvc.perform(get("/api/minhas-turmas").with(como(ana)))
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].nome").value("Turma 2"));
     }
 
     @Test
-    void alunoSaiEPodeVoltarOuEntrarEmOutra() throws Exception {
+    void alunoSaiEPodeVoltar() throws Exception {
         String[] t1 = criarTurma(comoProfessor(), "Turma 1");
-        String[] t2 = criarTurma(comoOutroProfessor(), "Turma 2");
         entrar(ana, t1[1]).andExpect(status().isOk());
 
-        semCorpo(delete("/api/minha-turma"), como(ana)).andExpect(status().isNoContent());
+        semCorpo(delete("/api/minhas-turmas/{id}", t1[0]), como(ana)).andExpect(status().isNoContent());
         assertEquals("SAIU", statusMatricula(ana, t1[0]));
-        mockMvc.perform(get("/api/minha-turma").with(como(ana))).andExpect(status().isNoContent());
+        mockMvc.perform(get("/api/minhas-turmas").with(como(ana))).andExpect(jsonPath("$.length()").value(0));
+        semCorpo(delete("/api/minhas-turmas/{id}", t1[0]), como(ana)).andExpect(status().isNotFound()); // já saiu
 
         // volta para a mesma: a MESMA linha volta para ATIVO (não duplica)
         entrar(ana, t1[1]).andExpect(status().isOk());
@@ -361,10 +378,6 @@ class TurmasIntegrationTest {
         Integer linhas = banco().queryForObject("SELECT COUNT(*) FROM aluno_turma WHERE id_usuario = ?",
                 Integer.class, ana.getId());
         assertEquals(1, linhas);
-
-        // sai de novo e entra em outra
-        semCorpo(delete("/api/minha-turma"), como(ana)).andExpect(status().isNoContent());
-        entrar(ana, t2[1]).andExpect(status().isOk()).andExpect(jsonPath("$.nome").value("Turma 2"));
     }
 
     // =====================================================================
@@ -377,7 +390,7 @@ class TurmasIntegrationTest {
         entrar(ana, turma[1]).andExpect(status().isOk());
         entrar(bruno, turma[1]).andExpect(status().isOk());
         aprovarA1(ana);
-        semCorpo(delete("/api/minha-turma"), como(bruno)).andExpect(status().isNoContent()); // Bruno saiu
+        semCorpo(delete("/api/minhas-turmas/{id}", turma[0]), como(bruno)).andExpect(status().isNoContent()); // Bruno saiu
 
         mockMvc.perform(get("/api/turmas/{id}", turma[0]).with(comoProfessor()))
                 .andExpect(status().isOk())
@@ -408,7 +421,7 @@ class TurmasIntegrationTest {
                 .andExpect(status().isNoContent());
         assertEquals("REMOVIDO", statusMatricula(ana, turma[0]));
 
-        mockMvc.perform(get("/api/minha-turma").with(como(ana))).andExpect(status().isNoContent());
+        mockMvc.perform(get("/api/minhas-turmas").with(como(ana))).andExpect(jsonPath("$.length()").value(0));
         entrar(ana, turma[1]).andExpect(status().isForbidden());
         assertEquals("REMOVIDO", statusMatricula(ana, turma[0]));
         mockMvc.perform(get("/api/turmas/{id}", turma[0]).with(comoProfessor()))
@@ -448,7 +461,7 @@ class TurmasIntegrationTest {
         assertEquals(progressoAntes, banco().queryForObject(
                 "SELECT COUNT(*) FROM progresso_exercicio WHERE id_usuario = ?", Integer.class, ana.getId()));
 
-        mockMvc.perform(get("/api/minha-turma").with(como(ana))).andExpect(status().isNoContent());
+        mockMvc.perform(get("/api/minhas-turmas").with(como(ana))).andExpect(jsonPath("$.length()").value(0));
         entrar(ana, turma[1]).andExpect(status().isNotFound());
     }
 
@@ -474,14 +487,14 @@ class TurmasIntegrationTest {
                 .andExpect(jsonPath("$.posicoes[1].posicao").value(2));
 
         // o aluno vê o mesmo ranking, com "voce" marcado e sem e-mail de ninguém
-        mockMvc.perform(get("/api/minha-turma/ranking").with(como(bruno)))
+        mockMvc.perform(get("/api/minhas-turmas/{id}/ranking", turma[0]).with(como(bruno)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.posicoes.length()").value(2))
                 .andExpect(jsonPath("$.posicoes[0].voce").value(false))
                 .andExpect(jsonPath("$.posicoes[1].voce").value(true))
                 .andExpect(content().string(not(containsString("@teste.com"))));
 
-        semCorpo(delete("/api/minha-turma"), como(bruno)).andExpect(status().isNoContent());
+        semCorpo(delete("/api/minhas-turmas/{id}", turma[0]), como(bruno)).andExpect(status().isNoContent());
         mockMvc.perform(get("/api/turmas/{id}/ranking", turma[0]).with(comoProfessor()))
                 .andExpect(jsonPath("$.posicoes.length()").value(1));
     }
@@ -500,20 +513,20 @@ class TurmasIntegrationTest {
         criarTarefa(turma[0], rodadaA2, "null");
 
         // antes: A1 pendente (liberada), A2 bloqueada (R11)
-        mockMvc.perform(get("/api/minha-turma").with(como(ana)))
+        mockMvc.perform(get("/api/minhas-turmas").with(como(ana)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.tarefas.length()").value(2))
-                .andExpect(jsonPath("$.tarefas[?(@.rodadaId == " + rodadaA1.getId() + ")].status").value("PENDENTE"))
-                .andExpect(jsonPath("$.tarefas[?(@.rodadaId == " + rodadaA1.getId() + ")].rodada").value("Rodada A1"))
-                .andExpect(jsonPath("$.tarefas[?(@.rodadaId == " + rodadaA1.getId() + ")].fase").value("Fase de teste A"))
-                .andExpect(jsonPath("$.tarefas[?(@.rodadaId == " + rodadaA1.getId() + ")].atrasada").value(false))
-                .andExpect(jsonPath("$.tarefas[?(@.rodadaId == " + rodadaA2.getId() + ")].status").value("BLOQUEADA"));
+                .andExpect(jsonPath("$[0].tarefas.length()").value(2))
+                .andExpect(jsonPath("$[0].tarefas[?(@.rodadaId == " + rodadaA1.getId() + ")].status").value("PENDENTE"))
+                .andExpect(jsonPath("$[0].tarefas[?(@.rodadaId == " + rodadaA1.getId() + ")].rodada").value("Rodada A1"))
+                .andExpect(jsonPath("$[0].tarefas[?(@.rodadaId == " + rodadaA1.getId() + ")].fase").value("Fase de teste A"))
+                .andExpect(jsonPath("$[0].tarefas[?(@.rodadaId == " + rodadaA1.getId() + ")].atrasada").value(false))
+                .andExpect(jsonPath("$[0].tarefas[?(@.rodadaId == " + rodadaA2.getId() + ")].status").value("BLOQUEADA"));
 
         aprovarA1(ana);
 
-        mockMvc.perform(get("/api/minha-turma").with(como(ana)))
-                .andExpect(jsonPath("$.tarefas[?(@.rodadaId == " + rodadaA1.getId() + ")].status").value("CONCLUIDA"))
-                .andExpect(jsonPath("$.tarefas[?(@.rodadaId == " + rodadaA2.getId() + ")].status").value("PENDENTE"));
+        mockMvc.perform(get("/api/minhas-turmas").with(como(ana)))
+                .andExpect(jsonPath("$[0].tarefas[?(@.rodadaId == " + rodadaA1.getId() + ")].status").value("CONCLUIDA"))
+                .andExpect(jsonPath("$[0].tarefas[?(@.rodadaId == " + rodadaA2.getId() + ")].status").value("PENDENTE"));
 
         mockMvc.perform(get("/api/turmas/{id}", turma[0]).with(comoProfessor()))
                 .andExpect(jsonPath("$.tarefas.length()").value(2))
@@ -549,14 +562,14 @@ class TurmasIntegrationTest {
         banco().update("INSERT INTO tarefa (id_turma, id_rodada, prazo) VALUES (?, ?, ?)",
                 Integer.valueOf(turma[0]), rodadaA1.getId(), java.sql.Date.valueOf(LocalDate.now(ClockConfig.FUSO_LOGICUP).minusDays(2)));
 
-        mockMvc.perform(get("/api/minha-turma").with(como(ana)))
-                .andExpect(jsonPath("$.tarefas[0].status").value("PENDENTE"))
-                .andExpect(jsonPath("$.tarefas[0].atrasada").value(true));
+        mockMvc.perform(get("/api/minhas-turmas").with(como(ana)))
+                .andExpect(jsonPath("$[0].tarefas[0].status").value("PENDENTE"))
+                .andExpect(jsonPath("$[0].tarefas[0].atrasada").value(true));
 
         aprovarA1(ana); // R12: depois do prazo ainda dá para fazer; concluída deixa de ser "atrasada"
-        mockMvc.perform(get("/api/minha-turma").with(como(ana)))
-                .andExpect(jsonPath("$.tarefas[0].status").value("CONCLUIDA"))
-                .andExpect(jsonPath("$.tarefas[0].atrasada").value(false));
+        mockMvc.perform(get("/api/minhas-turmas").with(como(ana)))
+                .andExpect(jsonPath("$[0].tarefas[0].status").value("CONCLUIDA"))
+                .andExpect(jsonPath("$[0].tarefas[0].atrasada").value(false));
     }
 
     @Test
@@ -574,7 +587,7 @@ class TurmasIntegrationTest {
         assertEquals(1, banco().queryForObject(
                 "SELECT COUNT(*) FROM progresso_exercicio WHERE id_usuario = ? AND status = 'CONCLUIDO'",
                 Integer.class, ana.getId()));
-        mockMvc.perform(get("/api/minha-turma").with(como(ana))).andExpect(jsonPath("$.tarefas.length()").value(0));
+        mockMvc.perform(get("/api/minhas-turmas").with(como(ana))).andExpect(jsonPath("$[0].tarefas.length()").value(0));
     }
 
     @Test

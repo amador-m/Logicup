@@ -1,6 +1,8 @@
 package br.com.logicup.backend.config;
 
+import br.com.logicup.backend.repository.UsuarioRepository;
 import br.com.logicup.backend.security.AceitePendenteFilter;
+import br.com.logicup.backend.security.ContaBloqueadaFilter;
 import br.com.logicup.backend.security.CookieTokenResolver;
 import br.com.logicup.backend.security.CsrfRotasAutenticadasFilter;
 import br.com.logicup.backend.security.JsonAccessDeniedHandler;
@@ -63,7 +65,8 @@ public class SecurityConfig {
                                                    JsonAuthenticationEntryPoint entryPoint,
                                                    JsonAccessDeniedHandler accessDeniedHandler,
                                                    CsrfTokenRepository csrfTokenRepository,
-                                                   RegrasOrigem regrasOrigem) throws Exception {
+                                                   RegrasOrigem regrasOrigem,
+                                                   UsuarioRepository usuarioRepository) throws Exception {
         http
                 // CSRF para SPA: cookie __Host-XSRF-TOKEN (legível pelo React) + cabeçalho X-XSRF-TOKEN nas requisições.
                 // spa() define o handler de SPA; o repositório é o bean abaixo, o MESMO usado pelo
@@ -81,6 +84,9 @@ public class SecurityConfig {
                 // Sprint 8: logado sem o aceite vigente dos Termos/Privacidade -> só /me, logout e aceite.
                 // DEPOIS da autenticação JWT, porque precisa saber quem é (o aceite está dentro do token).
                 .addFilterAfter(new AceitePendenteFilter(), BearerTokenAuthenticationFilter.class)
+
+                // Sprint 11: conta bloqueada pelo admin perde o acesso na hora (mesmo com o token ainda válido)
+                .addFilterAfter(new ContaBloqueadaFilter(usuarioRepository), BearerTokenAuthenticationFilter.class)
 
                 .sessionManagement(sessao -> sessao.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
@@ -103,11 +109,12 @@ public class SecurityConfig {
                         .requestMatchers("/api/ementa", "/api/ementa/**").hasAnyRole("PROFESSOR", "ADMIN")
                         // Sprint 9 (R1): turmas são do PROFESSOR; "minha turma" é do ALUNO (admin fora — decisão A5)
                         .requestMatchers("/api/turmas", "/api/turmas/**").hasRole("PROFESSOR")
-                        .requestMatchers("/api/minha-turma", "/api/minha-turma/**").hasRole("ALUNO")
+                        .requestMatchers("/api/minhas-turmas", "/api/minhas-turmas/**").hasRole("ALUNO")
                         // Sprint 9: conquistas e compra de avatar são do ALUNO (só ele tem progresso e gemas).
                         // O catálogo (GET /api/avatares) e a troca do avatar (PUT /api/perfil/avatar) valem para todos.
                         .requestMatchers("/api/conquistas", "/api/conquistas/**").hasRole("ALUNO")
                         .requestMatchers("/api/nivelamento", "/api/nivelamento/**").hasRole("ALUNO") // Sprint 11
+                        .requestMatchers("/api/admin", "/api/admin/**").hasRole("ADMIN")              // Sprint 11
                         .requestMatchers(HttpMethod.POST, "/api/avatares/*/compra").hasRole("ALUNO")
                         .anyRequest().authenticated()) // todo o resto exige login (AU5)
 

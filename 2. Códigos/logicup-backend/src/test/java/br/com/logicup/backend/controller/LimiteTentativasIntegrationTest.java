@@ -84,7 +84,7 @@ class LimiteTentativasIntegrationTest {
         RequestPostProcessor logado = jwt().jwt(token -> token.subject(String.valueOf(aluno.getId())).claim("role", "ALUNO")
                         .claim(TokenService.CLAIM_ACEITE, VersoesLegais.IDENTIFICADOR))
                 .authorities(new SimpleGrantedAuthority("ROLE_ALUNO"));
-        return mockMvc.perform(post("/api/minha-turma").with(logado).with(csrfValido())
+        return mockMvc.perform(post("/api/minhas-turmas").with(logado).with(csrfValido())
                 .contentType(MediaType.APPLICATION_JSON).content("{\"codigo\":\"" + codigo + "\"}"));
     }
 

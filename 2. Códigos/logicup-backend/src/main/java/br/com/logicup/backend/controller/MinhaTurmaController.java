@@ -11,17 +11,21 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 /**
- * Sprint 9: "Minha turma", o lado do ALUNO. Só ALUNO chega aqui (SecurityConfig, R1).
- * Não há id de turma na URL: a turma é a matrícula ATIVA de quem está no token.
+ * Sprint 9: o lado do ALUNO nas turmas. Só ALUNO chega aqui (SecurityConfig, R1).
+ * Sprint 11: "minha-turma" virou "minhas-turmas", porque o aluno pode estar em várias. O id da turma na URL só
+ * escolhe entre as turmas em que o aluno do TOKEN tem matrícula ativa (o service confere).
  */
 @RestController
-@RequestMapping("/api/minha-turma")
+@RequestMapping("/api/minhas-turmas")
 public class MinhaTurmaController {
 
     private final MinhaTurmaService minhaTurmaService;
@@ -30,12 +34,10 @@ public class MinhaTurmaController {
         this.minhaTurmaService = minhaTurmaService;
     }
 
-    /** 204 = sem turma (o frontend mostra o campo do código). Não é erro, por isso não é 404. */
+    /** Lista vazia = nenhuma turma (a tela mostra o campo do código). */
     @GetMapping
-    public ResponseEntity<MinhaTurmaResponse> buscar(@AuthenticationPrincipal Jwt jwt) {
-        return minhaTurmaService.buscar(aluno(jwt))
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.noContent().build());
+    public List<MinhaTurmaResponse> listar(@AuthenticationPrincipal Jwt jwt) {
+        return minhaTurmaService.listar(aluno(jwt));
     }
 
     @PostMapping
@@ -43,14 +45,14 @@ public class MinhaTurmaController {
         return minhaTurmaService.entrar(aluno(jwt), dados);
     }
 
-    @GetMapping("/ranking")
-    public RankingTurmaResponse ranking(@AuthenticationPrincipal Jwt jwt) {
-        return minhaTurmaService.ranking(aluno(jwt));
+    @GetMapping("/{turmaId}/ranking")
+    public RankingTurmaResponse ranking(@AuthenticationPrincipal Jwt jwt, @PathVariable Integer turmaId) {
+        return minhaTurmaService.ranking(aluno(jwt), turmaId);
     }
 
-    @DeleteMapping
-    public ResponseEntity<Void> sair(@AuthenticationPrincipal Jwt jwt) {
-        minhaTurmaService.sair(aluno(jwt));
+    @DeleteMapping("/{turmaId}")
+    public ResponseEntity<Void> sair(@AuthenticationPrincipal Jwt jwt, @PathVariable Integer turmaId) {
+        minhaTurmaService.sair(aluno(jwt), turmaId);
         return ResponseEntity.noContent().build();
     }
 

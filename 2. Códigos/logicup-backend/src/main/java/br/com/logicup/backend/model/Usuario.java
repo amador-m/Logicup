@@ -57,6 +57,10 @@ public class Usuario {
     @Column(name = "google_id", unique = true)
     private String googleId;
 
+    // Sprint 11: bloqueada pelo administrador (NULL = ativa). Nada é apagado; desbloquear devolve o acesso.
+    @Column(name = "bloqueado_em")
+    private LocalDateTime bloqueadoEm;
+
     public Usuario() {} // exigência do hibernate ter um construtor sem argumentos pra instanciar internamente
 
     public Usuario(String nome, String username, String email, String senha, TipoUsuario tipoUsuario) {
@@ -127,6 +131,23 @@ public class Usuario {
      */
     public void descartarSenha() {
         this.senha = null;
+    }
+
+    // ---------- Sprint 11: bloqueio pelo administrador ----------
+
+    public boolean isBloqueado() { return bloqueadoEm != null; }
+
+    public LocalDateTime getBloqueadoEm() { return bloqueadoEm; }
+
+    /** Bloqueia guardando QUANDO. Bloquear de novo não muda a data original. */
+    public void bloquear(LocalDateTime quando) {
+        if (this.bloqueadoEm == null) {
+            this.bloqueadoEm = quando;
+        }
+    }
+
+    public void desbloquear() {
+        this.bloqueadoEm = null;
     }
 
     public void trocarAvatar(Avatar novo) {

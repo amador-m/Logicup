@@ -1,5 +1,6 @@
 package br.com.logicup.backend.google;
 
+import br.com.logicup.backend.exception.ContaBloqueadaException;
 import br.com.logicup.backend.security.CookiesLegados;
 import br.com.logicup.backend.security.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -123,6 +124,8 @@ public class GoogleLoginConfig {
                 }
             } catch (LoginGoogleRecusadoException e) {
                 redirecionar(response, "/login?erro=google_" + e.getMotivo().name().toLowerCase(Locale.ROOT));
+            } catch (ContaBloqueadaException e) { // Sprint 11
+                redirecionar(response, "/login?erro=conta_bloqueada");
             }
         };
     }

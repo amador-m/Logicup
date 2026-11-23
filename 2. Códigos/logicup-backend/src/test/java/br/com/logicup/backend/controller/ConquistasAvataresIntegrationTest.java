@@ -289,7 +289,7 @@ class ConquistasAvataresIntegrationTest {
                 .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
         String codigo = JsonPath.read(corpo, "$.codigo");
 
-        enviarJson(post("/api/minha-turma"), como(ana), "{\"codigo\":\"" + codigo + "\"}").andExpect(status().isOk());
+        enviarJson(post("/api/minhas-turmas"), como(ana), "{\"codigo\":\"" + codigo + "\"}").andExpect(status().isOk());
 
         assertEquals(List.of("TURMA:UNICA"), medalhasNoBanco(ana));
         assertEquals(15, gemasNoBanco(ana));
@@ -477,10 +477,10 @@ class ConquistasAvataresIntegrationTest {
         String corpo = enviarJson(post("/api/turmas"), comoProfessor(), "{\"nome\":\"Turma do avatar\"}")
                 .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
         Integer turmaId = JsonPath.read(corpo, "$.id");
-        enviarJson(post("/api/minha-turma"), como(ana), "{\"codigo\":\"" + JsonPath.read(corpo, "$.codigo") + "\"}")
+        enviarJson(post("/api/minhas-turmas"), como(ana), "{\"codigo\":\"" + JsonPath.read(corpo, "$.codigo") + "\"}")
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get("/api/minha-turma/ranking").with(como(ana)))
+        mockMvc.perform(get("/api/minhas-turmas/{id}/ranking", turmaId).with(como(ana)))
                 .andExpect(jsonPath("$.posicoes[0].avatar").value("GATO_ESCURO"));
         mockMvc.perform(get("/api/turmas/{id}", turmaId).with(comoProfessor()))
                 .andExpect(jsonPath("$.alunos[0].avatar").value("GATO_ESCURO"));
